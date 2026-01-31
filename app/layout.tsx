@@ -4,6 +4,7 @@ import './globals.css'
 import { createClient } from '@/lib/supabase/server'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 import Navbar from '@/components/Navbar'
+import Footer from '@/components/layout/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -23,10 +24,11 @@ export default async function RootLayout({
 
   return (
     <html lang="ko">
-      <body className={`${inter.className} bg-[#F3F2EF] text-slate-900`}>
+      <body className={`${inter.className} bg-[#F3F2EF] text-slate-900 min-h-screen flex flex-col`}>
         <AuthProvider initialSession={session}>
           <Navbar user={user} />
-          {children}
+          <div className="flex-1">{children}</div>
+          <Footer />
         </AuthProvider>
       </body>
     </html>
