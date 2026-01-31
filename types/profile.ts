@@ -9,6 +9,8 @@ export interface Profile {
   background_url?: string | null
   bio: string | null
   value_philosophy: string | null
+  /** 작업실 위치 (예: 서울 성수동) */
+  studio_location?: string | null
   role: ProfileRole
   is_artist_pending: boolean
   updated_at?: string

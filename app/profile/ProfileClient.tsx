@@ -37,6 +37,7 @@ function defaultProfile(uid: string): Profile {
     background_url: null,
     bio: null,
     value_philosophy: null,
+    studio_location: null,
     role: 'user',
     is_artist_pending: false,
   }

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Camera, User, Pencil } from 'lucide-react'
+import { Camera, User, Pencil, MapPin } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import toast from 'react-hot-toast'
@@ -35,6 +35,9 @@ export default function ProfileHeader({
   const [valuePhilosophy, setValuePhilosophy] = useState(
     profile?.value_philosophy ?? ''
   )
+  const [studioLocation, setStudioLocation] = useState(
+    profile?.studio_location ?? ''
+  )
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
@@ -46,7 +49,8 @@ export default function ProfileHeader({
     setFullName(profile?.full_name ?? '')
     setBio(profile?.bio ?? '')
     setValuePhilosophy(profile?.value_philosophy ?? '')
-  }, [profile?.full_name, profile?.bio, profile?.value_philosophy])
+    setStudioLocation(profile?.studio_location ?? '')
+  }, [profile?.full_name, profile?.bio, profile?.value_philosophy, profile?.studio_location])
 
   // 이웃(팔로우) 상태 조회
   useEffect(() => {
@@ -174,6 +178,7 @@ export default function ProfileHeader({
           full_name: fullName.trim() || null,
           bio: bio.trim() || null,
           value_philosophy: valuePhilosophy.trim() || null,
+          studio_location: studioLocation.trim() || null,
         })
         .eq('id', profile.id)
       if (error) {
@@ -187,10 +192,12 @@ export default function ProfileHeader({
         full_name: fullName.trim() || null,
         bio: bio.trim() || null,
         value_philosophy: valuePhilosophy.trim() || null,
+        studio_location: studioLocation.trim() || null,
       }
       setFullName(updated.full_name ?? '')
       setBio(updated.bio ?? '')
       setValuePhilosophy(updated.value_philosophy ?? '')
+      setStudioLocation(updated.studio_location ?? '')
       onUpdate(updated)
       toast.success('저장되었습니다!')
       setEditing(false)
@@ -311,14 +318,14 @@ export default function ProfileHeader({
         </div>
       </div>
 
-      {/* 3. 흰색 프로필 정보 섹션: 이름, 직업, 소개, 버튼 */}
-      <CardContent className="bg-white pt-14 sm:pt-16 pb-6 sm:pb-8 px-4 sm:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-          {/* 데스크톱에서 아바타 공간 확보용 spacer (아바타가 absolute라서) */}
+      {/* 3. 흰색 프로필 정보 섹션: flex로 좌 [이름/소개] · 우 [작업실] 같은 높이, 여백 최소화 */}
+      <CardContent className="bg-white pt-12 sm:pt-14 py-4 px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+          {/* 데스크톱: 아바타 공간 확보용 spacer */}
           <div className="hidden sm:block w-28 shrink-0" />
           <div className="flex-1 min-w-0">
             {editing ? (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 <input
                   type="text"
                   value={fullName}
@@ -340,7 +347,17 @@ export default function ProfileHeader({
                   rows={3}
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                 />
-                <div className="flex gap-2 pt-1">
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">작업실 위치</label>
+                  <input
+                    type="text"
+                    value={studioLocation}
+                    onChange={(e) => setStudioLocation(e.target.value)}
+                    placeholder="예: 서울 성수동"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                  />
+                </div>
+                <div className="flex gap-2 pt-0.5">
                   <Button onClick={handleSaveProfile} disabled={saving}>
                     {saving ? '저장 중...' : '저장'}
                   </Button>
@@ -351,6 +368,7 @@ export default function ProfileHeader({
                       setFullName(profile?.full_name ?? '')
                       setBio(profile?.bio ?? '')
                       setValuePhilosophy(profile?.value_philosophy ?? '')
+                      setStudioLocation(profile?.studio_location ?? '')
                     }}
                   >
                     취소
@@ -359,18 +377,27 @@ export default function ProfileHeader({
               </div>
             ) : (
               <>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">
-                  {displayName}
-                </h1>
+                {/* 이름(좌) · 작업실(우) 같은 라인에 배치 */}
+                <div className="flex justify-between items-baseline gap-3">
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate min-w-0">
+                    {displayName}
+                  </h1>
+                  {profile?.studio_location?.trim() && (
+                    <div className="flex items-center gap-1.5 text-slate-500 text-sm shrink-0 text-right">
+                      <MapPin className="h-4 w-4 shrink-0" />
+                      <span>작업실 | {profile.studio_location.trim()}</span>
+                    </div>
+                  )}
+                </div>
                 <p className="text-sm text-slate-600 mt-0.5">
                   {roleLabel}
                 </p>
                 {profile?.bio && (
-                  <p className="text-slate-700 mt-3 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-slate-700 mt-1.5 whitespace-pre-wrap leading-relaxed text-sm">
                     {profile.bio}
                   </p>
                 )}
-                <div className="mt-4 flex items-center gap-3 flex-wrap">
+                <div className="mt-2 flex items-center gap-2 flex-wrap">
                   {isOwn && (
                     <Button
                       variant="outline"
