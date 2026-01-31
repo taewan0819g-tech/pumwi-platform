@@ -40,7 +40,7 @@ export interface Post {
   image_urls?: string[] | null
   price: number | null
   /** 에디션 현재 번호 (예: 1) */
-  edition_current?: number | null
+  edition_number?: number | null
   /** 에디션 총 수량 (예: 5) */
   edition_total?: number | null
   created_at: string
