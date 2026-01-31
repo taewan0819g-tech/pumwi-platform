@@ -8,8 +8,8 @@ import Navbar from '@/components/Navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'PUMWI - 아티스트와 팬을 위한 플랫폼',
-  description: 'PUMWI에서 아티스트와 팬을 연결하세요',
+  title: 'PUMWI - 당신의 예술이 가치를 만나는 공간',
+  description: '당신의 예술이 가치를 만나는 공간, PUMWI',
 }
 
 export default async function RootLayout({

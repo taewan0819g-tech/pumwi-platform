@@ -70,7 +70,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold" style={{ color: '#8E86F5' }}>
             PUMWI
           </h1>
-          <p className="text-gray-600 mt-2">아티스트와 팬을 위한 플랫폼</p>
+          <p className="text-gray-600 mt-2">당신의 예술이 가치를 만나는 공간</p>
         </div>
 
         {/* 로그인 폼 */}

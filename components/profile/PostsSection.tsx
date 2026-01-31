@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { Card, CardHeader, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Dialog } from '@/components/ui/Dialog'
-import { Plus, Trash2, Image as ImageIcon, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Plus, Trash2, Pencil, Image as ImageIcon, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import type { Post } from '@/types/profile'
 import { PostLikeComment } from '@/components/post/PostLikeComment'
@@ -113,6 +113,11 @@ export default function PostsSection({
   const [modalOpen, setModalOpen] = useState(false)
   const [viewPost, setViewPost] = useState<Post | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState('')
+  const [editContent, setEditContent] = useState('')
+  const [editPrice, setEditPrice] = useState('')
+  const [savingEdit, setSavingEdit] = useState(false)
 
   // 입력 폼 상태
   const [title, setTitle] = useState('')
@@ -258,10 +263,56 @@ export default function PostsSection({
       if (error) throw error
       toast.success('삭제되었습니다.')
       setViewPost(null)
+      setIsEditing(false)
       await fetchPosts()
       router.refresh()
     } catch (err: any) {
       toast.error(err.message)
+    }
+  }
+
+  const startEditing = () => {
+    if (!viewPost) return
+    setEditTitle(viewPost.title)
+    setEditContent(viewPost.content ?? '')
+    setEditPrice(viewPost.price != null ? String(viewPost.price) : '')
+    setIsEditing(true)
+  }
+
+  const cancelEditing = () => {
+    setIsEditing(false)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!viewPost || !editTitle.trim()) {
+      toast.error('제목을 입력해 주세요.')
+      return
+    }
+    setSavingEdit(true)
+    try {
+      const payload: { title: string; content: string | null; price: number | null } = {
+        title: editTitle.trim(),
+        content: editContent.trim() || null,
+        price: tab === 'sales' && editPrice.trim() ? Number(editPrice) : null,
+      }
+      const { error } = await supabase
+        .from('posts')
+        .update(payload)
+        .eq('id', viewPost.id)
+      if (error) throw error
+      setViewPost((prev) =>
+        prev
+          ? { ...prev, title: payload.title, content: payload.content, price: payload.price }
+          : null
+      )
+      setIsEditing(false)
+      await fetchPosts()
+      router.refresh()
+      toast.success('수정되었습니다.')
+    } catch (err: any) {
+      toast.error(err instanceof Error ? err.message : '수정에 실패했습니다.')
+    } finally {
+      setSavingEdit(false)
     }
   }
 
@@ -378,8 +429,8 @@ export default function PostsSection({
       {/* 상세보기 모달: 좌측 이미지 / 우측 내용+좋아요·댓글, 반응형 */}
       <Dialog
         open={!!viewPost}
-        onClose={() => setViewPost(null)}
-        title={viewPost?.title}
+        onClose={() => { setViewPost(null); setIsEditing(false) }}
+        title={isEditing ? '게시물 수정' : viewPost?.title}
         className="max-w-4xl w-full max-h-[90vh] h-[85vh] md:h-[90vh] flex flex-col overflow-hidden"
       >
         {viewPost && (
@@ -397,27 +448,80 @@ export default function PostsSection({
                 return <PostDetailCarousel urls={urls} />
               })()}
             </div>
-            {/* 우측: 내용 + 좋아요/댓글 */}
+            {/* 우측: 내용 + 좋아요/댓글 (또는 수정 폼) */}
             <div className="flex flex-col min-h-0 flex-1 p-4 md:pl-4 md:pr-4 md:py-4 overflow-hidden">
               <div className="flex-shrink-0 space-y-2">
-                <p className="whitespace-pre-wrap text-gray-700 text-sm">{viewPost.content || '—'}</p>
-                {viewPost.price != null && viewPost.price > 0 && (
-                  <p className="text-lg font-bold text-[#8E86F5]">{viewPost.price.toLocaleString()}원</p>
-                )}
-                {isOwn && (
-                  <Button variant="outline" className="text-red-500 w-full" onClick={() => handleDelete(viewPost.id)}>
-                    <Trash2 className="w-4 h-4 mr-2" /> 삭제
-                  </Button>
+                {isEditing ? (
+                  <>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">제목</label>
+                      <input
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        placeholder="제목"
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">내용</label>
+                      <textarea
+                        value={editContent}
+                        onChange={(e) => setEditContent(e.target.value)}
+                        placeholder="내용"
+                        rows={4}
+                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                      />
+                    </div>
+                    {tab === 'sales' && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">가격 (원)</label>
+                        <input
+                          type="number"
+                          value={editPrice}
+                          onChange={(e) => setEditPrice(e.target.value)}
+                          placeholder="가격"
+                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                        />
+                      </div>
+                    )}
+                    <div className="flex gap-2 pt-2">
+                      <Button variant="outline" onClick={cancelEditing} className="flex-1">
+                        취소
+                      </Button>
+                      <Button onClick={handleSaveEdit} disabled={savingEdit || !editTitle.trim()} className="flex-1 bg-[#8E86F5] hover:opacity-90">
+                        {savingEdit ? '저장 중...' : '저장'}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="whitespace-pre-wrap text-gray-700 text-sm">{viewPost.content || '—'}</p>
+                    {viewPost.price != null && viewPost.price > 0 && (
+                      <p className="text-lg font-bold text-[#8E86F5]">{viewPost.price.toLocaleString()}원</p>
+                    )}
+                    {isOwn && (
+                      <div className="flex gap-2">
+                        <Button variant="outline" className="flex-1" onClick={startEditing}>
+                          <Pencil className="w-4 h-4 mr-2" /> 수정
+                        </Button>
+                        <Button variant="outline" className="flex-1 text-red-500 hover:bg-red-50" onClick={() => handleDelete(viewPost.id)}>
+                          <Trash2 className="w-4 h-4 mr-2" /> 삭제
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
-              <div className="flex-1 min-h-0 overflow-hidden mt-3 pt-3 border-t border-gray-100 flex flex-col">
-                <PostLikeComment
-                  variant="modal"
-                  postId={viewPost.id}
-                  currentUserId={currentUserId}
-                  scrollable
-                />
-              </div>
+              {!isEditing && (
+                <div className="flex-1 min-h-0 overflow-hidden mt-3 pt-3 border-t border-gray-100 flex flex-col">
+                  <PostLikeComment
+                    variant="modal"
+                    postId={viewPost.id}
+                    currentUserId={currentUserId}
+                    scrollable
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}

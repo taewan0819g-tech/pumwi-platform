@@ -56,14 +56,14 @@ export default function Navbar({ user }: NavbarProps) {
         <div className="flex items-center justify-between h-12 gap-4">
           <Link
             href="/"
-            className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-md hover:bg-slate-100 transition-colors"
+            className="flex-shrink-0 flex items-center justify-center rounded-md px-1 py-1.5 hover:bg-slate-100 transition-colors"
             title="PUMWI 홈"
           >
             <span
-              className="text-xl font-bold leading-none"
+              className="text-lg sm:text-xl font-bold leading-none tracking-tight"
               style={{ color: '#8E86F5' }}
             >
-              P
+              PUMWI
             </span>
           </Link>
 
