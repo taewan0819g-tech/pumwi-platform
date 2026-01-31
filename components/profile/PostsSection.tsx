@@ -116,13 +116,15 @@ export default function PostsSection({
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editContent, setEditContent] = useState('')
-  const [editPrice, setEditPrice] = useState('')
+  const [editEditionCurrent, setEditEditionCurrent] = useState('')
+  const [editEditionTotal, setEditEditionTotal] = useState('')
   const [savingEdit, setSavingEdit] = useState(false)
 
   // 입력 폼 상태
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
-  const [price, setPrice] = useState('')
+  const [editionCurrent, setEditionCurrent] = useState('')
+  const [editionTotal, setEditionTotal] = useState('')
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
@@ -182,7 +184,8 @@ export default function PostsSection({
   const openAdd = () => {
     setTitle('')
     setContent('')
-    setPrice('')
+    setEditionCurrent('')
+    setEditionTotal('')
     setImageFiles([])
     setModalOpen(true)
   }
@@ -232,15 +235,22 @@ export default function PostsSection({
         imageUrls = await Promise.all(uploads)
       }
 
-      const { error } = await supabase.from('posts').insert({
+      const payload: Record<string, unknown> = {
         user_id: user.id,
         type: tab,
         title: title.trim(),
         content: content.trim() || null,
         image_url: imageUrls[0] ?? null,
         image_urls: imageUrls.length > 0 ? imageUrls : null,
-        price: tab === 'sales' && price ? Number(price) : null,
-      })
+        price: null,
+      }
+      if (tab === 'sales') {
+        const ec = editionCurrent.trim() ? Number(editionCurrent) : null
+        const et = editionTotal.trim() ? Number(editionTotal) : null
+        if (ec != null) (payload as Record<string, unknown>).edition_number = ec
+        if (et != null) (payload as Record<string, unknown>).edition_total = et
+      }
+      const { error } = await supabase.from('posts').insert(payload)
 
       if (error) throw error
 
@@ -275,7 +285,8 @@ export default function PostsSection({
     if (!viewPost) return
     setEditTitle(viewPost.title)
     setEditContent(viewPost.content ?? '')
-    setEditPrice(viewPost.price != null ? String(viewPost.price) : '')
+    setEditEditionCurrent(viewPost.edition_number != null ? String(viewPost.edition_number) : '')
+    setEditEditionTotal(viewPost.edition_total != null ? String(viewPost.edition_total) : '')
     setIsEditing(true)
   }
 
@@ -290,10 +301,16 @@ export default function PostsSection({
     }
     setSavingEdit(true)
     try {
-      const payload: { title: string; content: string | null; price: number | null } = {
+      const payload: Record<string, unknown> = {
         title: editTitle.trim(),
         content: editContent.trim() || null,
-        price: tab === 'sales' && editPrice.trim() ? Number(editPrice) : null,
+        price: null,
+      }
+      if (tab === 'sales') {
+        const ec = editEditionCurrent.trim() ? Number(editEditionCurrent) : null
+        const et = editEditionTotal.trim() ? Number(editEditionTotal) : null
+        if (ec != null) payload.edition_number = ec
+        if (et != null) payload.edition_total = et
       }
       const { error } = await supabase
         .from('posts')
@@ -302,7 +319,14 @@ export default function PostsSection({
       if (error) throw error
       setViewPost((prev) =>
         prev
-          ? { ...prev, title: payload.title, content: payload.content, price: payload.price }
+          ? {
+              ...prev,
+              title: payload.title as string,
+              content: payload.content as string | null,
+              price: null,
+              edition_number: payload.edition_number as number | null | undefined,
+              edition_total: payload.edition_total as number | null | undefined,
+            }
           : null
       )
       setIsEditing(false)
@@ -340,6 +364,18 @@ export default function PostsSection({
               {posts.map((post) => (
                 <div key={post.id} onClick={() => setViewPost(post)} 
                      className="border rounded-lg p-4 hover:border-[#8E86F5] cursor-pointer transition-colors">
+                  {post.type === 'sales' && (
+                    <div className="mb-2 flex items-center gap-1.5">
+                      <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                        판매 작품
+                      </span>
+                      {post.edition_number != null && post.edition_total != null && (
+                        <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                          Edition {post.edition_number}/{post.edition_total}
+                        </span>
+                      )}
+                    </div>
+                  )}
                   {(() => {
                     const urls = getPostImageUrls(post)
                     if (urls.length === 0) return null
@@ -350,11 +386,6 @@ export default function PostsSection({
                     )
                   })()}
                   <h4 className="font-medium line-clamp-1">{post.title}</h4>
-                  {tab === 'sales' && post.price && (
-                    <p className="text-[#8E86F5] text-sm font-medium mt-1">
-                      {post.price.toLocaleString()}원
-                    </p>
-                  )}
                 </div>
               ))}
             </div>
@@ -374,10 +405,26 @@ export default function PostsSection({
             placeholder="내용" className="w-full border p-2 rounded h-32 resize-none" 
           />
           {tab === 'sales' && (
-            <input 
-              type="number" value={price} onChange={e => setPrice(e.target.value)} 
-              placeholder="가격 (원)" className="w-full border p-2 rounded" 
-            />
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-600 shrink-0">Edition (작품 수량)</label>
+              <input
+                type="number"
+                min={1}
+                value={editionCurrent}
+                onChange={(e) => setEditionCurrent(e.target.value)}
+                placeholder="1"
+                className="w-16 px-2 py-2 border border-gray-200 rounded text-slate-900 text-sm text-center"
+              />
+              <span className="text-gray-400">/</span>
+              <input
+                type="number"
+                min={1}
+                value={editionTotal}
+                onChange={(e) => setEditionTotal(e.target.value)}
+                placeholder="5"
+                className="w-16 px-2 py-2 border border-gray-200 rounded text-slate-900 text-sm text-center"
+              />
+            </div>
           )}
           <div>
             <input
@@ -473,14 +520,24 @@ export default function PostsSection({
                       />
                     </div>
                     {tab === 'sales' && (
-                      <div>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">가격 (원)</label>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-gray-500 shrink-0">Edition (작품 수량)</label>
                         <input
                           type="number"
-                          value={editPrice}
-                          onChange={(e) => setEditPrice(e.target.value)}
-                          placeholder="가격"
-                          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                          min={1}
+                          value={editEditionCurrent}
+                          onChange={(e) => setEditEditionCurrent(e.target.value)}
+                          placeholder="1"
+                          className="w-16 px-2 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                        />
+                        <span className="text-gray-400">/</span>
+                        <input
+                          type="number"
+                          min={1}
+                          value={editEditionTotal}
+                          onChange={(e) => setEditEditionTotal(e.target.value)}
+                          placeholder="5"
+                          className="w-16 px-2 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                         />
                       </div>
                     )}
@@ -496,9 +553,12 @@ export default function PostsSection({
                 ) : (
                   <>
                     <p className="whitespace-pre-wrap text-gray-700 text-sm">{viewPost.content || '—'}</p>
-                    {viewPost.price != null && viewPost.price > 0 && (
-                      <p className="text-lg font-bold text-[#8E86F5]">{viewPost.price.toLocaleString()}원</p>
-                    )}
+                    {viewPost.edition_number != null &&
+                      viewPost.edition_total != null && (
+                        <p className="text-sm text-slate-500 mt-1">
+                          Edition {viewPost.edition_number}/{viewPost.edition_total}
+                        </p>
+                      )}
                     {isOwn && (
                       <div className="flex gap-2">
                         <Button variant="outline" className="flex-1" onClick={startEditing}>

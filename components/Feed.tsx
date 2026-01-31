@@ -122,6 +122,8 @@ interface PostRow {
   image_url: string | null
   image_urls?: string[] | null
   price: number | null
+  edition_number?: number | null
+  edition_total?: number | null
   created_at: string
   profiles?: ProfileRow | null
 }
@@ -149,7 +151,8 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
   const [editingPost, setEditingPost] = useState<PostRow | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [editContent, setEditContent] = useState('')
-  const [editPrice, setEditPrice] = useState('')
+  const [editEditionCurrent, setEditEditionCurrent] = useState('')
+  const [editEditionTotal, setEditEditionTotal] = useState('')
   const [editImageFile, setEditImageFile] = useState<File | null>(null)
   const [editImagePreviewUrl, setEditImagePreviewUrl] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -412,7 +415,8 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
     setEditingPost(post)
     setEditTitle(post.title)
     setEditContent(post.content ?? '')
-    setEditPrice(post.price != null ? String(post.price) : '')
+    setEditEditionCurrent(post.edition_number != null ? String(post.edition_number) : '')
+    setEditEditionTotal(post.edition_total != null ? String(post.edition_total) : '')
     setEditImageFile(null)
     setEditImagePreviewUrl(null)
     setOpenMenuPostId(null)
@@ -441,7 +445,13 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
         title: editTitle.trim(),
         content: editContent.trim() || null,
         image_url: imageUrl,
-        price: editingPost.type === 'sales' && editPrice ? Number(editPrice) : null,
+        price: null,
+      }
+      if (editingPost.type === 'sales') {
+        const ec = editEditionCurrent.trim() ? Number(editEditionCurrent) : null
+        const et = editEditionTotal.trim() ? Number(editEditionTotal) : null
+        if (ec != null) payload.edition_number = ec
+        if (et != null) payload.edition_total = et
       }
       const { error } = await supabase
         .from('posts')
@@ -575,14 +585,18 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                   )}
                 </div>
               </div>
-              <div className="px-4 pb-3">
-                <p className="text-sm font-medium text-slate-900">{post.title}</p>
-                {post.content && (
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap mt-1">
-                    {post.content}
-                  </p>
-                )}
-              </div>
+              {post.type === 'sales' && (
+                <div className="px-4 pb-2 flex items-center gap-2">
+                  <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                    판매 작품
+                  </span>
+                  {post.edition_number != null && post.edition_total != null && (
+                    <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                      Edition {post.edition_number}/{post.edition_total}
+                    </span>
+                  )}
+                </div>
+              )}
               {(() => {
                 const urls =
                   post.image_urls?.length
@@ -602,17 +616,16 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                     </div>
                   )
                 }
-                return (
-                  <PostImagesCarousel urls={urls} />
-                )
+                return <PostImagesCarousel urls={urls} />
               })()}
-              {post.type === 'sales' && post.price != null && (
-                <div className="px-4 py-2">
-                  <span className="text-sm font-medium text-[#8E86F5]">
-                    {post.price.toLocaleString()}원
-                  </span>
-                </div>
-              )}
+              <div className="px-4 py-3">
+                <p className="text-sm font-medium text-slate-900">{post.title}</p>
+                {post.content && (
+                  <p className="text-sm text-slate-700 whitespace-pre-wrap mt-1">
+                    {post.content}
+                  </p>
+                )}
+              </div>
               <div className="px-4 pb-4 pt-2 bg-gray-50 border-t border-gray-100">
                 <PostLikeComment
                   variant="inline"
@@ -668,13 +681,26 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
               className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900 resize-none"
             />
             {editingPost.type === 'sales' && (
-              <input
-                type="number"
-                value={editPrice}
-                onChange={(e) => setEditPrice(e.target.value)}
-                placeholder="가격 (원)"
-                className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900"
-              />
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600 shrink-0">Edition (작품 수량)</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={editEditionCurrent}
+                  onChange={(e) => setEditEditionCurrent(e.target.value)}
+                  placeholder="1"
+                  className="w-16 px-2 py-2 border border-gray-200 rounded-md text-slate-900 text-center text-sm"
+                />
+                <span className="text-gray-400">/</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={editEditionTotal}
+                  onChange={(e) => setEditEditionTotal(e.target.value)}
+                  placeholder="5"
+                  className="w-16 px-2 py-2 border border-gray-200 rounded-md text-slate-900 text-center text-sm"
+                />
+              </div>
             )}
             <label className="block text-sm text-gray-600 cursor-pointer">
               <div className="flex items-center gap-2 mb-2">

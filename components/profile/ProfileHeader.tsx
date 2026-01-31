@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Camera, User, Pencil, MapPin } from 'lucide-react'
+import { Camera, User, Pencil, MapPin, Send } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
 import toast from 'react-hot-toast'
 import type { Profile } from '@/types/profile'
+import RequestArtworkModal from '@/components/request/RequestArtworkModal'
 
 const BUCKET_AVATARS = 'avatars'
 const BUCKET_BACKGROUNDS = 'backgrounds'
@@ -42,6 +43,7 @@ export default function ProfileHeader({
   const [saving, setSaving] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
+  const [requestModalOpen, setRequestModalOpen] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const backgroundInputRef = useRef<HTMLInputElement>(null)
 
@@ -410,23 +412,34 @@ export default function ProfileHeader({
                     </Button>
                   )}
                   {!isOwn && currentUserId && (
-                    <Button
-                      size="sm"
-                      onClick={handleFollowToggle}
-                      disabled={followLoading}
-                      variant={isFollowing ? 'outline' : 'primary'}
-                      className={
-                        isFollowing
-                          ? 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
-                          : undefined
-                      }
-                    >
-                      {followLoading
-                        ? '처리 중...'
-                        : isFollowing
-                          ? '이웃 취소'
-                          : '이웃추가'}
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => setRequestModalOpen(true)}
+                        variant="outline"
+                        className="border-[#8E86F5] text-[#8E86F5] hover:bg-[#8E86F5]/10"
+                      >
+                        <Send className="h-4 w-4 mr-1.5" />
+                        작품 요청
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleFollowToggle}
+                        disabled={followLoading}
+                        variant={isFollowing ? 'outline' : 'primary'}
+                        className={
+                          isFollowing
+                            ? 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
+                            : undefined
+                        }
+                      >
+                        {followLoading
+                          ? '처리 중...'
+                          : isFollowing
+                            ? '이웃 취소'
+                            : '이웃추가'}
+                      </Button>
+                    </>
                   )}
                 </div>
               </>
@@ -434,6 +447,14 @@ export default function ProfileHeader({
           </div>
         </div>
       </CardContent>
+      {!isOwn && currentUserId && (
+        <RequestArtworkModal
+          open={requestModalOpen}
+          onClose={() => setRequestModalOpen(false)}
+          artistId={profile.id}
+          requesterId={currentUserId}
+        />
+      )}
     </Card>
   )
 }

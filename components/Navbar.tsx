@@ -10,8 +10,10 @@ import {
   MessageSquare,
   UserCircle,
   LogOut,
+  FileText,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
+import ReceivedRequestsModal from '@/components/request/ReceivedRequestsModal'
 
 interface NavbarProps {
   user: SupabaseUser | null
@@ -21,6 +23,7 @@ export default function Navbar({ user }: NavbarProps) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [requestsModalOpen, setRequestsModalOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -118,6 +121,17 @@ export default function Navbar({ user }: NavbarProps) {
                   메시지
                 </span>
               </Link>
+              <button
+                type="button"
+                onClick={() => setRequestsModalOpen(true)}
+                className="flex flex-col items-center justify-center min-w-[52px] sm:min-w-[64px] h-12 py-1 rounded hover:bg-slate-100 transition-colors text-gray-700"
+                title="요청 작품"
+              >
+                <FileText className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
+                  요청작품
+                </span>
+              </button>
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
@@ -170,6 +184,13 @@ export default function Navbar({ user }: NavbarProps) {
           )}
         </div>
       </div>
+      {user && (
+        <ReceivedRequestsModal
+          open={requestsModalOpen}
+          onClose={() => setRequestsModalOpen(false)}
+          currentUserId={user?.id ?? ''}
+        />
+      )}
     </nav>
   )
 }

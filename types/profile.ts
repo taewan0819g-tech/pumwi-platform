@@ -39,6 +39,10 @@ export interface Post {
   /** 다중 이미지 URL (DB 컬럼 image_urls, text[] 또는 JSONB) */
   image_urls?: string[] | null
   price: number | null
+  /** 에디션 현재 번호 (예: 1) */
+  edition_current?: number | null
+  /** 에디션 총 수량 (예: 5) */
+  edition_total?: number | null
   created_at: string
   updated_at?: string
 }

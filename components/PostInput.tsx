@@ -15,6 +15,8 @@ interface PostInputProps {
 export default function PostInput({ userId, onPostCreated }: PostInputProps) {
   const [expanded, setExpanded] = useState(false)
   const [value, setValue] = useState('')
+  const [editionCurrent, setEditionCurrent] = useState('')
+  const [editionTotal, setEditionTotal] = useState('')
   const [posting, setPosting] = useState(false)
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
@@ -65,19 +67,34 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
         })
         imageUrls = await Promise.all(uploads)
       }
+      const ec = editionCurrent.trim()
+      const et = editionTotal.trim()
+      const edition_number = ec ? parseInt(ec, 10) : null
+      const edition_total = et ? parseInt(et, 10) : null
+      const editionNumberNum =
+        edition_number != null && !Number.isNaN(edition_number) ? edition_number : null
+      const editionTotalNum =
+        edition_total != null && !Number.isNaN(edition_total) ? edition_total : null
+
+      const postType = editionNumberNum != null ? 'sales' : 'work_log'
       const payload: Record<string, unknown> = {
         user_id: userId,
-        type: 'work_log',
+        type: postType,
         title: value.slice(0, 50) || '무제',
         content: value.trim(),
         price: null,
         image_url: imageUrls[0] ?? null,
         image_urls: imageUrls.length > 0 ? imageUrls : null,
+        edition_number: editionNumberNum,
+        edition_total: editionTotalNum,
       }
+
       const { error } = await supabase.from('posts').insert(payload)
       if (error) throw error
       toast.success('게시물이 등록되었습니다.')
       setValue('')
+      setEditionCurrent('')
+      setEditionTotal('')
       setImageFiles([])
       setExpanded(false)
       onPostCreated?.()
@@ -111,6 +128,26 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
             rows={3}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-none"
           />
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-sm text-gray-600 shrink-0">Edition</span>
+            <input
+              type="number"
+              min={1}
+              value={editionCurrent}
+              onChange={(e) => setEditionCurrent(e.target.value)}
+              placeholder="1"
+              className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-gray-400">/</span>
+            <input
+              type="number"
+              min={1}
+              value={editionTotal}
+              onChange={(e) => setEditionTotal(e.target.value)}
+              placeholder="5"
+              className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+          </div>
           <input
             type="file"
             accept="image/*"
@@ -156,6 +193,8 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
               onClick={() => {
                 setExpanded(false)
                 setValue('')
+                setEditionCurrent('')
+                setEditionTotal('')
                 setImageFiles([])
               }}
               className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
