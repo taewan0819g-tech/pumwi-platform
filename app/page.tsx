@@ -13,6 +13,7 @@ export default async function HomePage() {
   } = await supabase.auth.getUser()
 
   let profile: Profile | null = null
+  let applicationStatus: 'pending' | 'approved' | 'rejected' | null = null
   if (user) {
     const { data } = await supabase
       .from('profiles')
@@ -20,6 +21,14 @@ export default async function HomePage() {
       .eq('id', user.id)
       .single()
     profile = data ? (data as unknown as Profile) : null
+    const { data: app } = await supabase
+      .from('artist_applications')
+      .select('status')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    applicationStatus = app?.status ?? null
   }
 
   return (
@@ -31,6 +40,7 @@ export default async function HomePage() {
               <ProfileCard
                 profile={profile}
                 userEmail={user.email ?? null}
+                applicationStatus={applicationStatus}
               />
             ) : (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center">

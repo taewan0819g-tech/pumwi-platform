@@ -6,23 +6,29 @@ import { User } from 'lucide-react'
 import type { Profile } from '@/types/profile'
 import ArtistApplyModal from '@/components/profile/ArtistApplyModal'
 
+type ApplicationStatus = 'pending' | 'approved' | 'rejected' | null
+
 interface ProfileCardProps {
   profile: Profile | null
   userEmail?: string | null
+  /** 아티스트 신청 상태. 있으면 이 값 기준으로 표시 (pending: 심사 중, rejected/null: 신청 버튼) */
+  applicationStatus?: ApplicationStatus
 }
 
-export default function ProfileCard({ profile, userEmail }: ProfileCardProps) {
+export default function ProfileCard({ profile, userEmail, applicationStatus }: ProfileCardProps) {
   const router = useRouter()
   const [applyModalOpen, setApplyModalOpen] = useState(false)
 
   const effectiveRole = profile?.role ?? 'user'
-  const effectivePending = profile?.is_artist_pending ?? false
+  const effectivePending =
+    applicationStatus !== undefined
+      ? applicationStatus === 'pending'
+      : (profile?.is_artist_pending ?? false)
   const displayName =
     profile?.full_name ||
     (profile?.bio && profile.bio.split('\n')[0]?.slice(0, 20)) ||
     userEmail?.split('@')[0] ||
     '사용자'
-  const canApply = effectiveRole === 'user' && !effectivePending
 
   if (!profile) {
     return (

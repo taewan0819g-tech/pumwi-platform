@@ -59,12 +59,34 @@ export default function ArtistApplyModal({
         q4: trimmed[3],
         agreed: true,
       }
-      const { error: insertError } = await supabase.from('artist_applications').insert({
-        user_id: userId,
-        status: 'pending',
-        answers: answersPayload,
-      })
-      if (insertError) throw insertError
+
+      const { data: existing } = await supabase
+        .from('artist_applications')
+        .select('id, status')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (existing?.status === 'rejected') {
+        const { error: updateAppError } = await supabase
+          .from('artist_applications')
+          .update({
+            status: 'pending',
+            answers: answersPayload,
+            created_at: new Date().toISOString(),
+          })
+          .eq('id', existing.id)
+        if (updateAppError) throw updateAppError
+      } else if (!existing || existing.status !== 'pending') {
+        const { error: insertError } = await supabase.from('artist_applications').insert({
+          user_id: userId,
+          status: 'pending',
+          answers: answersPayload,
+        })
+        if (insertError) throw insertError
+      }
+
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ is_artist_pending: true })

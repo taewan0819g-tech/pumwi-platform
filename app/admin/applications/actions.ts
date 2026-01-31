@@ -65,6 +65,14 @@ export async function rejectApplication(
     .eq('id', applicationId)
   if (updateAppError) return { error: updateAppError.message }
 
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ is_artist_pending: false })
+    .eq('id', app.user_id)
+  if (profileError) return { error: '신청 상태는 거절되었으나 프로필 반영에 실패했습니다.' }
+
   revalidatePath('/admin/applications')
+  revalidatePath('/')
+  revalidatePath('/profile')
   return { success: true }
 }

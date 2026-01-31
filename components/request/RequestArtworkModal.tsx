@@ -30,22 +30,24 @@ export default function RequestArtworkModal({
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const previewUrlsRef = useRef<string[]>([])
+  previewUrlsRef.current = previewUrls
   const supabase = createClient()
 
   useEffect(() => {
     return () => {
-      previewUrls.forEach((url) => URL.revokeObjectURL(url))
+      previewUrlsRef.current.forEach((url) => URL.revokeObjectURL(url))
     }
-  }, [previewUrls])
+  }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files?.length) return
     const list = Array.from(files).filter((f) => f.type.startsWith('image/'))
     if (!list.length) return
-    previewUrls.forEach((url) => URL.revokeObjectURL(url))
-    setImageFiles(list)
-    setPreviewUrls(list.map((f) => URL.createObjectURL(f)))
+    setImageFiles((prev) => [...prev, ...list])
+    setPreviewUrls((prev) => [...prev, ...list.map((f) => URL.createObjectURL(f))])
+    e.target.value = ''
   }
 
   const handleSubmit = async () => {
@@ -58,9 +60,10 @@ export default function RequestArtworkModal({
     try {
       let image_urls: string[] = []
       if (imageFiles.length > 0) {
+        const timestamp = Date.now()
         const uploads = imageFiles.map(async (file, i) => {
           const ext = file.name.split('.').pop() || 'jpg'
-          const path = `${requesterId}/request-${Date.now()}-${i}.${ext}`
+          const path = `${requesterId}/request-${timestamp}-${i}.${ext}`
           const { data, error } = await supabase.storage
             .from(BUCKET_POSTS)
             .upload(path, file, { upsert: true })
@@ -149,7 +152,7 @@ export default function RequestArtworkModal({
           {previewUrls.length > 0 && (
             <div className="mt-2 flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
               {previewUrls.map((url, i) => (
-                <div key={url} className="relative flex-shrink-0 snap-center">
+                <div key={i} className="relative flex-shrink-0 snap-center">
                   <img
                     src={url}
                     alt={`미리보기 ${i + 1}`}

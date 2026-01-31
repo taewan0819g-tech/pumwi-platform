@@ -23,6 +23,12 @@ interface ReceivedRequestsModalProps {
   currentUserId: string
 }
 
+function normalizeImageUrls(r: Record<string, unknown>): string[] | null {
+  if (Array.isArray(r.image_urls) && r.image_urls.length > 0) return r.image_urls as string[]
+  if (typeof r.image_urls === 'string' && r.image_urls) return [r.image_urls]
+  return null
+}
+
 function RequestImagesCarousel({ urls }: { urls: string[] }) {
   const [index, setIndex] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -130,7 +136,7 @@ export default function ReceivedRequestsModal({
             requester_id: r.requester_id as string,
             artist_id: r.artist_id as string,
             details: r.details as string,
-            image_urls: (Array.isArray(r.image_urls) ? r.image_urls : r.image_urls ? [r.image_urls] : null) as string[] | null,
+            image_urls: normalizeImageUrls(r),
             created_at: r.created_at as string,
             profiles: r.profiles as { full_name: string | null; avatar_url: string | null } | null,
           }))

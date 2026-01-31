@@ -41,3 +41,9 @@ create policy "Admin can update applications"
   using (
     exists (select 1 from public.profiles where id = auth.uid() and role = 'admin')
   );
+
+-- 거절된 신청은 본인이 재신청 시 pending으로 업데이트 가능
+create policy "Users can update own rejected application"
+  on public.artist_applications for update
+  using (auth.uid() = user_id and status = 'rejected')
+  with check (auth.uid() = user_id);
