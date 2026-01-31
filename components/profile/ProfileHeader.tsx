@@ -235,10 +235,13 @@ export default function ProfileHeader({
     }
   }
 
+  const roleLabel = profile?.role === 'artist' ? 'Artist' : profile?.role === 'admin' ? 'Admin' : 'User'
+
   return (
     <Card className="overflow-hidden">
+      {/* 1. 배너 영역: 이미지만, 텍스트 없음 */}
       <div
-        className="relative h-32 sm:h-48 bg-[#8E86F5]/20 bg-cover bg-center"
+        className="relative h-40 sm:h-52 bg-[#8E86F5]/15 bg-cover bg-center"
         style={
           backgroundImageUrl
             ? { backgroundImage: `url(${backgroundImageUrl})` }
@@ -255,7 +258,7 @@ export default function ProfileHeader({
               onChange={handleBackgroundChange}
               aria-hidden
             />
-            <div className="absolute bottom-2 right-2 z-10">
+            <div className="absolute bottom-3 right-3 z-10">
               <button
                 type="button"
                 onClick={(e) => {
@@ -272,21 +275,18 @@ export default function ProfileHeader({
             </div>
           </>
         )}
-      </div>
-      <CardContent className="relative pt-0 pb-4">
-        <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-16">
-          <div className="relative">
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-white bg-gray-100 overflow-hidden shadow-md flex items-center justify-center">
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="h-12 w-12 sm:h-16 sm:w-16 text-gray-400" />
-              )}
-            </div>
+        {/* 2. 프로필 사진: 배너와 흰 영역 사이에 걸치도록 absolute */}
+        <div className="absolute left-4 sm:left-8 bottom-0 translate-y-1/2 z-10">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-white bg-gray-100 overflow-hidden shadow-lg flex items-center justify-center ring-1 ring-gray-200">
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <User className="h-12 w-12 sm:h-14 sm:w-14 text-gray-400" />
+            )}
             {isOwn && (
               <>
                 <input
@@ -300,38 +300,47 @@ export default function ProfileHeader({
                   type="button"
                   onClick={() => avatarInputRef.current?.click()}
                   disabled={uploading}
-                  className="absolute bottom-0 right-0 p-2 rounded-full bg-[#8E86F5] text-white hover:opacity-90 shadow-md disabled:opacity-50"
+                  className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#8E86F5] text-white hover:opacity-90 shadow disabled:opacity-50"
+                  title="프로필 사진 변경"
                 >
-                  <Camera className="h-4 w-4" />
+                  <Camera className="h-3.5 w-3.5" />
                 </button>
               </>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* 3. 흰색 프로필 정보 섹션: 이름, 직업, 소개, 버튼 */}
+      <CardContent className="bg-white pt-14 sm:pt-16 pb-6 sm:pb-8 px-4 sm:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+          {/* 데스크톱에서 아바타 공간 확보용 spacer (아바타가 absolute라서) */}
+          <div className="hidden sm:block w-28 shrink-0" />
           <div className="flex-1 min-w-0">
             {editing ? (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="이름"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                 />
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   placeholder="한줄 소개"
                   rows={2}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900 resize-none"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                 />
                 <textarea
                   value={valuePhilosophy}
                   onChange={(e) => setValuePhilosophy(e.target.value)}
                   placeholder="가치철학"
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900 resize-none"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                 />
-                <div className="flex gap-2">
+                <div className="flex gap-2 pt-1">
                   <Button onClick={handleSaveProfile} disabled={saving}>
                     {saving ? '저장 중...' : '저장'}
                   </Button>
@@ -350,24 +359,28 @@ export default function ProfileHeader({
               </div>
             ) : (
               <>
-                <h1 className="text-2xl font-bold text-slate-900 truncate">
+                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 truncate">
                   {displayName}
                 </h1>
+                <p className="text-sm text-slate-600 mt-0.5">
+                  {roleLabel}
+                </p>
                 {profile?.bio && (
-                  <p className="text-gray-600 mt-1 whitespace-pre-wrap">
+                  <p className="text-slate-700 mt-3 whitespace-pre-wrap leading-relaxed">
                     {profile.bio}
                   </p>
                 )}
-                <div className="mt-2 flex items-center gap-2 flex-wrap">
+                <div className="mt-4 flex items-center gap-3 flex-wrap">
                   {isOwn && (
-                    <button
-                      type="button"
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setEditing(true)}
-                      className="flex items-center gap-1 text-sm text-[#8E86F5] hover:underline"
+                      className="text-slate-700 border-slate-300 hover:bg-slate-50"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-4 w-4 mr-1.5" />
                       수정
-                    </button>
+                    </Button>
                   )}
                   {!isOwn && currentUserId && (
                     <Button
@@ -377,7 +390,7 @@ export default function ProfileHeader({
                       variant={isFollowing ? 'outline' : 'primary'}
                       className={
                         isFollowing
-                          ? 'border-gray-300 text-gray-600 bg-gray-50 hover:bg-gray-100'
+                          ? 'border-gray-300 text-gray-700 bg-white hover:bg-gray-50'
                           : undefined
                       }
                     >
