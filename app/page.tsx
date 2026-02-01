@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/types/profile'
-import ProfileCard from '@/components/ProfileCard'
+import Sidebar from '@/components/layout/Sidebar'
 import HomeCenterColumn from '@/components/HomeCenterColumn'
 import NewsWidget from '@/components/NewsWidget'
 import ArtistList from '@/components/ArtistList'
@@ -35,28 +35,12 @@ export default async function HomePage() {
     <div className="min-h-screen bg-[#F3F2EF]">
       <div className="max-w-7xl mx-auto pt-6 px-4 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <aside className="lg:col-span-3 order-2 lg:order-1">
-            {user ? (
-              <ProfileCard
-                profile={profile}
-                userEmail={user.email ?? null}
-                applicationStatus={applicationStatus}
-              />
-            ) : (
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center">
-                <p className="text-slate-700 mb-4">
-                  로그인하여 프로필을 확인하세요
-                </p>
-                <Link
-                  href="/login"
-                  className="inline-block py-2 px-4 text-sm font-medium text-white rounded-md hover:opacity-90"
-                  style={{ backgroundColor: '#8E86F5' }}
-                >
-                  로그인
-                </Link>
-              </div>
-            )}
-          </aside>
+          <Sidebar
+            user={user ? { id: user.id, email: user.email ?? null } : null}
+            profile={profile}
+            userEmail={user?.email ?? null}
+            applicationStatus={applicationStatus}
+          />
 
           <main className="lg:col-span-6 order-1 lg:order-2">
             {user ? (
