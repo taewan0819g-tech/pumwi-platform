@@ -139,11 +139,13 @@ export default function AdminApplicationsClient({
               </div>
             </div>
             <div className="space-y-6 max-h-96 overflow-y-auto">
-              {detail.answers?.content ? (
+              {detail.answers?.content != null ? (
                 <div>
                   <p className="text-sm font-medium text-slate-700 mb-1">Application</p>
                   <p className="text-sm text-slate-600 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">
-                    {detail.answers.content}
+                    {typeof detail.answers.content === 'string'
+                      ? detail.answers.content
+                      : JSON.stringify(detail.answers.content)}
                   </p>
                 </div>
               ) : (detail.application_details || detail.answers) ? (
