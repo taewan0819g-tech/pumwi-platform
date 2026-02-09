@@ -54,7 +54,7 @@ export default function NeighborsClient({ currentUserId }: NeighborsClientProps)
   return (
     <div className="min-h-screen bg-[#F3F2EF] pb-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">이웃</h1>
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">Following</h1>
         {loading ? (
           <div className="space-y-4">
             <div className="h-24 bg-gray-200 rounded-lg animate-pulse" />
@@ -63,16 +63,16 @@ export default function NeighborsClient({ currentUserId }: NeighborsClientProps)
           </div>
         ) : neighbors.length === 0 ? (
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-12 text-center">
-            <p className="text-gray-500 font-medium">아직 이웃이 없습니다.</p>
+            <p className="text-gray-500 font-medium">No one in your following list yet.</p>
             <p className="text-gray-400 text-sm mt-1">
-              프로필에서 아티스트를 이웃으로 추가해 보세요.
+              Follow artists from their profiles.
             </p>
             <Link
               href="/"
               className="inline-block mt-4 px-4 py-2 text-sm font-medium text-white rounded-md hover:opacity-90"
               style={{ backgroundColor: '#8E86F5' }}
             >
-              홈으로
+              Back to Home
             </Link>
           </div>
         ) : (
@@ -96,7 +96,7 @@ export default function NeighborsClient({ currentUserId }: NeighborsClientProps)
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-slate-900 truncate">
-                    {p.full_name ?? '이름 없음'}
+                    {p.full_name ?? 'Unknown'}
                   </p>
                   {p.role && (
                     <p className="text-xs text-[#8E86F5] mt-0.5">{p.role}</p>

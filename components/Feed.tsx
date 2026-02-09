@@ -101,9 +101,9 @@ function PostImagesCarousel({ urls }: { urls: string[] }) {
 type FeedTab = 'all' | 'work' | 'sale'
 
 const tabs: { id: FeedTab; label: string }[] = [
-  { id: 'all', label: '전체' },
-  { id: 'work', label: '작업 일지' },
-  { id: 'sale', label: '판매 게시물' },
+  { id: 'all', label: 'All' },
+  { id: 'work', label: 'Studio Log' },
+  { id: 'sale', label: 'For Sale' },
 ]
 
 interface ProfileRow {
@@ -250,7 +250,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
     (p.profiles as ProfileRow) ??
     (p as PostRow & { profile?: ProfileRow }).profile ??
     null
-  const authorName = (p: PostRow) => getAuthor(p)?.full_name ?? '사용자'
+  const authorName = (p: PostRow) => getAuthor(p)?.full_name ?? 'User'
   const authorAvatar = (p: PostRow) => getAuthor(p)?.avatar_url ?? null
   const authorRole = (p: PostRow) => getAuthor(p)?.role ?? 'User'
 
@@ -261,11 +261,11 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
     const diffM = Math.floor(diffMs / 60000)
     const diffH = Math.floor(diffM / 60)
     const diffD = Math.floor(diffH / 24)
-    if (diffM < 1) return '방금 전'
-    if (diffM < 60) return `${diffM}분 전`
-    if (diffH < 24) return `${diffH}시간 전`
-    if (diffD < 7) return `${diffD}일 전`
-    return d.toLocaleDateString('ko-KR')
+    if (diffM < 1) return 'Just now'
+    if (diffM < 60) return `${diffM}m ago`
+    if (diffH < 24) return `${diffH}h ago`
+    if (diffD < 7) return `${diffD}d ago`
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   }
 
   const fetchComments = useCallback(async (postId: string) => {
@@ -351,7 +351,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
         return next
       })
       setLikeCountByPostId((prev) => ({ ...prev, [postId]: count }))
-      toast.error(err instanceof Error ? err.message : '처리에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setLikeLoading(null)
     }
@@ -374,7 +374,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
       }))
       setCommentText('')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '댓글 등록에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Failed to add comment.')
     } finally {
       setCommentLoading(null)
     }
@@ -391,7 +391,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
         [postId]: (prev[postId] ?? []).filter((c) => c.id !== commentId),
       }))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '삭제에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Delete failed.')
     } finally {
       setCommentLoading(null)
     }
@@ -399,15 +399,15 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
 
   const handleDeletePost = async (post: PostRow) => {
     if (!currentUserId || post.user_id !== currentUserId) return
-    if (!confirm('이 게시물을 삭제하시겠습니까?')) return
+    if (!confirm('Delete this post?')) return
     setOpenMenuPostId(null)
     try {
       const { error } = await supabase.from('posts').delete().eq('id', post.id)
       if (error) throw error
-      toast.success('삭제되었습니다.')
+      toast.success('Deleted.')
       fetchPosts()
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : '삭제에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Delete failed.')
     }
   }
 
@@ -425,7 +425,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
   const handleSaveEdit = async () => {
     if (!editingPost || !currentUserId || editingPost.user_id !== currentUserId) return
     if (!editTitle.trim()) {
-      toast.error('제목을 입력해 주세요.')
+      toast.error('Please enter a title.')
       return
     }
     setSaving(true)
@@ -458,11 +458,11 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
         .update(payload)
         .eq('id', editingPost.id)
       if (error) throw error
-      toast.success('수정되었습니다.')
+      toast.success('Updated.')
       setEditingPost(null)
       fetchPosts()
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : '수정에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Update failed.')
     } finally {
       setSaving(false)
     }
@@ -498,17 +498,17 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
       ) : filteredPosts.length === 0 ? (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-12 text-center">
           <p className="text-gray-500 font-medium">
-            아직 게시물이 없습니다.
+            No posts yet.
           </p>
           <p className="text-gray-400 text-sm mt-1">
-            첫 번째 글을 작성해보세요!
+            Share your first post from your profile.
           </p>
           <Link
             href="/profile"
             className="inline-block mt-4 px-4 py-2 text-sm font-medium text-white rounded-md hover:opacity-90"
             style={{ backgroundColor: '#8E86F5' }}
           >
-            프로필에서 글 쓰기
+            Write from profile
           </Link>
         </div>
       ) : (
@@ -571,7 +571,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-slate-50"
                       >
                         <Pencil className="h-4 w-4" />
-                        수정
+                        Edit
                       </button>
                       <button
                         type="button"
@@ -579,7 +579,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                         className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="h-4 w-4" />
-                        삭제
+                        Delete
                       </button>
                     </div>
                   )}
@@ -588,7 +588,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
               {post.type === 'sales' && (
                 <div className="px-4 pb-2 flex items-center gap-2">
                   <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
-                    판매 작품
+                    For Sale
                   </span>
                   {post.edition_number != null && post.edition_total != null && (
                     <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
@@ -656,33 +656,33 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
         </div>
       )}
 
-      {/* 수정 모달 */}
+      {/* Edit modal */}
       <Dialog
         open={!!editingPost}
         onClose={() => {
           setEditingPost(null)
           setEditImageFile(null)
         }}
-        title="게시물 수정"
+        title="Edit post"
       >
         {editingPost && (
           <div className="p-4 space-y-3">
             <input
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="제목"
+              placeholder="Title"
               className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900"
             />
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              placeholder="내용"
+              placeholder="Content"
               rows={4}
               className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900 resize-none"
             />
             {editingPost.type === 'sales' && (
               <div className="flex items-center gap-2">
-                <label className="text-sm text-gray-600 shrink-0">Edition (작품 수량)</label>
+                <label className="text-sm text-gray-600 shrink-0">Edition</label>
                 <input
                   type="number"
                   min={1}
@@ -704,7 +704,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
             )}
             <label className="block text-sm text-gray-600 cursor-pointer">
               <div className="flex items-center gap-2 mb-2">
-                <ImageIcon className="w-4 h-4" /> 이미지 변경 (선택)
+                <ImageIcon className="w-4 h-4" /> Change image (optional)
               </div>
               <input
                 type="file"
@@ -715,12 +715,12 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
             </label>
             {editImagePreviewUrl && (
               <div className="h-40 bg-gray-50 rounded border flex items-center justify-center overflow-hidden">
-                <img src={editImagePreviewUrl} alt="미리보기" className="h-full object-contain" />
+                <img src={editImagePreviewUrl} alt="Preview" className="h-full object-contain" />
               </div>
             )}
             {!editImagePreviewUrl &&
               (editingPost.image_url || (editingPost.image_urls?.length ?? 0) > 0) && (
-              <p className="text-xs text-gray-500">현재 이미지 유지</p>
+              <p className="text-xs text-gray-500">Keep current image</p>
             )}
             <div className="flex justify-end gap-2 pt-2">
               <Button
@@ -730,10 +730,10 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                   setEditImageFile(null)
                 }}
               >
-                취소
+                Cancel
               </Button>
               <Button onClick={handleSaveEdit} disabled={saving}>
-                {saving ? '저장 중...' : '저장'}
+                {saving ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </div>

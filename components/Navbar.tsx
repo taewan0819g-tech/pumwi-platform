@@ -60,7 +60,7 @@ export default function Navbar({ user }: NavbarProps) {
           <Link
             href="/"
             className="flex-shrink-0 flex items-center justify-center rounded-md px-1 py-1.5 hover:bg-slate-100 transition-colors"
-            title="PUMWI 홈"
+            title="PUMWI Home"
           >
             <span
               className="text-lg sm:text-xl font-bold leading-none tracking-tight"
@@ -79,14 +79,14 @@ export default function Navbar({ user }: NavbarProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="검색..."
+              placeholder="Search..."
               className="w-full h-8 pl-9 pr-9 bg-slate-100 border-0 rounded-md text-sm placeholder:text-gray-500 focus:ring-2 focus:ring-[#8E86F5] focus:bg-white outline-none transition"
             />
             <button
               type="submit"
               disabled={!searchQuery.trim()}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-gray-500 hover:text-[#8E86F5] hover:bg-slate-200/80 transition-colors disabled:opacity-40 disabled:pointer-events-none"
-              title="검색"
+              title="Search"
             >
               <Search className="h-4 w-4" />
             </button>
@@ -100,7 +100,7 @@ export default function Navbar({ user }: NavbarProps) {
               >
                 <Home className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  홈
+                  Home
                 </span>
               </Link>
               <Link
@@ -109,7 +109,7 @@ export default function Navbar({ user }: NavbarProps) {
               >
                 <Users className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  이웃
+                  Following
                 </span>
               </Link>
               <Link
@@ -118,18 +118,18 @@ export default function Navbar({ user }: NavbarProps) {
               >
                 <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  메시지
+                  Messages
                 </span>
               </Link>
               <button
                 type="button"
                 onClick={() => setRequestsModalOpen(true)}
                 className="flex flex-col items-center justify-center min-w-[52px] sm:min-w-[64px] h-12 py-1 rounded hover:bg-slate-100 transition-colors text-gray-700"
-                title="요청 작품"
+                title="Commissions"
               >
                 <FileText className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  요청작품
+                  Commissions
                 </span>
               </button>
               <div className="relative" ref={dropdownRef}>
@@ -140,9 +140,9 @@ export default function Navbar({ user }: NavbarProps) {
                 >
                   <UserCircle className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                   <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                    나
-                  </span>
-                </button>
+Me
+                </span>
+              </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 top-full mt-1 w-48 py-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50">
                     <Link
@@ -151,7 +151,7 @@ export default function Navbar({ user }: NavbarProps) {
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50"
                     >
                       <UserCircle className="h-4 w-4" />
-                      프로필 보기
+                      View profile
                     </Link>
                     <button
                       type="button"
@@ -159,7 +159,7 @@ export default function Navbar({ user }: NavbarProps) {
                       className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50"
                     >
                       <LogOut className="h-4 w-4" />
-                      로그아웃
+                      Sign out
                     </button>
                   </div>
                 )}
@@ -171,14 +171,14 @@ export default function Navbar({ user }: NavbarProps) {
                 href="/login"
                 className="px-3 py-1.5 text-sm text-gray-700 hover:bg-slate-100 rounded-md transition-colors"
               >
-                로그인
+                Sign In
               </Link>
               <Link
                 href="/signup"
                 className="px-3 py-1.5 text-sm text-white rounded-md transition-opacity hover:opacity-90"
                 style={{ backgroundColor: '#8E86F5' }}
               >
-                회원가입
+                Join
               </Link>
             </div>
           )}

@@ -81,13 +81,13 @@ export default function ExperienceSection({ userId, isOwn }: ExperienceSectionPr
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('로그인이 필요합니다.')
+      if (!user) throw new Error('Sign in required.')
 
       const startStorage = toStorageDate(startDate)
       const endStorage = toStorageDate(endDate)
 
       if (!startStorage) {
-        toast.error('시작일 형식을 확인해주세요 (YYYY-MM)')
+        toast.error('Please use start date format YYYY-MM')
         setSaving(false)
         return
       }
@@ -118,24 +118,24 @@ export default function ExperienceSection({ userId, isOwn }: ExperienceSectionPr
         if (error) throw error
       }
 
-      toast.success('저장되었습니다!')
+      toast.success('Saved!')
       setModalOpen(false)
       await fetchCareers()
       router.refresh()
 
     } catch (err: any) {
       console.error(err)
-      toast.error(err.message || '실패했습니다.')
+      toast.error(err.message || 'Failed.')
     } finally {
       setSaving(false)
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('삭제하시겠습니까?')) return
+    if (!confirm('Delete this entry?')) return
     const { error } = await supabase.from('careers').delete().eq('id', id)
     if (!error) {
-      toast.success('삭제되었습니다.')
+      toast.success('Deleted.')
       fetchCareers()
     }
   }
@@ -145,14 +145,14 @@ export default function ExperienceSection({ userId, isOwn }: ExperienceSectionPr
       <Card>
         <CardHeader action={isOwn && (
           <Button variant="ghost" size="sm" onClick={openAdd}>
-            <Plus className="w-4 h-4 mr-1"/> 추가
+            <Plus className="w-4 h-4 mr-1"/> Add
           </Button>
         )}>
-          <h3 className="font-semibold text-slate-900">전시·활동 이력</h3>
+          <h3 className="font-semibold text-slate-900">Exhibitions & activity</h3>
         </CardHeader>
         <CardContent>
           {!careers.length ? (
-            <div className="py-8 text-center text-gray-500 text-sm">등록된 경력이 없습니다.</div>
+            <div className="py-8 text-center text-gray-500 text-sm">No entries yet.</div>
           ) : (
             <ul className="space-y-4">
               {careers.map(c => (
@@ -161,7 +161,7 @@ export default function ExperienceSection({ userId, isOwn }: ExperienceSectionPr
                     <p className="font-medium">{c.company_name}</p>
                     <p className="text-sm text-gray-600">{c.title}</p>
                     <p className="text-xs text-gray-400">
-                      {c.start_date?.slice(0,7)} ~ {c.end_date ? c.end_date.slice(0,7) : '현재'}
+                      {c.start_date?.slice(0,7)} ~ {c.end_date ? c.end_date.slice(0,7) : 'Present'}
                     </p>
                     {c.description && <p className="text-sm mt-1 text-gray-600">{c.description}</p>}
                   </div>
@@ -182,18 +182,18 @@ export default function ExperienceSection({ userId, isOwn }: ExperienceSectionPr
         </CardContent>
       </Card>
 
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title={editingCareer ? '경력 수정' : '경력 추가'}>
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title={editingCareer ? 'Edit entry' : 'Add entry'}>
         <div className="p-4 space-y-3">
-          <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="회사명" className="w-full border p-2 rounded"/>
-          <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="직함" className="w-full border p-2 rounded"/>
+          <input value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="Organization" className="w-full border p-2 rounded"/>
+          <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Role / title" className="w-full border p-2 rounded"/>
           <div className="flex gap-2">
-            <input value={startDate} onChange={e=>setStartDate(e.target.value)} placeholder="시작일 (YYYY-MM)" className="w-1/2 border p-2 rounded"/>
-            <input value={endDate} onChange={e=>setEndDate(e.target.value)} placeholder="종료일 (선택)" className="w-1/2 border p-2 rounded"/>
+            <input value={startDate} onChange={e=>setStartDate(e.target.value)} placeholder="Start (YYYY-MM)" className="w-1/2 border p-2 rounded"/>
+            <input value={endDate} onChange={e=>setEndDate(e.target.value)} placeholder="End (optional)" className="w-1/2 border p-2 rounded"/>
           </div>
-          <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="설명" className="w-full border p-2 rounded h-20 resize-none"/>
+          <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Description" className="w-full border p-2 rounded h-20 resize-none"/>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setModalOpen(false)}>취소</Button>
-            <Button onClick={handleSubmit} disabled={saving}>{saving ? '저장...' : '저장'}</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmit} disabled={saving}>{saving ? 'Saving...' : 'Save'}</Button>
           </div>
         </div>
       </Dialog>

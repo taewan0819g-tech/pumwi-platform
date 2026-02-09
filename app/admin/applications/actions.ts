@@ -6,14 +6,14 @@ import { revalidatePath } from 'next/cache'
 export async function approveApplication(applicationId: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: '로그인이 필요합니다.' }
+  if (!user) return { error: 'Sign in required.' }
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
-  if (profile?.role !== 'admin') return { error: '권한이 없습니다.' }
+  if (profile?.role !== 'admin') return { error: 'Access denied.' }
 
   const { data: app, error: fetchError } = await supabase
     .from('artist_applications')
@@ -21,7 +21,7 @@ export async function approveApplication(applicationId: string) {
     .eq('id', applicationId)
     .eq('status', 'pending')
     .single()
-  if (fetchError || !app) return { error: '신청을 찾을 수 없습니다.' }
+  if (fetchError || !app) return { error: 'Application not found.' }
 
   const { error: updateAppError } = await supabase
     .from('artist_applications')
@@ -29,7 +29,16 @@ export async function approveApplication(applicationId: string) {
     .eq('id', applicationId)
   if (updateAppError) return { error: updateAppError.message }
 
+  // Set applicant's profile to artist and clear pending flag
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ role: 'artist', is_artist_pending: false })
+    .eq('id', app.user_id)
+  if (profileError) return { error: 'Application approved but profile update failed.' }
+
   revalidatePath('/admin/applications')
+  revalidatePath('/')
+  revalidatePath('/profile')
   return { success: true }
 }
 
@@ -39,14 +48,14 @@ export async function rejectApplication(
 ) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: '로그인이 필요합니다.' }
+  if (!user) return { error: 'Sign in required.' }
 
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
     .eq('id', user.id)
     .single()
-  if (profile?.role !== 'admin') return { error: '권한이 없습니다.' }
+  if (profile?.role !== 'admin') return { error: 'Access denied.' }
 
   const { data: app, error: fetchError } = await supabase
     .from('artist_applications')
@@ -54,7 +63,7 @@ export async function rejectApplication(
     .eq('id', applicationId)
     .eq('status', 'pending')
     .single()
-  if (fetchError || !app) return { error: '신청을 찾을 수 없습니다.' }
+  if (fetchError || !app) return { error: 'Application not found.' }
 
   const payload: { status: string; rejection_reason?: string } = { status: 'rejected' }
   if (rejectionReason?.trim()) payload.rejection_reason = rejectionReason.trim()
@@ -69,7 +78,7 @@ export async function rejectApplication(
     .from('profiles')
     .update({ is_artist_pending: false })
     .eq('id', app.user_id)
-  if (profileError) return { error: '신청 상태는 거절되었으나 프로필 반영에 실패했습니다.' }
+  if (profileError) return { error: 'Application was rejected but profile update failed.' }
 
   revalidatePath('/admin/applications')
   revalidatePath('/')

@@ -52,7 +52,7 @@ export default function SignupPage() {
         router.push('/login')
       }, 2000)
     } catch (err) {
-      setError('회원가입 중 오류가 발생했습니다.')
+      setError('Registration failed. Please try again.')
       setLoading(false)
     }
   }
@@ -62,7 +62,7 @@ export default function SignupPage() {
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-[#8E86F5] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">확인 중...</p>
+          <p className="text-sm text-gray-500">Checking...</p>
         </div>
       </div>
     )
@@ -76,7 +76,7 @@ export default function SignupPage() {
           <h1 className="text-4xl font-bold" style={{ color: '#8E86F5' }}>
             PUMWI
           </h1>
-          <p className="text-gray-600 mt-2">당신의 예술이 가치를 만나는 공간</p>
+          <p className="text-gray-600 mt-2">Where Art Meets Value</p>
         </div>
 
         {/* 회원가입 폼 */}
@@ -89,7 +89,7 @@ export default function SignupPage() {
 
           {success && (
             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-              가입을 환영합니다! 로그인 페이지로 이동합니다...
+              Welcome! Redirecting you to sign in...
             </div>
           )}
 
@@ -98,7 +98,7 @@ export default function SignupPage() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              이메일
+              Email
             </label>
             <input
               id="email"
@@ -116,7 +116,7 @@ export default function SignupPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              비밀번호
+              Password
             </label>
             <input
               id="password"
@@ -129,7 +129,7 @@ export default function SignupPage() {
               placeholder="••••••••"
             />
             <p className="text-xs text-gray-500 mt-1">
-              비밀번호는 최소 6자 이상이어야 합니다.
+              Password must be at least 6 characters.
             </p>
           </div>
 
@@ -139,20 +139,20 @@ export default function SignupPage() {
             className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:opacity-90"
             style={{ backgroundColor: '#8E86F5' }}
           >
-            {loading ? '가입 중...' : success ? '가입 완료!' : '회원가입'}
+            {loading ? 'Joining...' : success ? 'Welcome!' : 'Join'}
           </button>
         </form>
 
         {/* 로그인 링크 */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            이미 계정이 있으신가요?{' '}
+            Already have an account?{' '}
             <a
               href="/login"
               className="font-medium hover:opacity-80"
               style={{ color: '#8E86F5' }}
             >
-              로그인
+              Sign In
             </a>
           </p>
         </div>

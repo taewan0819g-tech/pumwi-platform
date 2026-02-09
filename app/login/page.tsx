@@ -46,7 +46,7 @@ export default function LoginPage() {
       await new Promise((r) => setTimeout(r, 600))
       window.location.href = '/'
     } catch (err) {
-      setError('로그인 중 오류가 발생했습니다.')
+      setError('Sign-in failed. Please try again.')
       setLoading(false)
     }
   }
@@ -56,7 +56,7 @@ export default function LoginPage() {
       <div className="min-h-screen flex items-center justify-center bg-white px-4">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-[#8E86F5] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">확인 중...</p>
+          <p className="text-sm text-gray-500">Checking...</p>
         </div>
       </div>
     )
@@ -70,7 +70,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-bold" style={{ color: '#8E86F5' }}>
             PUMWI
           </h1>
-          <p className="text-gray-600 mt-2">당신의 예술이 가치를 만나는 공간</p>
+          <p className="text-gray-600 mt-2">Where Art Meets Value</p>
         </div>
 
         {/* 로그인 폼 */}
@@ -86,7 +86,7 @@ export default function LoginPage() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              이메일
+              Email
             </label>
             <input
               id="email"
@@ -104,7 +104,7 @@ export default function LoginPage() {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              비밀번호
+              Password
             </label>
             <input
               id="password"
@@ -123,20 +123,20 @@ export default function LoginPage() {
             className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:opacity-90"
             style={{ backgroundColor: '#8E86F5' }}
           >
-            {loading ? '로그인 중...' : '로그인'}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
         {/* 회원가입 링크 */}
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            계정이 없으신가요?{' '}
+            Don't have an account?{' '}
             <a
               href="/signup"
               className="font-medium hover:opacity-80"
               style={{ color: '#8E86F5' }}
             >
-              회원가입
+              Join
             </a>
           </p>
         </div>

@@ -85,7 +85,7 @@ export default function ProfileHeader({
         console.error('[Storage upload]', error)
         const msg =
           error.message?.includes('Bucket') || error.message?.includes('bucket')
-            ? 'Storage 버킷이 없습니다. Supabase 대시보드에서 버킷을 생성해 주세요.'
+            ? 'Storage bucket not found. Create a bucket in the Supabase dashboard.'
             : error.message
         toast.error(msg)
         return null
@@ -94,7 +94,7 @@ export default function ProfileHeader({
       return urlData.publicUrl
     } catch (err) {
       console.error('[Storage upload]', err)
-      toast.error(err instanceof Error ? err.message : '이미지 업로드 실패')
+      toast.error(err instanceof Error ? err.message : 'Image upload failed')
       return null
     }
   }
@@ -124,10 +124,10 @@ export default function ProfileHeader({
         return
       }
       onUpdate({ ...profile, avatar_url: url })
-      toast.success('저장되었습니다!')
+      toast.success('Saved!')
     } catch (err) {
       console.error('[handleAvatarChange]', err)
-      toast.error(err instanceof Error ? err.message : '업로드 실패')
+      toast.error(err instanceof Error ? err.message : 'Upload failed')
     } finally {
       setUploading(false)
       e.target.value = ''
@@ -159,11 +159,11 @@ export default function ProfileHeader({
         return
       }
       onUpdate({ ...profile, background_url: url })
-      toast.success('배경이 저장되었습니다!')
+      toast.success('Background saved!')
       router.refresh()
     } catch (err) {
       console.error('[handleBackgroundChange]', err)
-      toast.error(err instanceof Error ? err.message : '배경 업로드 실패')
+      toast.error(err instanceof Error ? err.message : 'Background upload failed')
     } finally {
       setUploading(false)
       e.target.value = ''
@@ -201,18 +201,18 @@ export default function ProfileHeader({
       setValuePhilosophy(updated.value_philosophy ?? '')
       setStudioLocation(updated.studio_location ?? '')
       onUpdate(updated)
-      toast.success('저장되었습니다!')
+      toast.success('Saved!')
       setEditing(false)
       router.refresh()
     } catch (err) {
       console.error('[handleSaveProfile]', err)
-      toast.error(err instanceof Error ? err.message : '저장 실패')
+      toast.error(err instanceof Error ? err.message : 'Save failed')
     } finally {
       setSaving(false)
     }
   }
 
-  const displayName = profile?.full_name || userEmail?.split('@')[0] || '사용자'
+  const displayName = profile?.full_name || userEmail?.split('@')[0] || 'User'
   const backgroundImageUrl = profile?.background_url ?? null
 
   const handleFollowToggle = async () => {
@@ -227,18 +227,18 @@ export default function ProfileHeader({
           .eq('following_id', profile.id)
         if (error) throw error
         setIsFollowing(false)
-        toast.success('이웃 해제되었습니다.')
+        toast.success('Unfollowed.')
       } else {
         const { error } = await supabase
           .from('follows')
           .insert({ follower_id: currentUserId, following_id: profile.id })
         if (error) throw error
         setIsFollowing(true)
-        toast.success('이웃으로 추가되었습니다.')
+        toast.success('Added to following.')
       }
     } catch (err) {
       console.error('[follow toggle]', err)
-      toast.error(err instanceof Error ? err.message : '처리 실패')
+      toast.error(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setFollowLoading(false)
     }
@@ -277,7 +277,7 @@ export default function ProfileHeader({
                 }}
                 disabled={uploading}
                 className="p-2 rounded-full bg-black/50 text-white hover:bg-black/70 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-white"
-                title="배경화면 변경"
+                title="Change background"
               >
                 <Camera className="h-4 w-4" />
               </button>
@@ -310,7 +310,7 @@ export default function ProfileHeader({
                   onClick={() => avatarInputRef.current?.click()}
                   disabled={uploading}
                   className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#8E86F5] text-white hover:opacity-90 shadow disabled:opacity-50"
-                  title="프로필 사진 변경"
+                  title="Change profile photo"
                 >
                   <Camera className="h-3.5 w-3.5" />
                 </button>
@@ -332,36 +332,36 @@ export default function ProfileHeader({
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="이름"
+                  placeholder="Name"
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                 />
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  placeholder="한줄 소개"
+                  placeholder="Short bio"
                   rows={2}
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                 />
                 <textarea
                   value={valuePhilosophy}
                   onChange={(e) => setValuePhilosophy(e.target.value)}
-                  placeholder="가치철학"
+                  placeholder="Values & philosophy"
                   rows={3}
                   className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                 />
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">작업실 위치</label>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Studio location</label>
                   <input
                     type="text"
                     value={studioLocation}
                     onChange={(e) => setStudioLocation(e.target.value)}
-                    placeholder="예: 서울 성수동"
+                    placeholder="e.g. Brooklyn, NY"
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                   />
                 </div>
                 <div className="flex gap-2 pt-0.5">
                   <Button onClick={handleSaveProfile} disabled={saving}>
-                    {saving ? '저장 중...' : '저장'}
+                    {saving ? 'Saving...' : 'Save'}
                   </Button>
                   <Button
                     variant="outline"
@@ -373,7 +373,7 @@ export default function ProfileHeader({
                       setStudioLocation(profile?.studio_location ?? '')
                     }}
                   >
-                    취소
+                    Cancel
                   </Button>
                 </div>
               </div>
@@ -387,7 +387,7 @@ export default function ProfileHeader({
                   {profile?.studio_location?.trim() && (
                     <div className="flex items-center gap-1.5 text-slate-500 text-sm shrink-0 text-right">
                       <MapPin className="h-4 w-4 shrink-0" />
-                      <span>작업실 | {profile.studio_location.trim()}</span>
+                      <span>Studio | {profile.studio_location.trim()}</span>
                     </div>
                   )}
                 </div>
@@ -408,7 +408,7 @@ export default function ProfileHeader({
                       className="text-slate-700 border-slate-300 hover:bg-slate-50"
                     >
                       <Pencil className="h-4 w-4 mr-1.5" />
-                      수정
+                      Edit
                     </Button>
                   )}
                   {!isOwn && currentUserId && (
@@ -420,7 +420,7 @@ export default function ProfileHeader({
                         className="border-[#8E86F5] text-[#8E86F5] hover:bg-[#8E86F5]/10"
                       >
                         <Send className="h-4 w-4 mr-1.5" />
-                        작품 요청
+                        Commission
                       </Button>
                       <Button
                         size="sm"
@@ -434,10 +434,10 @@ export default function ProfileHeader({
                         }
                       >
                         {followLoading
-                          ? '처리 중...'
+                          ? 'Processing...'
                           : isFollowing
-                            ? '이웃 취소'
-                            : '이웃추가'}
+                            ? 'Unfollow'
+                            : 'Follow'}
                       </Button>
                     </>
                   )}

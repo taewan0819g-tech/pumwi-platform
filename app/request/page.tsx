@@ -8,20 +8,20 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
 const PURPOSE_OPTIONS = [
-  { value: '', label: '선택 (선택사항)' },
-  { value: 'personal', label: '개인 소장' },
-  { value: 'gift', label: '선물' },
-  { value: 'office', label: '오피스/로비' },
-  { value: 'home', label: '홈 인테리어' },
+  { value: '', label: 'Select (optional)' },
+  { value: 'personal', label: 'Personal collection' },
+  { value: 'gift', label: 'Gift' },
+  { value: 'office', label: 'Office / Lobby' },
+  { value: 'home', label: 'Home interior' },
 ] as const
 
 const BUDGET_OPTIONS = [
-  { value: '', label: '선택 (선택사항)' },
-  { value: 'under_1m', label: '100만원 이하' },
-  { value: '1m_5m', label: '100~500만원' },
-  { value: '5m_10m', label: '500~1,000만원' },
-  { value: 'over_10m', label: '1,000만원 이상' },
-  { value: 'any', label: '가격 무관' },
+  { value: '', label: 'Select (optional)' },
+  { value: 'under_1m', label: 'Under ₩1M' },
+  { value: '1m_5m', label: '₩1M–₩5M' },
+  { value: '5m_10m', label: '₩5M–₩10M' },
+  { value: 'over_10m', label: 'Over ₩10M' },
+  { value: 'any', label: 'No budget preference' },
 ] as const
 
 export default function RequestPage() {
@@ -53,7 +53,7 @@ export default function RequestPage() {
     if (!userId) return
     const trimmed = content.trim()
     if (!trimmed) {
-      alert('요청 내용을 입력해 주세요.')
+      alert('Please enter your commission details.')
       return
     }
     setSubmitting(true)
@@ -69,25 +69,25 @@ export default function RequestPage() {
         const msg = error.message ?? ''
         if (
           msg.includes('relation') &&
-          (msg.includes('does not exist') || msg.includes('찾을 수 없'))
+          (msg.includes('does not exist') || msg.includes('not found'))
         ) {
           alert(
-            '요청 테이블이 아직 준비되지 않았습니다. 관리자에게 문의하거나, Supabase에 requests 스키마를 적용해 주세요.'
+            'The requests table is not set up yet. Please contact the administrator or apply the requests schema in Supabase.'
           )
           return
         }
         if (msg.includes('Row level security') || msg.includes('policy')) {
-          alert('접근 권한이 없습니다. 로그인 상태와 RLS 정책을 확인해 주세요.')
+          alert('Access denied. Please check your sign-in status and RLS policies.')
           return
         }
         throw error
       }
-      alert('요청이 접수되었습니다. AI가 분석을 시작합니다.')
+      alert('Your commission request has been received. Our curation will begin shortly.')
       router.push('/')
     } catch (err) {
       console.error('[request]', err)
       const message =
-        err instanceof Error ? err.message : '요청 접수에 실패했습니다.'
+        err instanceof Error ? err.message : 'Failed to submit your request.'
       alert(message)
     } finally {
       setSubmitting(false)
@@ -97,7 +97,7 @@ export default function RequestPage() {
   if (!mounted) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <p className="text-slate-500">로딩 중...</p>
+        <p className="text-slate-500">Loading...</p>
       </div>
     )
   }
@@ -114,7 +114,7 @@ export default function RequestPage() {
           className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
-          홈으로
+          Back to Home
         </Link>
 
         <h1
@@ -124,7 +124,7 @@ export default function RequestPage() {
           AI Art Concierge
         </h1>
         <p className="text-slate-600 mb-12">
-          갤러리 큐레이터와 상담하듯, 찾으시는 작품을 알려주세요.
+          Share your vision with us—as you would with a gallery curator.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -134,7 +134,7 @@ export default function RequestPage() {
               className="block text-sm font-medium text-slate-700 mb-2"
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
-              용도
+              Purpose
             </label>
             <select
               id="purpose"
@@ -156,7 +156,7 @@ export default function RequestPage() {
               className="block text-sm font-medium text-slate-700 mb-2"
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
-              예산
+              Budget
             </label>
             <select
               id="budget"
@@ -178,13 +178,13 @@ export default function RequestPage() {
               className="block text-sm font-medium text-slate-700 mb-2"
               style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
             >
-              요청 내용 <span className="text-red-500">*</span>
+              Commission details <span className="text-red-500">*</span>
             </label>
             <textarea
               id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="찾으시는 작품의 느낌, 색감, 공간 분위기를 자유롭게 적어주세요."
+              placeholder="Describe the mood, palette, and space you have in mind."
               rows={6}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg bg-white text-slate-900 placeholder:text-gray-400 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
               required
@@ -198,7 +198,7 @@ export default function RequestPage() {
               className="w-full py-3 text-base font-medium rounded-lg"
               style={{ backgroundColor: '#8E86F5' }}
             >
-              {submitting ? '접수 중...' : '매칭 요청하기'}
+              {submitting ? 'Submitting...' : 'Get Curation'}
             </Button>
           </div>
         </form>

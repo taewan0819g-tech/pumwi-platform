@@ -210,7 +210,7 @@ export default function PostsSection({
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        toast.error('로그인이 필요합니다.')
+        toast.error('Sign in required.')
         setSaving(false)
         return
       }
@@ -225,7 +225,7 @@ export default function PostsSection({
             .from(BUCKET_POSTS)
             .upload(path, file, { upsert: true })
             .then(({ data, error }) => {
-              if (error) throw new Error('이미지 업로드 실패: ' + error.message)
+              if (error) throw new Error('Image upload failed: ' + error.message)
               const { data: urlData } = supabase.storage
                 .from(BUCKET_POSTS)
                 .getPublicUrl(data!.path)
@@ -254,24 +254,24 @@ export default function PostsSection({
 
       if (error) throw error
 
-      toast.success('저장되었습니다!')
+      toast.success('Saved!')
       setModalOpen(false)
       await fetchPosts()
       router.refresh()
     } catch (err: unknown) {
       console.error('[handleSubmit error]', err)
-      toast.error(err instanceof Error ? err.message : '저장에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Save failed.')
     } finally {
       setSaving(false)
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('삭제하시겠습니까?')) return
+    if (!confirm('Delete this post?')) return
     try {
       const { error } = await supabase.from('posts').delete().eq('id', id)
       if (error) throw error
-      toast.success('삭제되었습니다.')
+      toast.success('Deleted.')
       setViewPost(null)
       setIsEditing(false)
       await fetchPosts()
@@ -296,7 +296,7 @@ export default function PostsSection({
 
   const handleSaveEdit = async () => {
     if (!viewPost || !editTitle.trim()) {
-      toast.error('제목을 입력해 주세요.')
+      toast.error('Please enter a title.')
       return
     }
     setSavingEdit(true)
@@ -332,9 +332,9 @@ export default function PostsSection({
       setIsEditing(false)
       await fetchPosts()
       router.refresh()
-      toast.success('수정되었습니다.')
+      toast.success('Updated.')
     } catch (err: any) {
-      toast.error(err instanceof Error ? err.message : '수정에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Update failed.')
     } finally {
       setSavingEdit(false)
     }
@@ -345,19 +345,19 @@ export default function PostsSection({
       <Card>
         <CardHeader action={isOwn && (
           <Button variant="ghost" size="sm" onClick={openAdd}>
-            <Plus className="h-4 w-4 mr-1" />글 쓰기
+            <Plus className="h-4 w-4 mr-1" />New post
           </Button>
         )}>
           <h3 className="font-semibold text-slate-900">
-            {tab === 'work_log' ? '작업일지' : '판매게시물'}
+            {tab === 'work_log' ? 'Studio Log' : 'Works for Sale'}
           </h3>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-sm text-gray-500">로딩 중...</div>
+            <div className="text-sm text-gray-500">Loading...</div>
           ) : !posts.length ? (
             <div className="py-8 text-center text-sm text-gray-500">
-              {isOwn ? '게시물을 올려보세요!' : '게시물이 없습니다.'}
+              {isOwn ? 'Share your first post!' : 'No posts yet.'}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -367,7 +367,7 @@ export default function PostsSection({
                   {post.type === 'sales' && (
                     <div className="mb-2 flex items-center gap-1.5">
                       <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
-                        판매 작품
+                        For Sale
                       </span>
                       {post.edition_number != null && post.edition_total != null && (
                         <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
@@ -394,19 +394,19 @@ export default function PostsSection({
       </Card>
 
       {/* 글쓰기 모달 */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title="글 쓰기">
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title="New post">
         <div className="p-4 space-y-3">
           <input 
             value={title} onChange={e => setTitle(e.target.value)} 
-            placeholder="제목" className="w-full border p-2 rounded" 
+            placeholder="Title" className="w-full border p-2 rounded" 
           />
           <textarea 
             value={content} onChange={e => setContent(e.target.value)} 
-            placeholder="내용" className="w-full border p-2 rounded h-32 resize-none" 
+            placeholder="Content" className="w-full border p-2 rounded h-32 resize-none" 
           />
           {tab === 'sales' && (
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600 shrink-0">Edition (작품 수량)</label>
+              <label className="text-sm text-gray-600 shrink-0">Edition</label>
               <input
                 type="number"
                 min={1}
@@ -440,7 +440,7 @@ export default function PostsSection({
               className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-[#8E86F5]"
             >
               <ImageIcon className="w-4 h-4" />
-              이미지 선택 (여러 장 선택 가능, 클릭 시 추가)
+              Select images (multiple)
             </label>
           </div>
           {previewUrls.length > 0 && (
@@ -451,7 +451,7 @@ export default function PostsSection({
                     key={url}
                     className="relative flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
                   >
-                    <img src={url} alt={`미리보기 ${i + 1}`} className="w-full h-full object-cover" />
+                    <img src={url} alt={`Preview ${i + 1}`} className="w-full h-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removePreviewAt(i)}
@@ -465,9 +465,9 @@ export default function PostsSection({
             </div>
           )}
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setModalOpen(false)}>취소</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmit} disabled={saving || !title.trim()}>
-              {saving ? '저장 중...' : '게시'}
+              {saving ? 'Saving...' : 'Post'}
             </Button>
           </div>
         </div>
@@ -477,7 +477,7 @@ export default function PostsSection({
       <Dialog
         open={!!viewPost}
         onClose={() => { setViewPost(null); setIsEditing(false) }}
-        title={isEditing ? '게시물 수정' : viewPost?.title}
+        title={isEditing ? 'Edit post' : viewPost?.title}
         className="max-w-4xl w-full max-h-[90vh] h-[85vh] md:h-[90vh] flex flex-col overflow-hidden"
       >
         {viewPost && (
@@ -486,7 +486,7 @@ export default function PostsSection({
             <div className="flex-shrink-0 md:w-1/2 md:max-h-[70vh] overflow-hidden bg-gray-50 rounded-lg">
               {(() => {
                 const urls = getPostImageUrls(viewPost)
-                if (urls.length === 0) return <div className="min-h-[200px] flex items-center justify-center text-gray-400">이미지 없음</div>
+                if (urls.length === 0) return <div className="min-h-[200px] flex items-center justify-center text-gray-400">No image</div>
                 if (urls.length === 1) {
                   return (
                     <img src={urls[0]} alt="" className="w-full h-auto max-h-[70vh] object-contain rounded-lg" />
@@ -501,27 +501,27 @@ export default function PostsSection({
                 {isEditing ? (
                   <>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">제목</label>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Title</label>
                       <input
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
-                        placeholder="제목"
+                        placeholder="Title"
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500 mb-1">내용</label>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Content</label>
                       <textarea
                         value={editContent}
                         onChange={(e) => setEditContent(e.target.value)}
-                        placeholder="내용"
+                        placeholder="Content"
                         rows={4}
                         className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
                       />
                     </div>
                     {tab === 'sales' && (
                       <div className="flex items-center gap-2">
-                        <label className="text-xs font-medium text-gray-500 shrink-0">Edition (작품 수량)</label>
+                        <label className="text-xs font-medium text-gray-500 shrink-0">Edition</label>
                         <input
                           type="number"
                           min={1}
@@ -543,10 +543,10 @@ export default function PostsSection({
                     )}
                     <div className="flex gap-2 pt-2">
                       <Button variant="outline" onClick={cancelEditing} className="flex-1">
-                        취소
+                        Cancel
                       </Button>
                       <Button onClick={handleSaveEdit} disabled={savingEdit || !editTitle.trim()} className="flex-1 bg-[#8E86F5] hover:opacity-90">
-                        {savingEdit ? '저장 중...' : '저장'}
+                        {savingEdit ? 'Saving...' : 'Save'}
                       </Button>
                     </div>
                   </>
@@ -562,10 +562,10 @@ export default function PostsSection({
                     {isOwn && (
                       <div className="flex gap-2">
                         <Button variant="outline" className="flex-1" onClick={startEditing}>
-                          <Pencil className="w-4 h-4 mr-2" /> 수정
+                          <Pencil className="w-4 h-4 mr-2" /> Edit
                         </Button>
                         <Button variant="outline" className="flex-1 text-red-500 hover:bg-red-50" onClick={() => handleDelete(viewPost.id)}>
-                          <Trash2 className="w-4 h-4 mr-2" /> 삭제
+                          <Trash2 className="w-4 h-4 mr-2" /> Delete
                         </Button>
                       </div>
                     )}

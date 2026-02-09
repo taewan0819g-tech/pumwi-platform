@@ -16,7 +16,7 @@ export default function LogoutButton() {
       router.refresh()
       window.location.href = '/login'
     } catch (error) {
-      console.error('로그아웃 오류:', error)
+      console.error('Sign-out error:', error)
     } finally {
       setLoading(false)
     }
@@ -28,7 +28,7 @@ export default function LogoutButton() {
       disabled={loading}
       className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {loading ? '로그아웃 중...' : '로그아웃'}
+      {loading ? 'Signing out...' : 'Sign out'}
     </button>
   )
 }

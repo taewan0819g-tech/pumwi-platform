@@ -53,7 +53,7 @@ export default function RequestArtworkModal({
   const handleSubmit = async () => {
     const trimmed = details.trim()
     if (!trimmed) {
-      toast.error('내용을 입력해 주세요.')
+      toast.error('Please enter your message.')
       return
     }
     setSubmitting(true)
@@ -86,7 +86,7 @@ export default function RequestArtworkModal({
         setSubmitting(false)
         return
       }
-      toast.success('작품 요청이 전송되었습니다.')
+      toast.success('Commission request sent.')
       setDetails('')
       setImageFiles([])
       previewUrls.forEach((url) => URL.revokeObjectURL(url))
@@ -95,7 +95,7 @@ export default function RequestArtworkModal({
       onClose()
       onSuccess?.()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : '전송에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Failed to send.')
     } finally {
       setSubmitting(false)
     }
@@ -118,20 +118,20 @@ export default function RequestArtworkModal({
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} title="작품 요청">
+    <Dialog open={open} onClose={handleClose} title="Commission">
       <div className="p-4 space-y-3">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">내용</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
           <textarea
             value={details}
             onChange={(e) => setDetails(e.target.value)}
-            placeholder="원하는 작품이나 스타일을 설명해 주세요."
+            placeholder="Describe the work or style you have in mind."
             rows={4}
             className="w-full px-3 py-2 border border-gray-200 rounded-lg text-slate-900 resize-none focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">참고 이미지 (선택, 여러 장 가능)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Reference images (optional, multiple)</label>
           <input
             ref={fileInputRef}
             type="file"
@@ -147,7 +147,7 @@ export default function RequestArtworkModal({
             onClick={() => fileInputRef.current?.click()}
             className="text-gray-600"
           >
-            이미지 선택 (다중)
+            Select images (multiple)
           </Button>
           {previewUrls.length > 0 && (
             <div className="mt-2 flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
@@ -155,7 +155,7 @@ export default function RequestArtworkModal({
                 <div key={i} className="relative flex-shrink-0 snap-center">
                   <img
                     src={url}
-                    alt={`미리보기 ${i + 1}`}
+                    alt={`Preview ${i + 1}`}
                     className="h-24 w-auto rounded-lg border border-gray-200 object-cover"
                   />
                   <button
@@ -172,14 +172,14 @@ export default function RequestArtworkModal({
         </div>
         <div className="flex gap-2 pt-2">
           <Button variant="outline" onClick={handleClose} className="flex-1">
-            취소
+            Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={submitting || !details.trim()}
             className="flex-1 bg-[#8E86F5] hover:opacity-90"
           >
-            {submitting ? '전송 중...' : '요청 보내기'}
+            {submitting ? 'Sending...' : 'Send request'}
           </Button>
         </div>
       </div>

@@ -17,15 +17,15 @@ import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Profile } from '@/types/profile'
 
 const ARTIST_TABS = [
-  { value: 'home', label: '홈' },
-  { value: 'work_log', label: '작업일지' },
-  { value: 'sales', label: '판매상품' },
-  { value: 'info', label: '정보' },
+  { value: 'home', label: 'Home' },
+  { value: 'work_log', label: 'Studio Log' },
+  { value: 'sales', label: 'Works for Sale' },
+  { value: 'info', label: 'About' },
 ]
 
 const USER_TABS = [
-  { value: 'collection', label: '컬렉션' },
-  { value: 'following', label: '이웃' },
+  { value: 'collection', label: 'Collection' },
+  { value: 'following', label: 'Following' },
 ]
 
 function defaultProfile(uid: string): Profile {
@@ -121,7 +121,7 @@ export default function ProfileClient({ serverUser, initialProfile }: ProfileCli
           </div>
           <div className="text-center py-8">
             <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#8E86F5] border-t-transparent" />
-            <p className="mt-3 text-sm font-medium text-slate-600">프로필 불러오는 중...</p>
+            <p className="mt-3 text-sm font-medium text-slate-600">Loading profile...</p>
           </div>
         </div>
       </div>
@@ -144,7 +144,7 @@ export default function ProfileClient({ serverUser, initialProfile }: ProfileCli
           <div className="mt-4">
             <Link href="/admin/applications">
               <Button variant="outline" className="w-full sm:w-auto">
-                아티스트 신청 관리
+                Artist applications
               </Button>
             </Link>
           </div>

@@ -65,7 +65,7 @@ function RequestImagesCarousel({ urls }: { urls: string[] }) {
           >
             <img
               src={url}
-              alt="참고 이미지"
+              alt="Reference image"
               className="w-full h-auto max-h-40 object-contain"
             />
           </div>
@@ -127,7 +127,7 @@ export default function ReceivedRequestsModal({
         if (error) {
           console.error('[ReceivedRequestsModal] artwork_requests select error:', error)
           if (error.message?.includes('foreign key') || error.message?.toLowerCase().includes('relation')) {
-            console.error('[ReceivedRequestsModal] FK(profiles!requester_id) 확인 필요. requester_id가 profiles.id를 참조하는지 확인하세요.')
+            console.error('[ReceivedRequestsModal] Verify FK: requester_id should reference profiles.id.')
           }
           setRequests([])
         } else {
@@ -148,10 +148,10 @@ export default function ReceivedRequestsModal({
 
   const handleDelete = async (requestId: string, requestArtistId: string) => {
     if (requestArtistId !== currentUserId) {
-      toast.error('본인이 받은 요청만 삭제할 수 있습니다.')
+      toast.error('You can only delete requests sent to you.')
       return
     }
-    if (!window.confirm('정말 삭제하시겠습니까?')) return
+    if (!window.confirm('Delete this request?')) return
     setDeletingId(requestId)
     try {
       const { error } = await supabase
@@ -161,17 +161,17 @@ export default function ReceivedRequestsModal({
         .eq('artist_id', currentUserId)
       if (error) throw error
       setRequests((prev) => prev.filter((r) => r.id !== requestId))
-      toast.success('삭제되었습니다.')
+      toast.success('Deleted.')
     } catch (err) {
       console.error('[ReceivedRequestsModal] delete error:', err)
-      toast.error(err instanceof Error ? err.message : '삭제에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Delete failed.')
     } finally {
       setDeletingId(null)
     }
   }
 
   const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('ko-KR', {
+    return new Date(dateStr).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -181,12 +181,12 @@ export default function ReceivedRequestsModal({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title="요청 작품" className="max-w-lg">
+    <Dialog open={open} onClose={onClose} title="Commissions" className="max-w-lg">
       <div className="p-4">
         {loading ? (
-          <p className="text-sm text-gray-500 py-4">불러오는 중...</p>
+          <p className="text-sm text-gray-500 py-4">Loading...</p>
         ) : requests.length === 0 ? (
-          <p className="text-sm text-gray-500 py-4">받은 작품 요청이 없습니다.</p>
+          <p className="text-sm text-gray-500 py-4">No commission requests yet.</p>
         ) : (
           <ul className="space-y-4 max-h-[60vh] overflow-y-auto">
             {requests.map((req) => (
@@ -208,7 +208,7 @@ export default function ReceivedRequestsModal({
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-slate-900">
-                      {req.profiles?.full_name ?? '알 수 없음'}
+                      {req.profiles?.full_name ?? 'Unknown'}
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       {formatDate(req.created_at)}
@@ -223,7 +223,7 @@ export default function ReceivedRequestsModal({
                         ) : (
                           <img
                             src={req.image_urls[0]}
-                            alt="참고 이미지"
+                            alt="Reference image"
                             className="max-h-40 w-auto rounded-lg border border-gray-200 object-contain"
                           />
                         )}
@@ -236,7 +236,7 @@ export default function ReceivedRequestsModal({
                   onClick={() => handleDelete(req.id, req.artist_id)}
                   disabled={deletingId === req.id}
                   className="absolute top-2 right-2 p-1.5 rounded-md text-gray-500 hover:text-red-600 hover:bg-red-50 disabled:opacity-50"
-                  title="삭제"
+                  title="Delete"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>

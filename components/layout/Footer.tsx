@@ -5,35 +5,35 @@ export default function Footer() {
   return (
     <footer className="bg-slate-50 border-t border-slate-200 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        {/* 상단 메뉴: 회사소개 | 개인정보처리방침 | 이용약관 | 공지사항 */}
+        {/* Top menu */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-xs text-slate-500 mb-6">
           <Link href="/company" className="hover:text-slate-700 transition-colors">
-            회사소개
+            About
           </Link>
           <span className="text-slate-300 select-none">|</span>
           <Link
             href="/privacy"
             className="font-semibold text-slate-600 hover:text-slate-800 transition-colors"
           >
-            개인정보처리방침
+            Privacy
           </Link>
           <span className="text-slate-300 select-none">|</span>
           <Link href="/terms" className="hover:text-slate-700 transition-colors">
-            이용약관
+            Terms
           </Link>
           <span className="text-slate-300 select-none">|</span>
           <Link href="/notice" className="hover:text-slate-700 transition-colors">
-            공지사항
+            Notice
           </Link>
         </div>
 
-        {/* 사업자 정보 */}
+        {/* Company info */}
         <div className="text-xs text-slate-500 space-y-1 mb-6">
-          <p className="font-semibold text-slate-600">PUMWI (품위)</p>
-          <p>대표: 황태완 | 개인정보보호책임자: 황태완</p>
-          <p>주소: 경기도 이천시</p>
+          <p className="font-semibold text-slate-600">PUMWI</p>
+          <p>Representative: Hwang Taewan | DPO: Hwang Taewan</p>
+          <p>Address: Icheon-si, Gyeonggi-do</p>
           <p>
-            이메일:{' '}
+            Email:{' '}
             <a
               href="mailto:taewan0819g@gmail.com"
               className="hover:text-slate-700 underline"
@@ -42,17 +42,17 @@ export default function Footer() {
             </a>
           </p>
           <p>
-            전화:{' '}
+            Phone:{' '}
             <a href="tel:010-5173-0819" className="hover:text-slate-700">
               010-5173-0819
             </a>
           </p>
           <p className="text-slate-400 italic mt-2">
-            *현재 정식 서비스 준비 중인 베타 버전입니다.
+            *Beta. Full service coming soon.
           </p>
         </div>
 
-        {/* 하단 카피라이트 + SNS */}
+        {/* Copyright + SNS */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-slate-200 text-xs text-slate-500">
           <p>Copyright © 2026 PUMWI. All Rights Reserved.</p>
           <div className="flex items-center gap-3">

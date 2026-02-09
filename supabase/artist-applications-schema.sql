@@ -17,6 +17,9 @@ create table if not exists public.artist_applications (
 -- 거절 사유 (선택, 관리자 페이지에서 입력 시 저장)
 alter table public.artist_applications add column if not exists rejection_reason text;
 
+-- 신청 상세 (5가지 질문 답변 JSON)
+alter table public.artist_applications add column if not exists application_details jsonb;
+
 alter table public.artist_applications enable row level security;
 
 -- 본인은 자신의 신청서만 조회 가능

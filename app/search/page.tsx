@@ -33,11 +33,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   return (
     <div className="min-h-screen bg-[#F3F2EF] pb-12">
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <h1 className="text-xl font-bold text-slate-900 mb-2">검색 결과</h1>
+        <h1 className="text-xl font-bold text-slate-900 mb-2">Search results</h1>
         {!q ? (
-          <p className="text-gray-500 text-sm">검색어를 입력해 주세요.</p>
+          <p className="text-gray-500 text-sm">Enter a search term.</p>
         ) : results.length === 0 ? (
-          <p className="text-gray-500 font-medium py-8">검색 결과가 없습니다.</p>
+          <p className="text-gray-500 font-medium py-8">No results found.</p>
         ) : (
           <ul className="space-y-2">
             {results.map((user) => (
@@ -59,7 +59,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-slate-900 truncate">
-                      {user.full_name ?? '이름 없음'}
+                      {user.full_name ?? 'Unknown'}
                     </p>
                     {user.role && (
                       <p className="text-xs text-[#8E86F5] mt-0.5">{user.role}</p>

@@ -47,12 +47,12 @@ export default function ValuePhilosophySection({
       }
       setValue(savedValue ?? '')
       onUpdate({ ...profile, value_philosophy: savedValue })
-      toast.success('저장되었습니다!')
+      toast.success('Saved!')
       setEditing(false)
       router.refresh()
     } catch (err) {
       console.error('[ValuePhilosophySection handleSave]', err)
-      toast.error(err instanceof Error ? err.message : '저장 실패')
+      toast.error(err instanceof Error ? err.message : 'Save failed')
     } finally {
       setSaving(false)
     }
@@ -71,12 +71,12 @@ export default function ValuePhilosophySection({
               className="flex items-center gap-1"
             >
               <Pencil className="h-4 w-4" />
-              수정
+              Edit
             </Button>
           )
         }
       >
-        <h3 className="font-semibold text-slate-900">가치철학</h3>
+        <h3 className="font-semibold text-slate-900">Values & philosophy</h3>
       </CardHeader>
       <CardContent>
         {editing ? (
@@ -84,13 +84,13 @@ export default function ValuePhilosophySection({
             <textarea
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              placeholder="가치철학을 입력하세요"
+              placeholder="Share your values and philosophy"
               rows={5}
               className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900 resize-none"
             />
             <div className="flex gap-2">
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? '저장 중...' : '저장'}
+                {saving ? 'Saving...' : 'Save'}
               </Button>
               <Button
                 variant="outline"
@@ -99,14 +99,14 @@ export default function ValuePhilosophySection({
                   setValue(profile?.value_philosophy ?? '')
                 }}
               >
-                취소
+                Cancel
               </Button>
             </div>
           </div>
         ) : (
           <p className="text-gray-600 whitespace-pre-wrap">
             {profile?.value_philosophy ||
-              (isOwn ? '가치철학을 작성해 보세요.' : '작성된 가치철학이 없습니다.')}
+              (isOwn ? 'Share your values and philosophy.' : 'No statement yet.')}
           </p>
         )}
       </CardContent>

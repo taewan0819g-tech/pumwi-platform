@@ -58,7 +58,7 @@ export default function ArtistList() {
 
   const toggleFollow = async (artistId: string) => {
     if (!currentUserId) {
-      toast.error('로그인이 필요합니다.')
+      toast.error('Sign in required.')
       return
     }
     if (togglingId === artistId) return
@@ -78,13 +78,13 @@ export default function ArtistList() {
           .eq('follower_id', currentUserId)
           .eq('following_id', artistId)
         if (error) throw error
-        toast.success('이웃이 해제되었습니다.')
+        toast.success('Unfollowed.')
       } else {
         const { error } = await supabase
           .from('follows')
           .insert({ follower_id: currentUserId, following_id: artistId })
         if (error) throw error
-        toast.success('이웃으로 추가되었습니다.')
+        toast.success('Added to following.')
       }
     } catch (err) {
       setFollowing((prev) => {
@@ -93,7 +93,7 @@ export default function ArtistList() {
         else next.delete(artistId)
         return next
       })
-      toast.error(err instanceof Error ? err.message : '처리에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setTogglingId(null)
     }
@@ -102,7 +102,7 @@ export default function ArtistList() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-gray-100">
-        <h3 className="font-semibold text-slate-900">추천 아티스트</h3>
+        <h3 className="font-semibold text-slate-900">Featured Artists</h3>
       </div>
       {loading ? (
         <div className="p-4 space-y-3 animate-pulse">
@@ -112,7 +112,7 @@ export default function ArtistList() {
         </div>
       ) : artists.length === 0 ? (
         <div className="p-6 text-center text-sm text-gray-500">
-          아직 등록된 아티스트가 없습니다.
+          No artists registered yet.
         </div>
       ) : (
         <ul className="divide-y divide-gray-100">
@@ -137,7 +137,7 @@ export default function ArtistList() {
                   )}
                 </div>
                 <span className="font-medium text-slate-900 truncate text-sm">
-                  {artist.full_name ?? '아티스트'}
+                  {artist.full_name ?? 'Artist'}
                 </span>
               </Link>
               <button
@@ -154,10 +154,10 @@ export default function ArtistList() {
                 }`}
               >
                 {togglingId === artist.id
-                  ? '처리 중...'
+                  ? 'Processing...'
                   : following.has(artist.id)
-                    ? '이웃 취소'
-                    : '이웃추가'}
+                    ? 'Unfollow'
+                    : 'Follow'}
               </button>
             </li>
           ))}

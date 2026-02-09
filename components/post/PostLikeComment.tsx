@@ -31,11 +31,11 @@ function timeAgo(dateStr: string) {
   const diffM = Math.floor(diffMs / 60000)
   const diffH = Math.floor(diffM / 60)
   const diffD = Math.floor(diffH / 24)
-  if (diffM < 1) return '방금 전'
-  if (diffM < 60) return `${diffM}분 전`
-  if (diffH < 24) return `${diffH}시간 전`
-  if (diffD < 7) return `${diffD}일 전`
-  return d.toLocaleDateString('ko-KR')
+  if (diffM < 1) return 'Just now'
+  if (diffM < 60) return `${diffM}m ago`
+  if (diffH < 24) return `${diffH}h ago`
+  if (diffD < 7) return `${diffD}d ago`
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
 /** Standalone: fetches its own likes/comments, dispatches event on mutation so Feed can refetch */
@@ -94,7 +94,7 @@ function usePostEngagement(postId: string, currentUserId: string | null) {
     } catch (err) {
       setLiked(!nextLiked)
       setLikeCount((c) => c + (nextLiked ? -1 : 1))
-      toast.error(err instanceof Error ? err.message : '처리에 실패했습니다.')
+      toast.error(err instanceof Error ? err.message : 'Something went wrong.')
     } finally {
       setLikeLoading(false)
     }
@@ -115,7 +115,7 @@ function usePostEngagement(postId: string, currentUserId: string | null) {
         setComments((prev) => [...prev, data as CommentRow])
         dispatchChanged()
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : '댓글 등록에 실패했습니다.')
+        toast.error(err instanceof Error ? err.message : 'Failed to add comment.')
       } finally {
         setCommentLoading(false)
       }
@@ -133,7 +133,7 @@ function usePostEngagement(postId: string, currentUserId: string | null) {
         setComments((prev) => prev.filter((c) => c.id !== commentId))
         dispatchChanged()
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : '삭제에 실패했습니다.')
+        toast.error(err instanceof Error ? err.message : 'Delete failed.')
       } finally {
         setCommentLoading(false)
       }
@@ -242,7 +242,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
             className="flex items-center gap-1.5 text-sm hover:text-[#8E86F5] transition-colors"
           >
             <MessageCircle className="h-4 w-4" />
-            <span>댓글</span>
+            <span>Comments</span>
             {comments.length > 0 && (
               <span className="text-gray-400">({comments.length})</span>
             )}
@@ -250,7 +250,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
         ) : (
           <span className="flex items-center gap-1.5 text-sm text-gray-600">
             <MessageCircle className="h-4 w-4" />
-            <span>댓글</span>
+            <span>Comments</span>
             {comments.length > 0 && (
               <span className="text-gray-400">({comments.length})</span>
             )}
@@ -258,7 +258,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
         )}
         <span className="flex items-center gap-1.5 text-sm text-gray-400 cursor-default">
           <Share2 className="h-4 w-4" />
-          <span>공유</span>
+          <span>Share</span>
         </span>
       </div>
 
@@ -272,7 +272,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
             }
           >
             {comments.length === 0 ? (
-              <li className="text-sm text-gray-500 py-2">아직 댓글이 없습니다.</li>
+              <li className="text-sm text-gray-500 py-2">No comments yet.</li>
             ) : (
               comments.map((c) => (
                 <li key={c.id} className="flex gap-3">
@@ -296,7 +296,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
                         href={`/profile/${c.user_id}`}
                         className="text-sm font-medium text-slate-900 hover:text-[#8E86F5]"
                       >
-                        {c.profiles?.full_name ?? '사용자'}
+                        {c.profiles?.full_name ?? 'User'}
                       </Link>
                       <span className="text-xs text-gray-400">{timeAgo(c.created_at)}</span>
                       {c.user_id === currentUserId && (
@@ -305,7 +305,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
                           onClick={() => onDeleteComment(c.id)}
                           disabled={commentLoading}
                           className="p-1 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 disabled:opacity-50"
-                          title="삭제"
+                          title="Delete"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
@@ -331,7 +331,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
                     onAddComment()
                   }
                 }}
-                placeholder="댓글을 입력하세요..."
+                placeholder="Add a comment..."
                 className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
               />
               <button
@@ -339,7 +339,7 @@ export function PostLikeComment(props: PostLikeCommentProps) {
                 onClick={() => onAddComment()}
                 disabled={!commentText.trim() || commentLoading}
                 className="flex-shrink-0 p-2 rounded-lg bg-[#8E86F5] text-white hover:opacity-90 disabled:opacity-50"
-                title="등록"
+                title="Post"
               >
                 <Send className="h-4 w-4" />
               </button>

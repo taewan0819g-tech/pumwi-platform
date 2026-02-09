@@ -9,8 +9,8 @@ import Footer from '@/components/layout/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'PUMWI - 당신의 예술이 가치를 만나는 공간',
-  description: '당신의 예술이 가치를 만나는 공간, PUMWI',
+  title: 'PUMWI — Where Art Meets Value',
+  description: 'Where Art Meets Value. PUMWI — A global art platform for artists and collectors.',
 }
 
 export default async function RootLayout({
@@ -23,7 +23,7 @@ export default async function RootLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <html lang="ko">
+    <html lang="en">
       <body className={`${inter.className} bg-[#F3F2EF] text-slate-900 min-h-screen flex flex-col`}>
         <AuthProvider initialSession={session}>
           <Navbar user={user} />

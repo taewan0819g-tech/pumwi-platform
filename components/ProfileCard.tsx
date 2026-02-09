@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { User } from 'lucide-react'
 import type { Profile } from '@/types/profile'
@@ -11,24 +11,34 @@ type ApplicationStatus = 'pending' | 'approved' | 'rejected' | null
 interface ProfileCardProps {
   profile: Profile | null
   userEmail?: string | null
-  /** 아티스트 신청 상태. 있으면 이 값 기준으로 표시 (pending: 심사 중, rejected/null: 신청 버튼) */
+  /** Artist application status. pending: Under Review, rejected/null: show Apply button */
   applicationStatus?: ApplicationStatus
 }
 
 export default function ProfileCard({ profile, userEmail, applicationStatus }: ProfileCardProps) {
   const router = useRouter()
   const [applyModalOpen, setApplyModalOpen] = useState(false)
+  // Show "Under Review" immediately after submit, before router.refresh() completes
+  const [justSubmittedPending, setJustSubmittedPending] = useState(false)
+
+  // Clear optimistic state when server says rejected or already artist
+  useEffect(() => {
+    if (applicationStatus === 'rejected' || profile?.role === 'artist') {
+      setJustSubmittedPending(false)
+    }
+  }, [applicationStatus, profile?.role])
 
   const effectiveRole = profile?.role ?? 'user'
   const effectivePending =
-    applicationStatus !== undefined
+    justSubmittedPending ||
+    (applicationStatus !== undefined
       ? applicationStatus === 'pending'
-      : (profile?.is_artist_pending ?? false)
+      : (profile?.is_artist_pending ?? false))
   const displayName =
     profile?.full_name ||
     (profile?.bio && profile.bio.split('\n')[0]?.slice(0, 20)) ||
     userEmail?.split('@')[0] ||
-    '사용자'
+    'User'
 
   if (!profile) {
     return (
@@ -43,7 +53,7 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
           </div>
           <div className="pt-10">
             <h3 className="font-semibold text-slate-900 truncate">
-              {userEmail?.split('@')[0] || '사용자'}
+              {userEmail?.split('@')[0] || 'User'}
             </h3>
             <p className="text-xs text-gray-500 mt-1">User</p>
           </div>
@@ -92,7 +102,7 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
             <div className="mt-2">
               {effectivePending ? (
                 <p className="text-sm text-amber-600 font-medium">
-                  심사 중입니다
+                  Under Review
                 </p>
               ) : (
                 <button
@@ -102,7 +112,7 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
                   className="w-full py-2 px-4 text-sm font-medium text-white rounded-md transition-opacity hover:opacity-90 disabled:opacity-50"
                   style={{ backgroundColor: '#8E86F5' }}
                 >
-                  아티스트 신청하기
+                  Apply as Artist
                 </button>
               )}
             </div>
@@ -114,7 +124,10 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
           open={applyModalOpen}
           onClose={() => setApplyModalOpen(false)}
           userId={profile.id}
-          onSuccess={() => router.refresh()}
+          onSuccess={() => {
+            setJustSubmittedPending(true)
+            router.refresh()
+          }}
         />
       )}
     </div>

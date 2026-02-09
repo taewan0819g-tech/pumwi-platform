@@ -4,15 +4,48 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
-import toast from 'react-hot-toast'
 
-export const ARTIST_APPLY_QUESTIONS = [
-  '이 작품 하나를 완성하는 데, 처음 재료 준비부터 마지막 마감까지 어떤 순서로 진행하시나요?',
-  '이 작업 중 외주를 주거나 기계를 사용하는 단계가 있다면, 어디까지가 직접 작업이고 어디부터 도움을 받나요?',
-  '이 작품을 만들게 된 직접적인 계기가 된 작업이나 경험이 있다면 무엇인가요?',
-  '작품의 디자인, 형태, 패턴은 전적으로 본인의 창작인가요? (참고한 것이 있다면 설명)',
-  '플랫폼에 등록된 작품의 저작권 및 법적 책임은 작가 본인에게 귀속됨을 이해하고 동의하시나요?',
+/** Keys and labels for application_details (used in modal and admin display) */
+export const APPLICATION_DETAILS_FIELDS = [
+  {
+    key: 'primary_craft_style',
+    label: 'What is your main craft and artistic style?',
+    placeholder: 'e.g., Hand-stitched leather goods with a vintage look',
+    type: 'input' as const,
+  },
+  {
+    key: 'handmade_process',
+    label: 'Describe your handmade process. Do you use any machinery?',
+    placeholder: 'Tell us how much of your work is done by hand...',
+    type: 'textarea' as const,
+  },
+  {
+    key: 'production_scale',
+    label: 'Do you mass-produce? Please describe your production scale.',
+    placeholder: 'e.g., Everything is made to order, no mass production.',
+    type: 'input' as const,
+  },
+  {
+    key: 'monthly_output',
+    label: 'How many artworks can you typically complete in a month?',
+    placeholder: 'e.g., Around 5 to 10 unique pieces',
+    type: 'input' as const,
+  },
+  {
+    key: 'studio_log_commitment',
+    label: "How many times a week can you share your 'Studio Log'?",
+    placeholder: 'e.g., I can update my process 2-3 times a week',
+    type: 'input' as const,
+  },
 ] as const
+
+export type ApplicationDetailsPayload = {
+  primary_craft_style: string
+  handmade_process: string
+  production_scale: string
+  monthly_output: string
+  studio_log_commitment: string
+}
 
 interface ArtistApplyModalProps {
   open: boolean
@@ -21,125 +54,122 @@ interface ArtistApplyModalProps {
   onSuccess: () => void
 }
 
+const initialValues: ApplicationDetailsPayload = {
+  primary_craft_style: '',
+  handmade_process: '',
+  production_scale: '',
+  monthly_output: '',
+  studio_log_commitment: '',
+}
+
 export default function ArtistApplyModal({
   open,
   onClose,
   userId,
   onSuccess,
 }: ArtistApplyModalProps) {
-  const [answers, setAnswers] = useState<string[]>(['', '', '', '', ''])
-  const [agreed, setAgreed] = useState(false)
+  const [details, setDetails] = useState<ApplicationDetailsPayload>(initialValues)
   const [submitting, setSubmitting] = useState(false)
   const supabase = createClient()
 
-  const handleChange = (index: number, value: string) => {
-    setAnswers((prev) => {
-      const next = [...prev]
-      next[index] = value
-      return next
-    })
+  const handleChange = (key: keyof ApplicationDetailsPayload, value: string) => {
+    setDetails((prev) => ({ ...prev, [key]: value }))
   }
 
   const handleSubmit = async () => {
-    if (!agreed) {
-      toast.error('마지막 항목에 동의해 주세요.')
+    const a = {
+      primary_craft_style: details.primary_craft_style.trim(),
+      handmade_process: details.handmade_process.trim(),
+      production_scale: details.production_scale.trim(),
+      monthly_output: details.monthly_output.trim(),
+      studio_log_commitment: details.studio_log_commitment.trim(),
+    }
+    if (Object.values(a).some((v) => !v)) {
+      alert('Please answer all five questions.')
       return
     }
-    const trimmed = answers.map((a) => a.trim())
-    if (trimmed.slice(0, 4).some((a) => !a)) {
-      toast.error('1~4번 문항에 모두 답해 주세요.')
-      return
-    }
+
     setSubmitting(true)
-    try {
-      const answersPayload = {
-        q1: trimmed[0],
-        q2: trimmed[1],
-        q3: trimmed[2],
-        q4: trimmed[3],
-        agreed: true,
-      }
 
-      const { data: existing } = await supabase
-        .from('artist_applications')
-        .select('id, status')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-
-      if (existing?.status === 'rejected') {
-        const { error: updateAppError } = await supabase
-          .from('artist_applications')
-          .update({
-            status: 'pending',
-            answers: answersPayload,
-            created_at: new Date().toISOString(),
-          })
-          .eq('id', existing.id)
-        if (updateAppError) throw updateAppError
-      } else if (!existing || existing.status !== 'pending') {
-        const { error: insertError } = await supabase.from('artist_applications').insert({
-          user_id: userId,
-          status: 'pending',
-          answers: answersPayload,
-        })
-        if (insertError) throw insertError
-      }
-
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({ is_artist_pending: true })
-        .eq('id', userId)
-      if (updateError) throw updateError
-      toast.success('신청이 완료되었습니다. 심사 결과를 기다려 주세요.')
-      setAnswers(['', '', '', '', ''])
-      setAgreed(false)
-      onClose()
-      onSuccess()
-    } catch (err) {
-      console.error('[artist apply]', err)
-      toast.error(err instanceof Error ? err.message : '신청에 실패했습니다.')
-    } finally {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user?.id) {
       setSubmitting(false)
+      alert('Sign in required.')
+      return
     }
+
+    const content =
+      `Craft: ${a.primary_craft_style}\n` +
+      `Handmade: ${a.handmade_process}\n` +
+      `Capacity: ${a.monthly_output}\n` +
+      `Log Goal: ${a.studio_log_commitment}\n` +
+      `Production: ${a.production_scale}`
+
+    const { error: insertError } = await supabase
+      .from('artist_applications')
+      .insert({
+        user_id: user.id,
+        status: 'pending',
+        answers: { content },
+      })
+
+    if (insertError) {
+      setSubmitting(false)
+      alert('Send failed: ' + insertError.message)
+      return
+    }
+
+    await supabase
+      .from('profiles')
+      .update({ is_artist_pending: true })
+      .eq('id', user.id)
+
+    setSubmitting(false)
+    setDetails(initialValues)
+    onSuccess()
+    onClose()
+    alert('Application submitted. Under review.')
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title="아티스트 신청" className="max-w-lg">
-      <div className="p-4 space-y-4">
-        {ARTIST_APPLY_QUESTIONS.map((q, i) => (
-          <div key={i}>
-            <p className="text-sm font-medium text-slate-700 mb-1">
-              {i + 1}. {q}
-            </p>
-            {i < 4 ? (
+    <Dialog open={open} onClose={onClose} title="Apply as Artist" className="max-w-lg">
+      <div className="p-5 sm:p-6 space-y-8">
+        {APPLICATION_DETAILS_FIELDS.map((field) => (
+          <div key={field.key} className="space-y-2">
+            <label
+              htmlFor={field.key}
+              className="block text-sm font-medium text-slate-800"
+            >
+              {field.label}
+            </label>
+            {field.type === 'textarea' ? (
               <textarea
-                value={answers[i] ?? ''}
-                onChange={(e) => handleChange(i, e.target.value)}
-                placeholder="답변을 입력하세요"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900 text-sm resize-none"
+                id={field.key}
+                value={details[field.key]}
+                onChange={(e) => handleChange(field.key, e.target.value)}
+                placeholder={field.placeholder}
+                rows={4}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-none"
               />
             ) : (
-              <label className="flex items-center gap-2 mt-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  className="rounded border-gray-300 text-[#8E86F5] focus:ring-[#8E86F5]"
-                />
-                <span className="text-sm text-slate-700">동의합니다</span>
-              </label>
+              <input
+                id={field.key}
+                type="text"
+                value={details[field.key]}
+                onChange={(e) => handleChange(field.key, e.target.value)}
+                placeholder={field.placeholder}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+              />
             )}
           </div>
         ))}
-        <div className="flex justify-end gap-2 pt-2">
+
+        <div className="flex justify-end gap-3 pt-4">
           <Button variant="outline" onClick={onClose}>
-            취소
+            Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting ? '제출 중...' : '제출'}
+            {submitting ? 'Submitting...' : 'Submit'}
           </Button>
         </div>
       </div>

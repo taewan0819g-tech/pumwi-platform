@@ -47,7 +47,7 @@ export default async function HomePage() {
               <HomeCenterColumn userId={user.id} profile={profile} />
             ) : (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center text-gray-500">
-                로그인이 필요합니다.
+                Sign in to continue.
               </div>
             )}
           </main>

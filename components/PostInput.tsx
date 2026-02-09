@@ -80,7 +80,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
       const payload: Record<string, unknown> = {
         user_id: userId,
         type: postType,
-        title: value.slice(0, 50) || '무제',
+        title: value.slice(0, 50) || 'Untitled',
         content: value.trim(),
         price: null,
         image_url: imageUrls[0] ?? null,
@@ -91,7 +91,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
 
       const { error } = await supabase.from('posts').insert(payload)
       if (error) throw error
-      toast.success('게시물이 등록되었습니다.')
+      toast.success('Post published.')
       setValue('')
       setEditionCurrent('')
       setEditionTotal('')
@@ -99,7 +99,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
       setExpanded(false)
       onPostCreated?.()
     } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : '등록 실패')
+      toast.error(err instanceof Error ? err.message : 'Publish failed')
     } finally {
       setPosting(false)
     }
@@ -116,7 +116,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
           onClick={() => setExpanded(true)}
           className="flex-1 text-left px-4 py-2.5 rounded-full border border-gray-200 bg-[#F3F2EF] hover:bg-gray-100 text-gray-500 text-sm transition-colors"
         >
-          작업 일지나 판매 글을 올려보세요.
+          Share a studio log or work for sale.
         </button>
       </div>
       {expanded && (
@@ -124,7 +124,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
           <textarea
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder="무슨 생각을 하고 계신가요?"
+            placeholder="What's on your mind?"
             rows={3}
             className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-none"
           />
@@ -160,7 +160,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
             htmlFor="post-input-images"
             className="mt-2 inline-block px-3 py-1.5 text-sm text-[#8E86F5] hover:bg-[#8E86F5]/10 rounded-md cursor-pointer border border-[#8E86F5]/30"
           >
-            이미지 추가 (여러 장 선택 가능)
+            Add images (multiple)
           </label>
           {previewUrls.length > 0 && (
             <div className="mt-3 overflow-x-auto overflow-y-hidden">
@@ -172,7 +172,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
                   >
                     <img
                       src={url}
-                      alt={`미리보기 ${i + 1}`}
+                      alt={`Preview ${i + 1}`}
                       className="w-full h-full object-cover"
                     />
                     <button
@@ -199,7 +199,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
               }}
               className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
             >
-              취소
+              Cancel
             </button>
             <button
               type="button"
@@ -208,7 +208,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
               className="px-4 py-2 text-sm text-white rounded-md hover:opacity-90 disabled:opacity-50"
               style={{ backgroundColor: '#8E86F5' }}
             >
-              {posting ? '등록 중...' : '게시'}
+              {posting ? 'Publishing...' : 'Post'}
             </button>
           </div>
         </div>

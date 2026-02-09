@@ -60,7 +60,7 @@ export default function UserFollowingSection({ userId }: UserFollowingSectionPro
   return (
     <Card>
       <CardHeader>
-        <h3 className="font-semibold text-slate-900">이웃</h3>
+        <h3 className="font-semibold text-slate-900">Following</h3>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -71,7 +71,7 @@ export default function UserFollowingSection({ userId }: UserFollowingSectionPro
           </div>
         ) : profiles.length === 0 ? (
           <div className="py-8 text-center text-sm text-gray-500">
-            아직 이웃으로 추가한 아티스트가 없습니다.
+            No artists in your following list yet.
           </div>
         ) : (
           <ul className="space-y-2">
@@ -94,7 +94,7 @@ export default function UserFollowingSection({ userId }: UserFollowingSectionPro
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-slate-900 truncate">
-                      {p.full_name ?? '이름 없음'}
+                      {p.full_name ?? 'Unknown'}
                     </p>
                     {p.role && (
                       <p className="text-xs text-[#8E86F5] mt-0.5">{p.role}</p>

@@ -4,18 +4,18 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 
 const newsItems = [
-  { id: 1, title: 'PUMWI 아티스트 지원 프로그램 오픈' },
-  { id: 2, title: '2026 상반기 콘서트 일정 안내' },
-  { id: 3, title: '신규 기능: 작업 일지 공개' },
-  { id: 4, title: '팬과 아티스트 매칭 이벤트' },
-  { id: 5, title: '개인정보 처리방침 개정 안내' },
+  { id: 1, title: 'PUMWI Artist Support Program now open' },
+  { id: 2, title: '2026 first-half events calendar' },
+  { id: 3, title: 'New: Studio Log now public' },
+  { id: 4, title: 'Collector–Artist matching event' },
+  { id: 5, title: 'Privacy policy update' },
 ]
 
 export default function NewsWidget() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-gray-100">
-        <h3 className="font-semibold text-slate-900">PUMWI 뉴스</h3>
+        <h3 className="font-semibold text-slate-900">PUMWI News</h3>
       </div>
       <ul className="divide-y divide-gray-100">
         {newsItems.map((item) => (

@@ -19,7 +19,7 @@ export async function getCurrentUserProfile(): Promise<Profile | null> {
     if (error.code === 'PGRST116') {
       return {
         id: user.id,
-        full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? '사용자',
+        full_name: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? 'User',
         avatar_url: null,
         cover_url: null,
         bio: null,

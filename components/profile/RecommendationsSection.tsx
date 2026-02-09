@@ -57,7 +57,7 @@ export default function RecommendationsSection({
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('로그인이 필요합니다.')
+      if (!user) throw new Error('Sign in required.')
 
       // 내 프로필에 내가 쓰는 경우 (테스트용)
       const targetUserId = userId
@@ -73,7 +73,7 @@ export default function RecommendationsSection({
 
       if (error) throw error
 
-      toast.success('저장되었습니다!')
+      toast.success('Saved!')
       setModalOpen(false)
       setWriterName('')
       setWriterRole('')
@@ -83,17 +83,17 @@ export default function RecommendationsSection({
 
     } catch (err: any) {
       console.error(err)
-      toast.error(err.message || '등록 실패')
+      toast.error(err.message || 'Failed to add.')
     } finally {
       setSaving(false)
     }
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('삭제하시겠습니까?')) return
+    if (!confirm('Delete this recommendation?')) return
     const { error } = await supabase.from('recommendations').delete().eq('id', id)
     if (!error) {
-      toast.success('삭제되었습니다.')
+      toast.success('Deleted.')
       fetchRecommendations()
     }
   }
@@ -103,15 +103,15 @@ export default function RecommendationsSection({
       <Card>
         <CardHeader action={isOwn && (
           <Button variant="ghost" size="sm" onClick={() => setModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1"/> 추가
+            <Plus className="w-4 h-4 mr-1"/> Add
           </Button>
         )}>
-          <h3 className="font-semibold text-slate-900">받은 추천서</h3>
+          <h3 className="font-semibold text-slate-900">Recommendations</h3>
         </CardHeader>
         <CardContent>
           {!items.length ? (
             <div className="py-8 text-center text-gray-500 text-sm">
-              받은 추천서가 없습니다.
+              No recommendations yet.
             </div>
           ) : (
             <ul className="space-y-4">
@@ -135,14 +135,14 @@ export default function RecommendationsSection({
         </CardContent>
       </Card>
 
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title="추천서 추가">
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title="Add recommendation">
         <div className="p-4 space-y-3">
-          <input value={writerName} onChange={e=>setWriterName(e.target.value)} placeholder="추천인 이름" className="w-full border p-2 rounded"/>
-          <input value={writerRole} onChange={e=>setWriterRole(e.target.value)} placeholder="직함 / 관계" className="w-full border p-2 rounded"/>
-          <textarea value={content} onChange={e=>setContent(e.target.value)} placeholder="내용" className="w-full border p-2 rounded h-24 resize-none"/>
+          <input value={writerName} onChange={e=>setWriterName(e.target.value)} placeholder="Recommender name" className="w-full border p-2 rounded"/>
+          <input value={writerRole} onChange={e=>setWriterRole(e.target.value)} placeholder="Title / relationship" className="w-full border p-2 rounded"/>
+          <textarea value={content} onChange={e=>setContent(e.target.value)} placeholder="Content" className="w-full border p-2 rounded h-24 resize-none"/>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setModalOpen(false)}>취소</Button>
-            <Button onClick={handleAdd} disabled={saving}>{saving ? '저장...' : '등록'}</Button>
+            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button onClick={handleAdd} disabled={saving}>{saving ? 'Saving...' : 'Add'}</Button>
           </div>
         </div>
       </Dialog>
