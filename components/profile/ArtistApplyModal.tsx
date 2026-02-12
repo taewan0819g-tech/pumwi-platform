@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Dialog } from '@/components/ui/Dialog'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 
 /** Keys and labels for application_details (used in modal and admin display) */
 export const APPLICATION_DETAILS_FIELDS = [

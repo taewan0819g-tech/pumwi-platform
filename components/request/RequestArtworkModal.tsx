@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Dialog } from '@/components/ui/Dialog'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
 
 const BUCKET_POSTS = 'posts'

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { Dialog } from '@/components/ui/Dialog'
-import { Button } from '@/components/ui/Button'
+import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
 import { PostLikeComment, POST_ENGAGEMENT_CHANGED } from '@/components/post/PostLikeComment'
 import type { CommentRow as EngagementCommentRow } from '@/components/post/PostLikeComment'
