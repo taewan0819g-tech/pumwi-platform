@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardHeader, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/Dialog'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { Playfair_Display } from 'next/font/google'
 import type { Career } from '@/types/profile'
+
+const playfair = Playfair_Display({ subsets: ['latin'], display: 'swap' })
 
 interface ExperienceSectionProps {
   userId: string
@@ -140,47 +142,83 @@ export default function ExperienceSection({ userId, isOwn }: ExperienceSectionPr
     }
   }
 
+  const formatDateRange = (start: string | null, end: string | null) => {
+    if (!start) return ''
+    const s = start.slice(0, 7)
+    const e = end ? end.slice(0, 7) : 'Present'
+    return `${s} — ${e}`
+  }
+
   return (
     <>
-      <Card>
-        <CardHeader action={isOwn && (
-          <Button variant="ghost" size="sm" onClick={openAdd}>
-            <Plus className="w-4 h-4 mr-1"/> Add
-          </Button>
-        )}>
-          <h3 className="font-semibold text-slate-900">Exhibitions & activity</h3>
-        </CardHeader>
-        <CardContent>
+      <section
+        className="rounded-lg overflow-hidden bg-[#FAF9F7] border border-[#2F5D50]/10"
+        style={{ boxShadow: '0 1px 3px rgba(47, 93, 80, 0.06)' }}
+      >
+        <div className="flex items-center justify-between px-6 pt-6 pb-2">
+          <h3
+            className={`${playfair.className} text-lg font-semibold tracking-tight`}
+            style={{ color: '#2F5D50' }}
+          >
+            Exhibitions & activity
+          </h3>
+          {isOwn && (
+            <Button variant="ghost" size="sm" onClick={openAdd} className="text-gray-500 hover:text-[#2F5D50]">
+              <Plus className="w-4 h-4 mr-1" /> Add
+            </Button>
+          )}
+        </div>
+        <div className="px-6 pb-8 pt-2">
+          <div className="border-t border-[#2F5D50]/20 pt-6" />
           {!careers.length ? (
-            <div className="py-8 text-center text-gray-500 text-sm">No entries yet.</div>
+            <div className="py-12 text-center text-gray-500 text-sm">No entries yet.</div>
           ) : (
-            <ul className="space-y-4">
-              {careers.map(c => (
-                <li key={c.id} className="border-b last:border-0 pb-3 flex justify-between items-start">
-                  <div>
-                    <p className="font-medium">{c.company_name}</p>
-                    <p className="text-sm text-gray-600">{c.title}</p>
-                    <p className="text-xs text-gray-400">
-                      {c.start_date?.slice(0,7)} ~ {c.end_date ? c.end_date.slice(0,7) : 'Present'}
-                    </p>
-                    {c.description && <p className="text-sm mt-1 text-gray-600">{c.description}</p>}
-                  </div>
-                  {isOwn && (
-                    <div className="flex gap-1">
-                      <button onClick={() => openEdit(c)} className="p-1.5 text-gray-400 hover:bg-gray-100 rounded">
-                        <Pencil className="w-4 h-4"/>
-                      </button>
-                      <button onClick={() => handleDelete(c.id)} className="p-1.5 text-red-400 hover:bg-red-50 rounded">
-                        <Trash2 className="w-4 h-4"/>
-                      </button>
+            <ul className="relative">
+              {/* Vertical timeline line */}
+              <div
+                className="absolute left-[11px] top-2 bottom-2 w-px"
+                style={{ backgroundColor: 'rgba(47, 93, 80, 0.2)' }}
+              />
+              {careers.map((c, i) => (
+                <li key={c.id} className="relative flex gap-6 pb-8 last:pb-0">
+                  <div
+                    className="flex-shrink-0 w-6 h-6 rounded-full border-2 mt-0.5"
+                    style={{ backgroundColor: '#FAF9F7', borderColor: '#2F5D50' }}
+                  />
+                  <div className="flex-1 min-w-0 flex justify-between items-start gap-4">
+                    <div>
+                      <p className={`${playfair.className} font-semibold text-slate-900`}>{c.company_name}</p>
+                      <p className="text-sm text-gray-600 mt-0.5">{c.title}</p>
+                      <p className="text-xs text-gray-400 mt-1 font-medium tracking-wide">
+                        {formatDateRange(c.start_date, c.end_date)}
+                      </p>
+                      {c.description && (
+                        <p className="text-sm text-gray-600 mt-2 leading-relaxed">{c.description}</p>
+                      )}
                     </div>
-                  )}
+                    {isOwn && (
+                      <div className="flex gap-1 flex-shrink-0">
+                        <button
+                          onClick={() => openEdit(c)}
+                          className="p-1.5 text-gray-400 hover:text-[#2F5D50] hover:bg-[#2F5D50]/5 rounded"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(c.id)}
+                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title={editingCareer ? 'Edit entry' : 'Add entry'}>
         <div className="p-4 space-y-3">

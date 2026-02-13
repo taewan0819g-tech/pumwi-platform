@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Card, CardHeader, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/Dialog'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Trash2, BadgeCheck } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { Playfair_Display } from 'next/font/google'
 import type { Recommendation } from '@/types/profile'
+
+const playfair = Playfair_Display({ subsets: ['latin'], display: 'swap' })
 
 interface RecommendationsSectionProps {
   userId: string
@@ -100,40 +102,67 @@ export default function RecommendationsSection({
 
   return (
     <>
-      <Card>
-        <CardHeader action={!isOwn && (
-          <Button variant="ghost" size="sm" onClick={() => setModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1"/> Write a Recommendation
-          </Button>
-        )}>
-          <h3 className="font-semibold text-slate-900">Recommendations</h3>
-        </CardHeader>
-        <CardContent>
+      <section
+        className="rounded-lg overflow-hidden bg-[#FAF9F7] border border-[#2F5D50]/10"
+        style={{ boxShadow: '0 1px 3px rgba(47, 93, 80, 0.06)' }}
+      >
+        <div className="flex items-center justify-between px-6 pt-6 pb-2">
+          <h3
+            className={`${playfair.className} text-lg font-semibold tracking-tight`}
+            style={{ color: '#2F5D50' }}
+          >
+            Recommendations
+          </h3>
+          {!isOwn && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setModalOpen(true)}
+              className="text-gray-500 hover:text-[#2F5D50]"
+            >
+              <Plus className="w-4 h-4 mr-1" /> Write a Recommendation
+            </Button>
+          )}
+        </div>
+        <div className="px-6 pb-8 pt-2">
+          <div className="border-t border-[#2F5D50]/20 pt-6" />
           {!items.length ? (
-            <div className="py-8 text-center text-gray-500 text-sm">
-              No recommendations yet.
-            </div>
+            <div className="py-12 text-center text-gray-500 text-sm">No recommendations yet.</div>
           ) : (
-            <ul className="space-y-4">
-              {items.map(r => (
-                <li key={r.id} className="border-b last:border-0 pb-3 flex justify-between items-start">
-                  <div>
-                    <p className="font-medium text-slate-700">{r.writer_name}</p>
-                    {r.writer_role && <p className="text-xs text-gray-500">{r.writer_role}</p>}
-                    <p className="text-sm mt-1 text-gray-600 whitespace-pre-wrap">{r.content}</p>
+            <ul className="space-y-0">
+              {items.map((r, i) => (
+                <li
+                  key={r.id}
+                  className={`flex justify-between items-start gap-6 py-8 ${i > 0 ? 'border-t border-[#2F5D50]/10' : ''}`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="inline-flex items-center gap-1.5">
+                        <BadgeCheck className="w-4 h-4 flex-shrink-0" style={{ color: '#2F5D50' }} aria-hidden />
+                        <span className={`${playfair.className} font-semibold text-slate-900`}>{r.writer_name}</span>
+                      </span>
+                      {r.writer_role && (
+                        <span className="text-xs text-gray-500 font-medium">{r.writer_role}</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-600 whitespace-pre-wrap leading-relaxed mt-3 pl-6">
+                      {r.content}
+                    </p>
                   </div>
-                  {/* 삭제 권한: 내가 쓴 거거나, 내 프로필에 달린 거면 삭제 가능 */}
                   {(isOwn || r.author_id === currentUserId) && (
-                    <button onClick={() => handleDelete(r.id)} className="p-1.5 text-red-400 hover:bg-red-50 rounded">
-                      <Trash2 className="w-4 h-4"/>
+                    <button
+                      onClick={() => handleDelete(r.id)}
+                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50/50 rounded flex-shrink-0"
+                    >
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   )}
                 </li>
               ))}
             </ul>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
       <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title="Add recommendation">
         <div className="p-4 space-y-3">
