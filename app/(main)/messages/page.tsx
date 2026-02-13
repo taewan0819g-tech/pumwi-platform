@@ -28,9 +28,9 @@ export default async function MessagesPage({ searchParams }: PageProps) {
 
   const conversations = (convRows ?? []) as { id: string; participant_ids: string[] }[]
   const convIds = conversations.map((c) => c.id)
-  const otherIds = [...new Set(
+  const otherIds = Array.from(new Set(
     conversations.flatMap((c) => c.participant_ids.filter((id) => id !== user.id))
-  )].filter(Boolean)
+  )).filter(Boolean)
 
   let profilesMap: Record<string, { full_name: string | null; avatar_url: string | null }> = {}
   if (otherIds.length > 0) {
