@@ -1,6 +1,7 @@
 'use client'
+// Client component for messages list and chat
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { User, Send } from 'lucide-react'
 import type { ConversationWithOther } from './page'
@@ -33,6 +34,15 @@ export default function MessagesClient({ initialConversations, currentUserId, in
   const [sending, setSending] = useState(false)
   const messageContainerRef = useRef<HTMLDivElement>(null)
 
+  const sortedConversations = useMemo(
+    () =>
+      [...conversations].sort((a, b) => {
+        const tA = new Date(a.last_message_at ?? a.updated_at ?? 0).getTime()
+        const tB = new Date(b.last_message_at ?? b.updated_at ?? 0).getTime()
+        return tB - tA
+      }),
+    [conversations]
+  )
   const selectedConversation = conversations.find((c) => c.id === selectedId)
   const otherParticipant = selectedConversation?.otherParticipant
   const conversationIds = conversations.map((c) => c.id)
@@ -58,14 +68,28 @@ export default function MessagesClient({ initialConversations, currentUserId, in
     markAsRead(convId)
   }
 
-  const moveConversationToTop = (convId: string, options?: { setUnreadToZero?: boolean; incrementUnread?: number }) => {
+  const moveConversationToTop = (
+    convId: string,
+    options?: {
+      setUnreadToZero?: boolean
+      incrementUnread?: number
+      lastMessage?: { content: string; created_at: string }
+    }
+  ) => {
+    const now = new Date().toISOString()
     setConversations((prev) => {
       let next = prev
       if (options?.setUnreadToZero) next = next.map((c) => (c.id === convId ? { ...c, unread_count: 0 } : c))
       if (options?.incrementUnread === 1) next = next.map((c) => (c.id === convId ? { ...c, unread_count: (c.unread_count ?? 0) + 1 } : c))
       const conv = next.find((c) => c.id === convId)
       if (!conv) return next
-      return [conv, ...next.filter((c) => c.id !== convId)]
+      const updated = {
+        ...conv,
+        updated_at: now,
+        last_message_content: options?.lastMessage?.content ?? conv.last_message_content ?? '',
+        last_message_at: options?.lastMessage?.created_at ?? conv.last_message_at ?? now,
+      }
+      return [updated, ...next.filter((c) => c.id !== convId)]
     })
   }
 
@@ -100,7 +124,7 @@ export default function MessagesClient({ initialConversations, currentUserId, in
     }
   }, [messages])
 
-  // Realtime: subscribe to new messages (all conversations) for unread + active view
+  // Realtime: listen to ALL message inserts (sent or received) for list + unread
   useEffect(() => {
     if (conversationIds.length === 0) return
     const supabase = createClient()
@@ -114,21 +138,20 @@ export default function MessagesClient({ initialConversations, currentUserId, in
           table: 'messages',
         },
         (payload) => {
-          const row = payload.new as Message & { is_read?: boolean }
+          const row = payload.new as Message
           const convId = row.conversation_id
-          const fromOther = row.sender_id !== currentUserId
-          if (!conversationIds.includes(convId) || !fromOther) return
+
+          if (!conversationIds.includes(convId)) return
 
           if (convId === selectedId) {
-            setMessages((prev) => {
-              if (prev.some((m) => m.id === row.id)) return prev
-              return [...prev, row]
-            })
-            markAsRead(convId)
-            moveConversationToTop(convId, { setUnreadToZero: true })
-          } else {
-            moveConversationToTop(convId, { incrementUnread: 1 })
+            setMessages((prev) => [...prev.filter((m) => m.id !== row.id), row])
+            if (row.sender_id !== currentUserId) markAsRead(convId)
           }
+          moveConversationToTop(convId, {
+            incrementUnread: row.sender_id !== currentUserId && convId !== selectedId ? 1 : 0,
+            setUnreadToZero: convId === selectedId && row.sender_id !== currentUserId,
+            lastMessage: { content: row.content, created_at: row.created_at },
+          })
         }
       )
       .subscribe()
@@ -161,11 +184,9 @@ export default function MessagesClient({ initialConversations, currentUserId, in
         if (prev.some((m) => m.id === newMsg.id)) return prev
         return [...prev, newMsg]
       })
-      await supabase
-        .from('conversations')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', selectedId)
-      moveConversationToTop(selectedId)
+      moveConversationToTop(selectedId, {
+        lastMessage: { content: text, created_at: newMsg.created_at },
+      })
     } catch (err) {
       console.error('[messages] send error', err)
     } finally {
@@ -187,60 +208,136 @@ export default function MessagesClient({ initialConversations, currentUserId, in
     })
   }
 
+  function formatLastMessageTime(iso: string) {
+    const d = new Date(iso)
+    const now = new Date()
+    const today = now.toDateString() === d.toDateString()
+    const yesterday = new Date(now)
+    yesterday.setDate(yesterday.getDate() - 1)
+    if (today) return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+    if (yesterday.toDateString() === d.toDateString()) return 'Yesterday'
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  }
+
   return (
     <div className="flex h-[calc(100vh-140px)] min-h-[600px]">
-      {/* Left sidebar - 25% */}
+      {/* Left sidebar: when chat open show list to switch; when inbox show minimal */}
       <aside className="w-1/4 min-w-[200px] max-w-[280px] flex-shrink-0 border-r border-gray-200 bg-white flex flex-col min-h-0">
-        <div className="p-3 border-b border-gray-100">
+        <div className="p-3 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#2F5D50] font-serif">Messages</h2>
-        </div>
-        <ul className="flex-1 overflow-y-auto">
-          {conversations.length === 0 ? (
-            <li className="p-4 text-sm text-gray-500">No conversations yet.</li>
-          ) : (
-            conversations.map((c) => {
-              const other = c.otherParticipant
-              const isSelected = selectedId === c.id
-              return (
-                <li key={c.id}>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectConversation(c.id)}
-                    className={`relative w-full flex items-center gap-3 p-3 text-left transition-colors ${
-                      isSelected ? 'bg-[#2F5D50]/10 border-l-2 border-[#2F5D50]' : 'hover:bg-gray-50'
-                    }`}
-                  >
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
-                      {other.avatar_url ? (
-                        <img src={other.avatar_url} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <User className="h-5 w-5 text-gray-500" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0 text-left pr-6">
-                      <span className="font-medium text-gray-900 truncate block">
-                        {other.full_name ?? 'Unknown'}
-                      </span>
-                    </div>
-                    {(c.unread_count ?? 0) > 0 && (
-                      <span
-                        className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full shadow-sm"
-                        aria-label={`${c.unread_count} unread`}
-                      />
-                    )}
-                  </button>
-                </li>
-              )
-            })
+          {selectedId && (
+            <button
+              type="button"
+              onClick={() => setSelectedId(null)}
+              className="text-sm text-[#2F5D50] hover:underline"
+            >
+              Inbox
+            </button>
           )}
-        </ul>
+        </div>
+        {selectedId ? (
+          <ul className="flex-1 overflow-y-auto scrollbar-hide">
+            {sortedConversations.length === 0 ? (
+              <li className="p-4 text-sm text-gray-500">No conversations yet.</li>
+            ) : (
+              sortedConversations.map((c) => {
+                const other = c.otherParticipant
+                const isSelected = selectedId === c.id
+                return (
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectConversation(c.id)}
+                      className={`relative w-full flex items-center gap-3 p-3 text-left transition-colors ${
+                        isSelected ? 'bg-[#2F5D50]/10 border-l-2 border-[#2F5D50]' : 'hover:bg-gray-50'
+                      }`}
+                    >
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+                        {other.avatar_url ? (
+                          <img src={other.avatar_url} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="h-5 w-5 text-gray-500" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0 text-left pr-6">
+                        <span className="font-medium text-gray-900 truncate block">
+                          {other.full_name ?? 'Unknown'}
+                        </span>
+                        <p className="text-xs text-gray-500 truncate mt-0.5">
+                          {c.last_message_content || 'No messages yet'}
+                        </p>
+                      </div>
+                      {(c.unread_count ?? 0) > 0 && (
+                        <span
+                          className="absolute top-3 right-3 w-2.5 h-2.5 bg-red-500 rounded-full shadow-sm"
+                          aria-label={`${c.unread_count} unread`}
+                        />
+                      )}
+                    </button>
+                  </li>
+                )
+              })
+            )}
+          </ul>
+        ) : (
+          <div className="flex-1 flex items-center justify-center p-4 text-center text-sm text-gray-500">
+            <p>Select a conversation from the inbox to start chatting.</p>
+          </div>
+        )}
       </aside>
 
-      {/* Right main - 75% */}
-      <div className="flex-1 flex flex-col bg-[#F9F9F8] min-w-0 min-h-0">
+      {/* Center: inbox list (no selection) or chat thread (selected) */}
+      <div className="flex-1 flex flex-col bg-white min-w-0 min-h-0 border-l border-gray-100">
         {!selectedId ? (
-          <div className="flex-1 flex items-center justify-center text-gray-500 px-4 min-h-0">
-            <p className="text-center font-medium">Select a conversation to start chatting.</p>
+          /* Inbox view: conversation cards in center */
+          <div className="flex-1 overflow-y-auto scrollbar-hide">
+            {sortedConversations.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-gray-500 px-4">
+                <p className="text-center font-medium">No conversations yet.</p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {sortedConversations.map((c) => {
+                  const other = c.otherParticipant
+                  return (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectConversation(c.id)}
+                        className="w-full flex items-center gap-4 p-4 text-left hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
+                          {other.avatar_url ? (
+                            <img src={other.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="h-6 w-6 text-gray-500" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 truncate">
+                            {other.full_name ?? 'Unknown'}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate mt-0.5">
+                            {c.last_message_content || 'No messages yet'}
+                          </p>
+                        </div>
+                        <div className="flex-shrink-0 text-right">
+                          <p className="text-xs text-gray-500">
+                            {formatLastMessageTime(c.last_message_at)}
+                          </p>
+                          {(c.unread_count ?? 0) > 0 && (
+                            <span
+                              className="mt-1 inline-block w-2.5 h-2.5 rounded-full bg-red-500"
+                              aria-label={`${c.unread_count} unread`}
+                            />
+                          )}
+                        </div>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
           </div>
         ) : (
           <>

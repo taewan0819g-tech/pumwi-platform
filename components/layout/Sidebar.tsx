@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Package, ClipboardList, Sparkles, MessageSquare, MessageSquareText, BookOpen, LineChart } from 'lucide-react'
+import { Home, Package, ClipboardList, Sparkles, MessageSquare, MessageSquareText, BookOpen, LineChart, Newspaper } from 'lucide-react'
 import type { Profile } from '@/types/profile'
 import ProfileCard from '@/components/ProfileCard'
 
@@ -46,6 +46,20 @@ export default function Sidebar({ user, profile, userEmail, applicationStatus }:
                     </Link>
                   )
                 })}
+              </nav>
+            </div>
+          )}
+          {profile?.role === 'admin' && (
+            <div className="mt-4 px-0">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 pl-2">Admin</p>
+              <nav className="space-y-1">
+                <Link
+                  href="/admin/news"
+                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${pathname === '/admin/news' ? 'bg-[#2F5D50]/10 text-[#2F5D50]' : 'text-gray-600 hover:bg-gray-50 hover:text-[#2F5D50]'}`}
+                >
+                  <Newspaper className={`mr-3 h-5 w-5 flex-shrink-0 ${pathname === '/admin/news' ? 'text-[#2F5D50]' : 'text-gray-400 group-hover:text-[#2F5D50]'}`} />
+                  <span>News Management</span>
+                </Link>
               </nav>
             </div>
           )}
