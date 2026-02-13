@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
+import { Check } from 'lucide-react'
 
 /** Keys and labels for application_details (used in modal and admin display) */
 export const APPLICATION_DETAILS_FIELDS = [
@@ -70,6 +71,7 @@ export default function ArtistApplyModal({
 }: ArtistApplyModalProps) {
   const [details, setDetails] = useState<ApplicationDetailsPayload>(initialValues)
   const [submitting, setSubmitting] = useState(false)
+  const [isAgreed, setIsAgreed] = useState(false)
   const supabase = createClient()
 
   const handleChange = (key: keyof ApplicationDetailsPayload, value: string) => {
@@ -164,13 +166,48 @@ export default function ArtistApplyModal({
           </div>
         ))}
 
-        <div className="flex justify-end gap-3 pt-4">
+        {/* Disclaimer Section */}
+        <div className="mt-8 mb-6">
+          <div className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+            <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wide mb-2">
+              Review & Qualification Agreement
+            </h4>
+            <p className="text-xs text-gray-600 leading-relaxed mb-4">
+              All applications are carefully reviewed by the PUMWI team. I understand that if my work is found not to meet PUMWI&apos;s artist standards at any point, it may be subject to re-evaluation by the internal team or the user community. I acknowledge that my Artist status may be revoked based on the review results, and I may be required to re-apply.
+            </p>
+            <label className="flex items-center gap-3 cursor-pointer group select-none">
+              <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all duration-200 ${isAgreed ? 'bg-[#2F5D50] border-[#2F5D50]' : 'border-gray-300 bg-white group-hover:border-[#2F5D50]'}`}>
+                {isAgreed && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
+              </div>
+              <input
+                type="checkbox"
+                className="hidden"
+                checked={isAgreed}
+                onChange={(e) => setIsAgreed(e.target.checked)}
+              />
+              <span className={`text-sm font-medium transition-colors ${isAgreed ? 'text-[#2F5D50]' : 'text-gray-500'}`}>
+                I have read and agree to the terms above (Required)
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3 pt-2">
           <Button variant="outline" onClick={onClose}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting ? 'Submitting...' : 'Submit'}
-          </Button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!isAgreed || submitting}
+            className={`w-full sm:w-auto min-w-[140px] py-3.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-sm ${
+              isAgreed && !submitting
+                ? 'bg-[#2F5D50] text-white hover:bg-[#2F5D50]/90 hover:shadow-md transform hover:-translate-y-0.5'
+                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+          >
+            {submitting ? 'Submitting Application...' : 'Apply as Artist'}
+          </button>
         </div>
       </div>
     </Dialog>
