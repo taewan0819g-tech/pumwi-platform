@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { User, ChevronLeft, ChevronRight, MessageSquare, Check, X } from 'lucide-react'
 import toast from 'react-hot-toast'
-import Link from 'next/link'
 
 export interface CommissionRequest {
   id: string
@@ -118,10 +118,46 @@ interface CommissionsClientProps {
 }
 
 export default function CommissionsClient({ requests, currentUserId }: CommissionsClientProps) {
+  const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [acceptingId, setAcceptingId] = useState<string | null>(null)
+  const [chatLoadingId, setChatLoadingId] = useState<string | null>(null)
   const [localRequests, setLocalRequests] = useState(requests)
   const supabase = createClient()
+
+  const handleStartChat = async (requesterId: string) => {
+    if (!currentUserId || !requesterId) return
+    setChatLoadingId(requesterId)
+    try {
+      const { data: existing } = await supabase
+        .from('conversations')
+        .select('id, participant_ids')
+        .contains('participant_ids', [currentUserId])
+
+      const match = (existing ?? []).find(
+        (row: { id: string; participant_ids: string[] }) =>
+          row.participant_ids?.includes(requesterId) && row.participant_ids?.length === 2
+      )
+      let conversationId: string
+      if (match) {
+        conversationId = match.id
+      } else {
+        const { data: inserted, error: insertErr } = await supabase
+          .from('conversations')
+          .insert({ participant_ids: [currentUserId, requesterId] })
+          .select('id')
+          .single()
+        if (insertErr) throw insertErr
+        conversationId = (inserted as { id: string }).id
+      }
+      router.push(`/messages?conversation=${conversationId}`)
+    } catch (err) {
+      console.error('[handleStartChat]', err)
+      toast.error(err instanceof Error ? err.message : 'Could not start chat.')
+    } finally {
+      setChatLoadingId(null)
+    }
+  }
 
   const handleDecline = async (req: CommissionRequest) => {
     if (req.artist_id !== currentUserId) {
@@ -236,13 +272,15 @@ export default function CommissionsClient({ requests, currentUserId }: Commissio
                   <X className="h-4 w-4" />
                   Decline
                 </button>
-                <Link
-                  href="/chat"
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-[#2F5D50]/40 text-[#2F5D50] hover:bg-[#2F5D50]/10"
+                <button
+                  type="button"
+                  onClick={() => handleStartChat(req.requester_id)}
+                  disabled={chatLoadingId === req.requester_id}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-[#2F5D50]/40 text-[#2F5D50] hover:bg-[#2F5D50]/10 disabled:opacity-50"
                 >
                   <MessageSquare className="h-4 w-4" />
-                  Chat
-                </Link>
+                  {chatLoadingId === req.requester_id ? 'Opening...' : 'Chat'}
+                </button>
               </div>
             </div>
           </div>

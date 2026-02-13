@@ -167,6 +167,8 @@ interface PostLikeCommentInlineProps {
   liked: boolean
   likeCount: number
   comments: CommentRow[]
+  /** Display count for comments (e.g. from initial fetch). When comments are loaded, use comments.length; otherwise use this so count shows on load. */
+  commentCount?: number
   likeLoading: boolean
   commentLoading: string | null
   commentText: string
@@ -197,6 +199,10 @@ export function PostLikeComment(props: PostLikeCommentProps) {
   const liked = variant === 'inline' ? props.liked : standalone!.liked
   const likeCount = variant === 'inline' ? props.likeCount : standalone!.likeCount
   const comments = variant === 'inline' ? props.comments : standalone!.comments
+  const displayCommentCount =
+    variant === 'inline' && props.commentCount != null
+      ? props.commentCount
+      : comments.length
   const likeLoading = variant === 'inline' ? props.likeLoading : standalone!.likeLoading
   const commentLoading = variant === 'inline' ? !!props.commentLoading : standalone!.commentLoading
   const openComments = variant === 'inline' ? props.openComments : true
@@ -243,16 +249,16 @@ export function PostLikeComment(props: PostLikeCommentProps) {
           >
             <MessageCircle className="h-4 w-4" />
             <span>Comments</span>
-            {comments.length > 0 && (
-              <span className="text-gray-400">({comments.length})</span>
+            {displayCommentCount > 0 && (
+              <span className="text-gray-400">({displayCommentCount})</span>
             )}
           </button>
         ) : (
           <span className="flex items-center gap-1.5 text-sm text-gray-600">
             <MessageCircle className="h-4 w-4" />
             <span>Comments</span>
-            {comments.length > 0 && (
-              <span className="text-gray-400">({comments.length})</span>
+            {displayCommentCount > 0 && (
+              <span className="text-gray-400">({displayCommentCount})</span>
             )}
           </span>
         )}

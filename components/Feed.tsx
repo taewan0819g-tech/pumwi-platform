@@ -158,6 +158,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
   const [saving, setSaving] = useState(false)
   const [likedPostIds, setLikedPostIds] = useState<Set<string>>(new Set())
   const [likeCountByPostId, setLikeCountByPostId] = useState<Record<string, number>>({})
+  const [commentCountByPostId, setCommentCountByPostId] = useState<Record<string, number>>({})
   const [openCommentsPostId, setOpenCommentsPostId] = useState<string | null>(null)
   const [commentsByPostId, setCommentsByPostId] = useState<Record<string, CommentRow[]>>({})
   const [commentText, setCommentText] = useState('')
@@ -213,29 +214,45 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
   }, [fetchPosts, refreshTrigger])
 
   useEffect(() => {
-    if (!currentUserId || posts.length === 0) return
+    if (posts.length === 0) return
     const postIds = posts.map((p) => p.id)
+    // Fetch likes (requires currentUserId for "liked" state)
+    if (currentUserId) {
+      supabase
+        .from('likes')
+        .select('post_id, user_id')
+        .in('post_id', postIds)
+        .then(({ data }) => {
+          const countByPost: Record<string, number> = {}
+          const liked = new Set<string>()
+          postIds.forEach((id) => { countByPost[id] = 0 })
+          ;(data ?? []).forEach((r: { post_id: string; user_id: string }) => {
+            countByPost[r.post_id] = (countByPost[r.post_id] ?? 0) + 1
+            if (r.user_id === currentUserId) liked.add(r.post_id)
+          })
+          setLikeCountByPostId((prev) => ({ ...prev, ...countByPost }))
+          setLikedPostIds((prev) => {
+            const next = new Set(prev)
+            postIds.forEach((id) => {
+              if (liked.has(id)) next.add(id)
+              else next.delete(id)
+            })
+            return next
+          })
+        })
+    }
+    // Fetch comment counts for all posts so the count displays on load
     supabase
-      .from('likes')
-      .select('post_id, user_id')
+      .from('comments')
+      .select('post_id')
       .in('post_id', postIds)
       .then(({ data }) => {
         const countByPost: Record<string, number> = {}
-        const liked = new Set<string>()
         postIds.forEach((id) => { countByPost[id] = 0 })
-        ;(data ?? []).forEach((r: { post_id: string; user_id: string }) => {
+        ;(data ?? []).forEach((r: { post_id: string }) => {
           countByPost[r.post_id] = (countByPost[r.post_id] ?? 0) + 1
-          if (r.user_id === currentUserId) liked.add(r.post_id)
         })
-        setLikeCountByPostId((prev) => ({ ...prev, ...countByPost }))
-        setLikedPostIds((prev) => {
-          const next = new Set(prev)
-          postIds.forEach((id) => {
-            if (liked.has(id)) next.add(id)
-            else next.delete(id)
-          })
-          return next
-        })
+        setCommentCountByPostId((prev) => ({ ...prev, ...countByPost }))
       })
   }, [currentUserId, posts])
 
@@ -287,29 +304,43 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
 
   useEffect(() => {
     const handler = () => {
-      if (!currentUserId || posts.length === 0) return
+      if (posts.length === 0) return
       const postIds = posts.map((p) => p.id)
+      if (currentUserId) {
+        supabase
+          .from('likes')
+          .select('post_id, user_id')
+          .in('post_id', postIds)
+          .then(({ data }) => {
+            const countByPost: Record<string, number> = {}
+            const liked = new Set<string>()
+            postIds.forEach((id) => { countByPost[id] = 0 })
+            ;(data ?? []).forEach((r: { post_id: string; user_id: string }) => {
+              countByPost[r.post_id] = (countByPost[r.post_id] ?? 0) + 1
+              if (r.user_id === currentUserId) liked.add(r.post_id)
+            })
+            setLikeCountByPostId((prev) => ({ ...prev, ...countByPost }))
+            setLikedPostIds((prev) => {
+              const next = new Set(prev)
+              postIds.forEach((id) => {
+                if (liked.has(id)) next.add(id)
+                else next.delete(id)
+              })
+              return next
+            })
+          })
+      }
       supabase
-        .from('likes')
-        .select('post_id, user_id')
+        .from('comments')
+        .select('post_id')
         .in('post_id', postIds)
         .then(({ data }) => {
           const countByPost: Record<string, number> = {}
-          const liked = new Set<string>()
           postIds.forEach((id) => { countByPost[id] = 0 })
-          ;(data ?? []).forEach((r: { post_id: string; user_id: string }) => {
+          ;(data ?? []).forEach((r: { post_id: string }) => {
             countByPost[r.post_id] = (countByPost[r.post_id] ?? 0) + 1
-            if (r.user_id === currentUserId) liked.add(r.post_id)
           })
-          setLikeCountByPostId((prev) => ({ ...prev, ...countByPost }))
-          setLikedPostIds((prev) => {
-            const next = new Set(prev)
-            postIds.forEach((id) => {
-              if (liked.has(id)) next.add(id)
-              else next.delete(id)
-            })
-            return next
-          })
+          setCommentCountByPostId((prev) => ({ ...prev, ...countByPost }))
         })
       if (openCommentsPostId) fetchComments(openCommentsPostId)
     }
@@ -653,6 +684,11 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                   liked={likedPostIds.has(post.id)}
                   likeCount={likeCountByPostId[post.id] ?? 0}
                   comments={(commentsByPostId[post.id] ?? []) as EngagementCommentRow[]}
+                  commentCount={
+                    commentsByPostId[post.id] != null
+                      ? commentsByPostId[post.id].length
+                      : (commentCountByPostId[post.id] ?? 0)
+                  }
                   likeLoading={likeLoading === post.id}
                   commentLoading={commentLoading}
                   commentText={openCommentsPostId === post.id ? commentText : ''}

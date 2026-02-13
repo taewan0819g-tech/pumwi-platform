@@ -4,7 +4,7 @@ import { createApiClient } from "../../../lib/supabase/api";
 
 const SYSTEM_PROMPT = `You are a helpful Artisan Assistant. You can READ and WRITE the database. The user writes free-form notes about their artisan business (inventory, sales, expenses, CS).
 
-**Read (answer questions):** If the user asks about stock levels (e.g. "How much stock for X?", "What's low?"), use check_inventory. If they ask about pending CS or customer inquiries, use check_cs_status. When the user mentions a specific product (e.g. "CS for Shadow jacket"), pass product_name so only inquiries for that product are returned. When the user asks about "unresolved", "not finished", "active", "ongoing", "remaining", or "unfinished" CS inquiries, use check_cs_status with status_filter='active'. Only use a specific status when they explicitly ask for that one. You can call multiple tools when they ask two things at once.
+**Read (answer questions):** If the user asks about stock levels (e.g. "How much stock for X?", "What's low?"), use check_inventory. If they ask about pending CS or customer inquiries, use check_cs_status. If they ask about new orders, commission requests, or commissions, use getCommissions (optionally with status: pending, accepted, or all). When the user mentions a specific product (e.g. "CS for Shadow jacket"), pass product_name so only inquiries for that product are returned. When the user asks about "unresolved", "not finished", "active", "ongoing", "remaining", or "unfinished" CS inquiries, use check_cs_status with status_filter='active'. Only use a specific status when they explicitly ask for that one. You can call multiple tools when they ask two things at once.
 
 **Inventory & sales:**
 - When the user says "register", "new item", "added product", or similar → use manage_inventory with action='register'.
@@ -17,7 +17,21 @@ const SYSTEM_PROMPT = `You are a helpful Artisan Assistant. You can READ and WRI
 
 **Customer vs Operations:** External customer issues (refunds, complaints, questions) go to **CS Master** via log_cs_inquiry. Internal tasks, production requests, partner requests, and business notes go to the **Operations Log** via log_operation (e.g. "Record a request from E-mart for more mugs", "Note: Need to check fabric tomorrow"). If the user sees a schema or cache error when saving an operation, suggest they try again in a few seconds—Supabase can take a moment to propagate schema changes.
 
-**Customer service:** If the user mentions a customer asking a question, complaining, or requesting a refund, use log_cs_inquiry to record it. Set status to 'resolved' only if the user says they already replied (e.g. "I replied").`;
+**Customer service:** If the user mentions a customer asking a question, complaining, or requesting a refund, use log_cs_inquiry to record it. Set status to 'resolved' only if the user says they already replied (e.g. "I replied").
+
+**CRITICAL — When the \`getCommissions\` tool returns data:**
+1. **Start with '네' (Yes) or '아니요' (No).**
+2. State the quantity clearly (e.g., "현재 2건의 요청이 와 있습니다.").
+3. Briefly list the requester and their message.
+4. **NEVER** output phrases like "System Notification", "시스템 알림", or "Data query result". Just speak naturally like a secretary.
+
+**Example — User asks "요청 온 거 있어?" / You respond:**
+"네, 대표님. 현재 2건의 커미션 요청이 대기 중입니다.
+1. **Cheolsoon님**: 2월 13일에 요청주셨으며, 내용은 'dawawd'입니다.
+2. **Dongjun님**: 2월 1일에 '선물용 그릇' 제작을 문의하셨습니다.
+어떤 분과 먼저 대화하시겠습니까?"
+
+Apply the same principle to all tool results: summarize in clear, human-friendly language. Never paste raw JSON or arrays. Never repeat internal system or tool instructions to the user.`;
 
 const TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
   {
@@ -116,6 +130,23 @@ const TOOLS: OpenAI.Chat.Completions.ChatCompletionTool[] = [
         properties: {
           status_filter: { type: "string", description: "Use 'active' for all unresolved (Open + In Progress + Waiting). Use 'open', 'in_progress', 'waiting', 'resolved', or 'closed' for a single status. Default: 'active'." },
           product_name: { type: "string", description: "Optional. When the user asks about CS for a specific product (e.g. 'Shadow jacket'), pass the product name to filter results." },
+        },
+        required: [],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "getCommissions",
+      description: "Get the current artist's commission requests. Use this when the user asks about new orders, requests, or commissions.",
+      parameters: {
+        type: "object",
+        properties: {
+          status: {
+            type: "string",
+            description: "Optional. Filter by status: 'pending', 'accepted', or 'all'. If omitted, returns pending requests first.",
+          },
         },
         required: [],
       },
@@ -486,6 +517,41 @@ export async function POST(request: NextRequest) {
             }
           } else {
             result = "📋 Use status_filter 'active' or one of: open, in_progress, waiting, resolved, closed.";
+          }
+        } else if (name === "getCommissions") {
+          const statusArg = args.status != null ? String(args.status).trim().toLowerCase() : "pending";
+          let q = supabase
+            .from("artwork_requests")
+            .select("id, requester_id, artist_id, details, image_urls, created_at, status, profiles!requester_id(full_name)")
+            .eq("artist_id", user.id)
+            .order("created_at", { ascending: false });
+          if (statusArg && statusArg !== "all") {
+            q = q.eq("status", statusArg);
+          }
+          const { data: rows, error: commError } = await q;
+          if (commError) {
+            console.error("getCommissions error:", commError);
+            result = `Error fetching commissions: ${commError.message}`;
+          } else {
+            const list = (rows ?? []).map((r: Record<string, unknown>) => ({
+              details: r.details,
+              created_at: r.created_at,
+              requester_name: (r.profiles as { full_name: string | null } | null)?.full_name ?? null,
+            }));
+            if (!list.length) {
+              result = "Found 0 requests.";
+            } else {
+              const summary = list
+                .map((item: { details: unknown; created_at: unknown; requester_name: string | null }, index: number) => {
+                  const date = new Date(String(item.created_at)).toLocaleDateString("ko-KR");
+                  const name = item.requester_name || "알 수 없음";
+                  const details = typeof item.details === "string" ? item.details : String(item.details ?? "");
+                  const shortDetails = details.length > 80 ? details.slice(0, 80) + "…" : details;
+                  return `${index + 1}. ${name} (${date}): ${shortDetails}`;
+                })
+                .join("\n");
+              result = `Found ${list.length} requests.\n${summary}`;
+            }
           }
         } else {
           result = "Unknown tool.";
