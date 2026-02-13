@@ -7,22 +7,31 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Top menu */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-xs text-slate-500 mb-6">
-          <Link href="/company" className="hover:text-slate-700 transition-colors">
+          <Link
+            href="/about"
+            className="text-slate-600 hover:text-slate-900 hover:underline transition-colors cursor-pointer"
+          >
             About
           </Link>
           <span className="text-slate-300 select-none">|</span>
           <Link
             href="/privacy"
-            className="font-semibold text-slate-600 hover:text-slate-800 transition-colors"
+            className="text-slate-600 hover:text-slate-900 hover:underline transition-colors cursor-pointer"
           >
             Privacy
           </Link>
           <span className="text-slate-300 select-none">|</span>
-          <Link href="/terms" className="hover:text-slate-700 transition-colors">
+          <Link
+            href="/terms"
+            className="text-slate-600 hover:text-slate-900 hover:underline transition-colors cursor-pointer"
+          >
             Terms
           </Link>
           <span className="text-slate-300 select-none">|</span>
-          <Link href="/notice" className="hover:text-slate-700 transition-colors">
+          <Link
+            href="/notice"
+            className="text-slate-600 hover:text-slate-900 hover:underline transition-colors cursor-pointer"
+          >
             Notice
           </Link>
         </div>
