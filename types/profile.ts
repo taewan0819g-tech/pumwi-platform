@@ -27,7 +27,7 @@ export interface Career {
   created_at?: string
 }
 
-export type PostType = 'work_log' | 'sales'
+export type PostType = 'work_log' | 'studio_log' | 'sales' | 'exhibition'
 
 export interface Post {
   id: string

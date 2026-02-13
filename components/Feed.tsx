@@ -98,11 +98,12 @@ function PostImagesCarousel({ urls }: { urls: string[] }) {
   )
 }
 
-type FeedTab = 'all' | 'work' | 'sale'
+type FeedTab = 'all' | 'exhibitions' | 'work' | 'sale'
 
 const tabs: { id: FeedTab; label: string }[] = [
   { id: 'all', label: 'All' },
-  { id: 'work', label: 'Studio Log' },
+  { id: 'exhibitions', label: 'Exhibitions' },
+  { id: 'work', label: 'Craft Diary' },
   { id: 'sale', label: 'For Sale' },
 ]
 
@@ -116,7 +117,7 @@ interface ProfileRow {
 interface PostRow {
   id: string
   user_id: string
-  type: 'work_log' | 'sales'
+  type: 'work_log' | 'studio_log' | 'sales' | 'exhibition'
   title: string
   content: string | null
   image_url: string | null
@@ -258,6 +259,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
 
   const tabFilter = (p: PostRow) => {
     if (activeTab === 'all') return true
+    if (activeTab === 'exhibitions') return p.type === 'exhibition'
     if (activeTab === 'work') return p.type === 'work_log'
     return p.type === 'sales'
   }
@@ -579,9 +581,13 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                         <span className="bg-[#6B8E6B] text-white text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
                           🏷️ For Sale
                         </span>
+                      ) : post.type === 'exhibition' ? (
+                        <span className="bg-[#2F5D50]/15 text-[#2F5D50] text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
+                          🖼️ Exhibition
+                        </span>
                       ) : (
                         <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
-                          ✍️ Studio Log
+                          ✍️ Craft Diary
                         </span>
                       )}
                     </div>

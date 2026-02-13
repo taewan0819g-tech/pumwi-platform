@@ -18,9 +18,9 @@ import type { Profile } from '@/types/profile'
 
 const ARTIST_TABS = [
   { value: 'home', label: 'Home' },
-  { value: 'work_log', label: 'Studio Log' },
+  { value: 'exhibitions', label: 'Exhibitions' },
+  { value: 'studio_log', label: 'Craft Diary' },
   { value: 'sales', label: 'Works for Sale' },
-  { value: 'info', label: 'About' },
 ]
 
 const USER_TABS = [
@@ -100,6 +100,12 @@ export default function ProfileClient({ serverUser, initialProfile }: ProfileCli
     }
   }, [loading, isArtistProfile, validUserTab, activeTab])
 
+  useEffect(() => {
+    if (!loading && isArtistProfile && activeTab === 'info') {
+      setActiveTab('home')
+    }
+  }, [loading, isArtistProfile, activeTab])
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F3F2EF] p-4 sm:p-6 lg:p-8">
@@ -174,11 +180,18 @@ export default function ProfileClient({ serverUser, initialProfile }: ProfileCli
                     />
                   </div>
                 )}
-                {activeTab === 'work_log' && (
+                {activeTab === 'exhibitions' && (
                   <PostsSection
                     userId={profileToUse.id}
                     isOwn={isOwn}
-                    tab="work_log"
+                    tab="exhibition"
+                  />
+                )}
+                {activeTab === 'studio_log' && (
+                  <PostsSection
+                    userId={profileToUse.id}
+                    isOwn={isOwn}
+                    tab="studio_log"
                   />
                 )}
                 {activeTab === 'sales' && (
@@ -187,21 +200,6 @@ export default function ProfileClient({ serverUser, initialProfile }: ProfileCli
                     isOwn={isOwn}
                     tab="sales"
                   />
-                )}
-                {activeTab === 'info' && (
-                  <div className="space-y-6">
-                    <ValuePhilosophySection
-                      profile={profileToUse}
-                      isOwn={isOwn}
-                      onUpdate={setProfile}
-                    />
-                    <ExperienceSection userId={profileToUse.id} isOwn={isOwn} />
-                    <RecommendationsSection
-                      userId={profileToUse.id}
-                      currentUserId={user.id}
-                      isOwn={isOwn}
-                    />
-                  </div>
                 )}
               </>
             ) : (

@@ -99,7 +99,7 @@ const BUCKET_POSTS = 'posts'
 interface PostsSectionProps {
   userId: string
   isOwn: boolean
-  tab: 'work_log' | 'sales'
+  tab: 'studio_log' | 'sales' | 'exhibition'
 }
 
 export default function PostsSection({
@@ -143,7 +143,7 @@ export default function PostsSection({
     return () => urls.forEach((u) => URL.revokeObjectURL(u))
   }, [imageFiles])
 
-  // 게시물 목록 불러오기
+  // 게시물 목록 불러오기 (Craft Diary = work_log in DB; tab 'studio_log' is UI only)
   const fetchPosts = async () => {
     if (!userId) {
       setPosts([])
@@ -151,12 +151,17 @@ export default function PostsSection({
       return
     }
     try {
-      const { data, error } = await supabase
+      let q = supabase
         .from('posts')
         .select('*')
         .eq('user_id', userId)
-        .eq('type', tab)
         .order('created_at', { ascending: false })
+      if (tab === 'studio_log') {
+        q = q.eq('type', 'work_log')
+      } else {
+        q = q.eq('type', tab)
+      }
+      const { data, error } = await q
       if (error) {
         console.error('[posts fetch error]', error)
         setPosts([])
@@ -205,6 +210,14 @@ export default function PostsSection({
   // 저장 로직: Promise.all로 다중 이미지 병렬 업로드 → image_urls 저장
   const handleSubmit = async () => {
     if (!title.trim()) return
+    if (tab === 'exhibition' && !content.trim()) {
+      toast.error('Description is required for exhibitions.')
+      return
+    }
+    if (tab === 'exhibition' && imageFiles.length === 0) {
+      toast.error('Image is required for exhibitions.')
+      return
+    }
     setSaving(true)
 
     try {
@@ -235,21 +248,33 @@ export default function PostsSection({
         imageUrls = await Promise.all(uploads)
       }
 
+      if (tab === 'exhibition' && imageUrls.length === 0) {
+        toast.error('Exhibition requires at least one image.')
+        setSaving(false)
+        return
+      }
+
+      // Strict payload: only columns that exist in posts (user_id, type, title, content, price, image_url, image_urls, edition_number, edition_total)
+      const dbType = tab === 'studio_log' ? 'work_log' : tab
+      const mainImage = imageUrls.length > 0 ? imageUrls[0] : null
+      const allImages = imageUrls.length > 0 ? imageUrls : null
+
       const payload: Record<string, unknown> = {
         user_id: user.id,
-        type: tab,
+        type: dbType,
         title: title.trim(),
         content: content.trim() || null,
-        image_url: imageUrls[0] ?? null,
-        image_urls: imageUrls.length > 0 ? imageUrls : null,
         price: null,
+        image_url: mainImage,
+        image_urls: allImages,
       }
       if (tab === 'sales') {
         const ec = editionCurrent.trim() ? Number(editionCurrent) : null
         const et = editionTotal.trim() ? Number(editionTotal) : null
-        if (ec != null) (payload as Record<string, unknown>).edition_number = ec
-        if (et != null) (payload as Record<string, unknown>).edition_total = et
+        if (ec != null) payload.edition_number = ec
+        if (et != null) payload.edition_total = et
       }
+
       const { error } = await supabase.from('posts').insert(payload)
 
       if (error) throw error
@@ -349,7 +374,7 @@ export default function PostsSection({
           </Button>
         )}>
           <h3 className="font-semibold text-slate-900">
-            {tab === 'work_log' ? 'Studio Log' : 'Works for Sale'}
+            {tab === 'studio_log' ? 'Craft Diary' : tab === 'exhibition' ? 'Exhibitions' : 'Works for Sale'}
           </h3>
         </CardHeader>
         <CardContent>
@@ -378,7 +403,8 @@ export default function PostsSection({
                   )}
                   {(() => {
                     const urls = getPostImageUrls(post)
-                    if (urls.length === 0) return null
+                    if (urls.length === 0 && tab !== 'exhibition') return null
+                    if (urls.length === 0) return <div className="aspect-video rounded bg-gray-100 mb-3 flex items-center justify-center text-gray-400 text-sm">No image</div>
                     return (
                       <div className="aspect-video rounded bg-gray-100 mb-3 overflow-hidden">
                         <img src={urls[0]} alt="" className="w-full h-full object-contain" />
@@ -386,6 +412,9 @@ export default function PostsSection({
                     )
                   })()}
                   <h4 className="font-medium line-clamp-1">{post.title}</h4>
+                  {tab === 'exhibition' && post.content && (
+                    <p className="text-sm text-gray-600 line-clamp-2 mt-1">{post.content}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -394,15 +423,17 @@ export default function PostsSection({
       </Card>
 
       {/* 글쓰기 모달 */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title="New post">
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title={tab === 'exhibition' ? 'New exhibition' : 'New post'}>
         <div className="p-4 space-y-3">
           <input 
             value={title} onChange={e => setTitle(e.target.value)} 
-            placeholder="Title" className="w-full border p-2 rounded" 
+            placeholder={tab === 'exhibition' ? 'Title (required)' : 'Title'} 
+            className="w-full border p-2 rounded" 
           />
           <textarea 
             value={content} onChange={e => setContent(e.target.value)} 
-            placeholder="Content" className="w-full border p-2 rounded h-32 resize-none" 
+            placeholder={tab === 'exhibition' ? 'Description (required)' : 'Content'} 
+            className="w-full border p-2 rounded h-32 resize-none" 
           />
           {tab === 'sales' && (
             <div className="flex items-center gap-2">
@@ -440,7 +471,7 @@ export default function PostsSection({
               className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-[#8E86F5]"
             >
               <ImageIcon className="w-4 h-4" />
-              Select images (multiple)
+              {tab === 'exhibition' ? 'Images (required, multiple allowed)' : 'Select images (multiple)'}
             </label>
           </div>
           {previewUrls.length > 0 && (
@@ -466,7 +497,14 @@ export default function PostsSection({
           )}
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit} disabled={saving || !title.trim()}>
+            <Button
+              onClick={handleSubmit}
+              disabled={
+                saving ||
+                !title.trim() ||
+                (tab === 'exhibition' && (!content.trim() || imageFiles.length === 0))
+              }
+            >
               {saving ? 'Saving...' : 'Post'}
             </Button>
           </div>

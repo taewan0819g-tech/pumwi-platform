@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { PenLine, X, Pencil, Tag } from 'lucide-react'
+import { PenLine, X, Pencil, Tag, Image as ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 
 const BUCKET_POSTS = 'posts'
 
-type PostTypeTab = 'log' | 'work'
+type PostTypeTab = 'log' | 'work' | 'exhibition'
 
 interface PostInputProps {
   userId: string
@@ -61,6 +61,17 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
     const contentTrim = content.trim()
     if (!titleTrim && !contentTrim) return
 
+    if (postType === 'exhibition') {
+      if (!titleTrim || !contentTrim) {
+        toast.error('Exhibition requires Title and Description.')
+        return
+      }
+      if (imageFiles.length === 0) {
+        toast.error('Exhibition requires at least one image.')
+        return
+      }
+    }
+
     if (postType === 'work') {
       const et = editionTotal.trim()
       const editionTotalNum = et ? parseInt(et, 10) : NaN
@@ -94,6 +105,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
       }
 
       const isWork = postType === 'work'
+      const isExhibition = postType === 'exhibition'
       const ec = editionCurrent.trim()
       const et = editionTotal.trim()
       const edition_number =
@@ -101,16 +113,24 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
       const edition_total =
         isWork && et ? (parseInt(et, 10) || null) : null
 
+      // Map UI to DB: Craft Diary -> work_log, Exhibition -> exhibition, Work For Sale -> sales
+      // Strict payload: only columns that exist (id, user_id, created_at, type, title, content, price, likes_count, image_url, image_urls, edition_number, edition_total)
+      const dbType = isWork ? 'sales' : isExhibition ? 'exhibition' : 'work_log'
+      const mainImage = imageUrls.length > 0 ? imageUrls[0] : null
+      const allImages = imageUrls.length > 0 ? imageUrls : null
+
       const payload: Record<string, unknown> = {
         user_id: userId,
-        type: isWork ? 'sales' : 'work_log',
+        type: dbType,
         title: titleTrim || 'Untitled',
         content: contentTrim || null,
         price: null,
-        image_url: imageUrls[0] ?? null,
-        image_urls: imageUrls.length > 0 ? imageUrls : null,
-        edition_number: isWork ? edition_number : null,
-        edition_total: isWork ? edition_total : null,
+        image_url: mainImage,
+        image_urls: allImages,
+      }
+      if (dbType === 'sales') {
+        payload.edition_number = edition_number
+        payload.edition_total = edition_total
       }
 
       const { error } = await supabase.from('posts').insert(payload)
@@ -127,11 +147,13 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
   }
 
   const canSubmit =
-    (title.trim() || content.trim()) &&
-    (postType !== 'work' ||
-      (editionTotal.trim() &&
-        !Number.isNaN(parseInt(editionTotal.trim(), 10)) &&
-        parseInt(editionTotal.trim(), 10) > 0))
+    (postType === 'exhibition'
+      ? title.trim() && content.trim() && imageFiles.length > 0
+      : (title.trim() || content.trim()) &&
+        (postType !== 'work' ||
+          (editionTotal.trim() &&
+            !Number.isNaN(parseInt(editionTotal.trim(), 10)) &&
+            parseInt(editionTotal.trim(), 10) > 0)))
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
@@ -144,31 +166,31 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
           onClick={() => setExpanded(true)}
           className="flex-1 text-left px-4 py-2.5 rounded-full border border-gray-200 bg-[#F3F2EF] hover:bg-gray-100 text-gray-500 text-sm transition-colors"
         >
-          Share a studio log or work for sale.
+          Share a Craft Diary, work for sale, or exhibition.
         </button>
       </div>
       {expanded && (
         <div className="mt-4 pt-4 border-t border-gray-100 space-y-4">
-          {/* Tab Switcher: Studio Log | Work For Sale */}
-          <div className="flex p-1 bg-gray-100/80 rounded-lg">
+          {/* Tab Switcher: Craft Diary | Work For Sale | Exhibition */}
+          <div className="flex p-1 bg-gray-100/80 rounded-lg flex-wrap gap-1">
             <button
               type="button"
               onClick={() => setPostType('log')}
               className={cn(
-                'flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
                 postType === 'log'
                   ? 'bg-white text-[#2F5D50] shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               )}
             >
               <Pencil className="h-4 w-4" />
-              Studio Log
+              Craft Diary
             </button>
             <button
               type="button"
               onClick={() => setPostType('work')}
               className={cn(
-                'flex-1 flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
                 postType === 'work'
                   ? 'bg-white text-[#2F5D50] shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -177,8 +199,25 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
               <Tag className="h-4 w-4" />
               Work For Sale
             </button>
+            <button
+              type="button"
+              onClick={() => setPostType('exhibition')}
+              className={cn(
+                'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                postType === 'exhibition'
+                  ? 'bg-white text-[#2F5D50] shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              )}
+            >
+              <ImageIcon className="h-4 w-4" />
+              Exhibition
+            </button>
           </div>
 
+          {/* Exhibition: Image required */}
+          {postType === 'exhibition' && (
+            <p className="text-xs text-gray-500">Image, Title, and Description are required for exhibitions.</p>
+          )}
           {/* Common: Title */}
           <input
             type="text"
