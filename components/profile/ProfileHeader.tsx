@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Camera, User, Pencil, MapPin, Send } from 'lucide-react'
+import { Camera, User, Pencil, MapPin, Send, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/Card'
 import toast from 'react-hot-toast'
@@ -44,6 +44,7 @@ export default function ProfileHeader({
   const [isFollowing, setIsFollowing] = useState(false)
   const [followLoading, setFollowLoading] = useState(false)
   const [requestModalOpen, setRequestModalOpen] = useState(false)
+  const [chatLoading, setChatLoading] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const backgroundInputRef = useRef<HTMLInputElement>(null)
 
@@ -244,6 +245,40 @@ export default function ProfileHeader({
     }
   }
 
+  const handleChat = async () => {
+    if (!currentUserId || !profile?.id || isOwn || chatLoading) return
+    setChatLoading(true)
+    try {
+      const { data: existing } = await supabase
+        .from('conversations')
+        .select('id, participant_ids')
+        .contains('participant_ids', [currentUserId])
+
+      const match = (existing ?? []).find(
+        (row: { id: string; participant_ids: string[] }) =>
+          row.participant_ids?.includes(profile.id) && row.participant_ids?.length === 2
+      )
+      let conversationId: string
+      if (match) {
+        conversationId = match.id
+      } else {
+        const { data: inserted, error: insertErr } = await supabase
+          .from('conversations')
+          .insert({ participant_ids: [currentUserId, profile.id] })
+          .select('id')
+          .single()
+        if (insertErr) throw insertErr
+        conversationId = (inserted as { id: string }).id
+      }
+      router.push(`/messages?conversation=${conversationId}`)
+    } catch (err) {
+      console.error('[handleChat]', err)
+      toast.error(err instanceof Error ? err.message : 'Could not start chat.')
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
   const roleLabel = profile?.role === 'artist' ? 'Artist' : profile?.role === 'admin' ? 'Admin' : 'User'
 
   return (
@@ -421,6 +456,16 @@ export default function ProfileHeader({
                       >
                         <Send className="h-4 w-4 mr-1.5" />
                         Commission
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleChat}
+                        disabled={chatLoading}
+                        variant="outline"
+                        className="border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1.5" />
+                        {chatLoading ? 'Opening...' : 'Chat'}
                       </Button>
                       <Button
                         size="sm"

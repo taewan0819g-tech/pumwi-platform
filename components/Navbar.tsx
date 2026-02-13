@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import {
   Search,
   Home,
@@ -10,10 +10,8 @@ import {
   MessageSquare,
   UserCircle,
   LogOut,
-  FileText,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
-import ReceivedRequestsModal from '@/components/request/ReceivedRequestsModal'
 
 interface NavbarProps {
   user: SupabaseUser | null
@@ -21,10 +19,12 @@ interface NavbarProps {
 
 export default function Navbar({ user }: NavbarProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [searchQuery, setSearchQuery] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
-  const [requestsModalOpen, setRequestsModalOpen] = useState(false)
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const isMessagesActive = pathname === '/messages'
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -35,6 +35,19 @@ export default function Navbar({ user }: NavbarProps) {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    const fetchUnread = () => {
+      fetch('/api/messages/unread-count', { credentials: 'include' })
+        .then((res) => (res.ok ? res.json() : { count: 0 }))
+        .then((data) => setUnreadMessageCount(data?.count ?? 0))
+        .catch(() => setUnreadMessageCount(0))
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 30_000)
+    return () => clearInterval(interval)
+  }, [user])
 
   const handleLogout = async () => {
     setDropdownOpen(false)
@@ -113,25 +126,25 @@ export default function Navbar({ user }: NavbarProps) {
                 </span>
               </Link>
               <Link
-                href="/chat"
-                className="flex flex-col items-center justify-center min-w-[52px] sm:min-w-[64px] h-12 py-1 rounded hover:bg-slate-100 transition-colors text-gray-700"
+                href="/messages"
+                className={`relative flex flex-col items-center justify-center min-w-[52px] sm:min-w-[64px] h-12 py-1 rounded transition-colors ${
+                  isMessagesActive
+                    ? 'text-[#2F5D50] bg-[#2F5D50]/10'
+                    : 'text-gray-700 hover:text-[#2F5D50] hover:bg-slate-100'
+                }`}
+                title="Messages"
               >
                 <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                {unreadMessageCount > 0 && (
+                  <span
+                    className="absolute top-1.5 right-1/4 w-2 h-2 rounded-full bg-red-500 ring-2 ring-white"
+                    aria-label={`${unreadMessageCount} unread`}
+                  />
+                )}
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
                   Messages
                 </span>
               </Link>
-              <button
-                type="button"
-                onClick={() => setRequestsModalOpen(true)}
-                className="flex flex-col items-center justify-center min-w-[52px] sm:min-w-[64px] h-12 py-1 rounded hover:bg-slate-100 transition-colors text-gray-700"
-                title="Commissions"
-              >
-                <FileText className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
-                <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  Commissions
-                </span>
-              </button>
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
@@ -184,13 +197,6 @@ Me
           )}
         </div>
       </div>
-      {user && (
-        <ReceivedRequestsModal
-          open={requestsModalOpen}
-          onClose={() => setRequestsModalOpen(false)}
-          currentUserId={user?.id ?? ''}
-        />
-      )}
     </nav>
   )
 }

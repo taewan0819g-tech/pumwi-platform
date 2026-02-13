@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { createApiClient } from "@/lib/supabase/api";
+import { createApiClient } from "../../../lib/supabase/api";
 
 const SYSTEM_PROMPT = `You are a helpful Artisan Assistant. You can READ and WRITE the database. The user writes free-form notes about their artisan business (inventory, sales, expenses, CS).
 

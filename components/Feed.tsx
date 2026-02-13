@@ -537,12 +537,23 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                     )}
                   </Link>
                   <div className="min-w-0">
-                    <Link
-                      href={`/profile/${post.user_id}`}
-                      className="font-semibold text-slate-900 truncate block hover:text-[#8E86F5] transition-colors"
-                    >
-                      {authorName(post)}
-                    </Link>
+                    <div className="flex items-center flex-wrap gap-2">
+                      <Link
+                        href={`/profile/${post.user_id}`}
+                        className="font-semibold text-slate-900 truncate hover:text-[#8E86F5] transition-colors"
+                      >
+                        {authorName(post)}
+                      </Link>
+                      {post.type === 'sales' ? (
+                        <span className="bg-[#6B8E6B] text-white text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
+                          🏷️ For Sale
+                        </span>
+                      ) : (
+                        <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
+                          ✍️ Studio Log
+                        </span>
+                      )}
+                    </div>
                     <p className="text-xs text-gray-500">
                       {authorRole(post)} · {timeAgo(post.created_at)}
                     </p>

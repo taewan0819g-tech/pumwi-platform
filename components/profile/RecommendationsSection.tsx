@@ -101,9 +101,9 @@ export default function RecommendationsSection({
   return (
     <>
       <Card>
-        <CardHeader action={isOwn && (
+        <CardHeader action={!isOwn && (
           <Button variant="ghost" size="sm" onClick={() => setModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-1"/> Add
+            <Plus className="w-4 h-4 mr-1"/> Write a Recommendation
           </Button>
         )}>
           <h3 className="font-semibold text-slate-900">Recommendations</h3>
