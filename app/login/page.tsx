@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import ValuePropositionSection from '@/components/auth/ValuePropositionSection'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -53,7 +54,7 @@ export default function LoginPage() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-[#8E86F5] border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-gray-500">Checking...</p>
@@ -63,82 +64,87 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-        {/* PUMWI 로고 */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold" style={{ color: '#8E86F5' }}>
-            PUMWI
-          </h1>
-          <p className="text-gray-600 mt-2">Where Art Meets Value</p>
-        </div>
+    <div className="min-h-screen bg-gray-50/80 flex flex-col lg:flex-row lg:items-center lg:justify-center lg:gap-16 xl:gap-24 px-4 py-10 lg:py-12">
+      {/* Value proposition: left on desktop, below form on mobile */}
+      <div className="order-2 lg:order-1 lg:max-w-md xl:max-w-lg">
+        <ValuePropositionSection />
+      </div>
 
-        {/* 로그인 폼 */}
-        <form onSubmit={handleLogin} className="space-y-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
+      {/* Login card: focal point */}
+      <div className="order-1 lg:order-2 w-full max-w-md flex-shrink-0 lg:flex-shrink-0">
+        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl font-bold" style={{ color: '#8E86F5' }}>
+              PUMWI
+            </h1>
+            <p className="text-gray-600 mt-2">Where Art Meets Value</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none transition"
+                placeholder="your@email.com"
+              />
             </div>
-          )}
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none transition"
+                placeholder="••••••••"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:opacity-95"
+              style={{ backgroundColor: '#8E86F5' }}
             >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none transition"
-              placeholder="your@email.com"
-            />
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600">
+              Don&apos;t have an account?{' '}
+              <a
+                href="/signup"
+                className="font-medium hover:opacity-80"
+                style={{ color: '#8E86F5' }}
+              >
+                Join
+              </a>
+            </p>
           </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none transition"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:opacity-90"
-            style={{ backgroundColor: '#8E86F5' }}
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-
-        {/* 회원가입 링크 */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <a
-              href="/signup"
-              className="font-medium hover:opacity-80"
-              style={{ color: '#8E86F5' }}
-            >
-              Join
-            </a>
-          </p>
         </div>
       </div>
     </div>
