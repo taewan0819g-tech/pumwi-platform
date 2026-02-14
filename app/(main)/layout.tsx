@@ -1,8 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/types/profile'
 import Sidebar from '@/components/layout/Sidebar'
-import NewsWidget from '@/components/NewsWidget'
-import ArtistList from '@/components/ArtistList'
+import RightSidebar from '@/components/layout/RightSidebar'
 
 export default async function MainLayout({
   children,
@@ -63,10 +62,7 @@ export default async function MainLayout({
 
         {/* [오른쪽] 위젯: 화면 상단에 고정(Sticky) */}
         <aside className="col-span-3">
-          <div className="sticky top-24 h-fit space-y-10">
-            <NewsWidget />
-            <ArtistList />
-          </div>
+          <RightSidebar />
         </aside>
       </div>
     </div>

@@ -196,9 +196,11 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
   }, [editImageFile])
 
   const fetchPosts = useCallback(async () => {
+    // Exclude pumwi_exhibition: sidebar-only, never in main feed
     const { data, error } = await supabase
       .from('posts')
       .select('*, profiles(id, full_name, avatar_url, role)')
+      .in('type', ['work_log', 'studio_log', 'sales', 'exhibition'])
       .order('created_at', { ascending: false })
     if (error) {
       setPosts([])

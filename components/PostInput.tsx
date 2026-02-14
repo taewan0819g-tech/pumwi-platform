@@ -1,27 +1,46 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { PenLine, X, Pencil, Tag, Image as ImageIcon } from 'lucide-react'
+import { PenLine, X, Pencil, Tag, Image as ImageIcon, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 
 const BUCKET_POSTS = 'posts'
 
-type PostTypeTab = 'log' | 'work' | 'exhibition'
+type PostTypeTab = 'log' | 'work' | 'exhibition' | 'pumwi_exhibition'
 
 interface PostInputProps {
   userId: string
+  profile?: { role?: string } | null
+  /** When true, shows the PUMWI Exhibition tab (admin or taewan0819g@gmail.com). */
+  isExhibitionAdmin?: boolean
   onPostCreated?: () => void
 }
 
-export default function PostInput({ userId, onPostCreated }: PostInputProps) {
+export default function PostInput({ userId, profile, isExhibitionAdmin = false, onPostCreated }: PostInputProps) {
+  const searchParams = useSearchParams()
+  const isAdmin = isExhibitionAdmin || profile?.role === 'admin'
   const [expanded, setExpanded] = useState(false)
   const [postType, setPostType] = useState<PostTypeTab>('log')
+
+  useEffect(() => {
+    if (searchParams.get('create') === 'pumwi_exhibition' && isAdmin) {
+      setExpanded(true)
+      setPostType('pumwi_exhibition')
+    }
+  }, [searchParams, isAdmin])
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [editionCurrent, setEditionCurrent] = useState('')
   const [editionTotal, setEditionTotal] = useState('')
+  const [exhibitionLocation, setExhibitionLocation] = useState('')
+  const [exhibitionCountry, setExhibitionCountry] = useState('')
+  const [exhibitionStartDate, setExhibitionStartDate] = useState('')
+  const [exhibitionEndDate, setExhibitionEndDate] = useState('')
+  const [exhibitionStatus, setExhibitionStatus] = useState<'ongoing' | 'upcoming' | 'closed'>('upcoming')
+  const [exhibitionExternalLink, setExhibitionExternalLink] = useState('')
   const [posting, setPosting] = useState(false)
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
@@ -53,6 +72,12 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
     setContent('')
     setEditionCurrent('')
     setEditionTotal('')
+    setExhibitionLocation('')
+    setExhibitionCountry('')
+    setExhibitionStartDate('')
+    setExhibitionEndDate('')
+    setExhibitionStatus('upcoming')
+    setExhibitionExternalLink('')
     setImageFiles([])
   }
 
@@ -68,6 +93,21 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
       }
       if (imageFiles.length === 0) {
         toast.error('Exhibition requires at least one image.')
+        return
+      }
+    }
+
+    if (postType === 'pumwi_exhibition') {
+      if (!titleTrim) {
+        toast.error('PUMWI Exhibition requires a title.')
+        return
+      }
+      if (!exhibitionLocation.trim() || !exhibitionCountry.trim()) {
+        toast.error('Location and Country are required.')
+        return
+      }
+      if (imageFiles.length === 0) {
+        toast.error('At least one image is required.')
         return
       }
     }
@@ -106,6 +146,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
 
       const isWork = postType === 'work'
       const isExhibition = postType === 'exhibition'
+      const isPumwiExhibition = postType === 'pumwi_exhibition'
       const ec = editionCurrent.trim()
       const et = editionTotal.trim()
       const edition_number =
@@ -113,17 +154,28 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
       const edition_total =
         isWork && et ? (parseInt(et, 10) || null) : null
 
-      // Map UI to DB: Craft Diary -> work_log, Exhibition -> exhibition, Work For Sale -> sales
-      // Strict payload: only columns that exist (id, user_id, created_at, type, title, content, price, likes_count, image_url, image_urls, edition_number, edition_total)
-      const dbType = isWork ? 'sales' : isExhibition ? 'exhibition' : 'work_log'
+      const dbType = isWork ? 'sales' : isExhibition ? 'exhibition' : isPumwiExhibition ? 'pumwi_exhibition' : 'work_log'
       const mainImage = imageUrls.length > 0 ? imageUrls[0] : null
       const allImages = imageUrls.length > 0 ? imageUrls : null
+
+      let contentPayload: string | null = contentTrim || null
+      if (isPumwiExhibition) {
+        contentPayload = JSON.stringify({
+          description: contentTrim || '',
+          location: exhibitionLocation.trim(),
+          country: exhibitionCountry.trim(),
+          start_date: exhibitionStartDate || undefined,
+          end_date: exhibitionEndDate || undefined,
+          exhibition_status: exhibitionStatus,
+          external_link: exhibitionExternalLink.trim() || undefined,
+        })
+      }
 
       const payload: Record<string, unknown> = {
         user_id: userId,
         type: dbType,
         title: titleTrim || 'Untitled',
-        content: contentTrim || null,
+        content: contentPayload,
         price: null,
         image_url: mainImage,
         image_urls: allImages,
@@ -132,6 +184,7 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
         payload.edition_number = edition_number
         payload.edition_total = edition_total
       }
+      // pumwi_exhibition status stored in content.exhibition_status (optional column exhibition_status can be added via migration)
 
       const { error } = await supabase.from('posts').insert(payload)
       if (error) throw error
@@ -149,11 +202,16 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
   const canSubmit =
     (postType === 'exhibition'
       ? title.trim() && content.trim() && imageFiles.length > 0
-      : (title.trim() || content.trim()) &&
-        (postType !== 'work' ||
-          (editionTotal.trim() &&
-            !Number.isNaN(parseInt(editionTotal.trim(), 10)) &&
-            parseInt(editionTotal.trim(), 10) > 0)))
+      : postType === 'pumwi_exhibition'
+        ? title.trim() &&
+          exhibitionLocation.trim() &&
+          exhibitionCountry.trim() &&
+          imageFiles.length > 0
+        : (title.trim() || content.trim()) &&
+          (postType !== 'work' ||
+            (editionTotal.trim() &&
+              !Number.isNaN(parseInt(editionTotal.trim(), 10)) &&
+              parseInt(editionTotal.trim(), 10) > 0)))
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
@@ -212,11 +270,29 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
               <ImageIcon className="h-4 w-4" />
               Exhibition
             </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setPostType('pumwi_exhibition')}
+                className={cn(
+                  'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                  postType === 'pumwi_exhibition'
+                    ? 'bg-white text-[#2F5D50] shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                )}
+              >
+                <Globe className="h-4 w-4" />
+                PUMWI Exhibition
+              </button>
+            )}
           </div>
 
           {/* Exhibition: Image required */}
           {postType === 'exhibition' && (
             <p className="text-xs text-gray-500">Image, Title, and Description are required for exhibitions.</p>
+          )}
+          {postType === 'pumwi_exhibition' && (
+            <p className="text-xs text-gray-500">Global offline event: title, location, country, dates, and image required.</p>
           )}
           {/* Common: Title */}
           <input
@@ -226,14 +302,98 @@ export default function PostInput({ userId, onPostCreated }: PostInputProps) {
             placeholder="Title"
             className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
           />
-          {/* Common: Content */}
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="What's on your mind?"
-            rows={3}
-            className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-none text-slate-900"
-          />
+          {/* Common: Content (multi-line for PUMWI Exhibition) */}
+          {postType === 'pumwi_exhibition' ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Exhibition Details (Description)
+              </label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write the detailed exhibition introduction, curator's note, etc. here..."
+                rows={10}
+                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-y min-h-[200px] text-slate-900"
+              />
+            </div>
+          ) : (
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="What's on your mind?"
+              rows={3}
+              className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-none text-slate-900"
+            />
+          )}
+
+          {/* PUMWI Exhibition only: Location, Country, Dates (date only), Status, External link */}
+          {postType === 'pumwi_exhibition' && (
+            <div className="space-y-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <div>
+                <span className="block text-xs font-medium text-gray-700 mb-2">Status Badge</span>
+                <div className="flex flex-wrap gap-3">
+                  {[
+                    { value: 'ongoing' as const, label: '🔴 On-going' },
+                    { value: 'upcoming' as const, label: '🟡 Upcoming' },
+                    { value: 'closed' as const, label: '⚫ Closed' },
+                  ].map(({ value, label }) => (
+                    <label key={value} className="inline-flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="exhibition_status"
+                        value={value}
+                        checked={exhibitionStatus === value}
+                        onChange={() => setExhibitionStatus(value)}
+                        className="text-[#2F5D50] focus:ring-[#2F5D50]"
+                      />
+                      <span className="text-sm text-slate-700">{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <input
+                type="text"
+                value={exhibitionLocation}
+                onChange={(e) => setExhibitionLocation(e.target.value)}
+                placeholder="Location (e.g. Paris)"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+              />
+              <input
+                type="text"
+                value={exhibitionCountry}
+                onChange={(e) => setExhibitionCountry(e.target.value)}
+                placeholder="Country (e.g. France)"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Start Date</label>
+                  <input
+                    type="date"
+                    value={exhibitionStartDate}
+                    onChange={(e) => setExhibitionStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">End Date</label>
+                  <input
+                    type="date"
+                    value={exhibitionEndDate}
+                    onChange={(e) => setExhibitionEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+                  />
+                </div>
+              </div>
+              <input
+                type="url"
+                value={exhibitionExternalLink}
+                onChange={(e) => setExhibitionExternalLink(e.target.value)}
+                placeholder="External link (optional)"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+              />
+            </div>
+          )}
 
           {/* Work For Sale only: Edition */}
           {postType === 'work' && (

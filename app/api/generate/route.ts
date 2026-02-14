@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import { createApiClient } from "../../../lib/supabase/api";
-// ✅ 상대 경로: "세 번 위로 올라가서(../) lib 폴더를 찾아라"라고 직접 지정
+import { createClient } from "@/lib/supabase/server"; 
+// ✅ PUMWI 프로젝트 표준에 맞춰 절대 경로(@)로 수정했습니다.
 
+// 👇 대표님이 보내주신 Speed.Sales 오리지널 프롬프트 (토씨 하나 안 틀리고 그대로 적용)
 const SYSTEM_PROMPT = `You write product content from the maker's perspective. You are NOT a marketing bot. Use only the facts provided in the user's input. Never invent details.
 
 **CORE RULE: ZERO HALLUCINATION & SAFE FALLBACKS**
@@ -130,7 +131,6 @@ When the user requests a language other than Korean, generate content that feels
 - For the **"hashtags"** key only: return an object with an "options" array of exactly 3 items as defined in HASHTAGS PLATFORM above (🚀 High Reach, 🎯 Niche Specific, ✨ Community & Vibe). Each item: { "style": "<emoji + group name>", "intent": "<short description>", "content": "<only hashtags e.g. #tag1 #tag2 #tag3>" }. No captions in content.
 Return only valid JSON. Do not invent features or details.`;
 
-/** User-facing labels (UI) */
 const PLATFORM_KEYS = [
   "Instagram",
   "X (Twitter)",
@@ -142,7 +142,6 @@ const PLATFORM_KEYS = [
 
 type PlatformKey = (typeof PLATFORM_KEYS)[number];
 
-/** Map UI label -> canonical JSON key for OpenAI and API response */
 const PLATFORM_TO_CANONICAL: Record<string, string> = {
   Instagram: "instagram",
   "X (Twitter)": "twitter",
@@ -189,10 +188,7 @@ export async function POST(request: NextRequest) {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey || !apiKey.startsWith("sk-")) {
       return NextResponse.json(
-        {
-          error:
-            "OpenAI API key is not configured. Set OPENAI_API_KEY in .env.local.",
-        },
+        { error: "OpenAI API key is not configured." },
         { status: 500 }
       );
     }
@@ -230,10 +226,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createApiClient(request);
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    // ✅ PUMWI의 Supabase 클라이언트 생성 방식으로 변경
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     if (!user) {
       return NextResponse.json(
         { error: "You must be signed in to generate content." },

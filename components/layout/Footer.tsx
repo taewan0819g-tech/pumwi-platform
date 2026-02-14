@@ -5,6 +5,9 @@ export default function Footer() {
   return (
     <footer className="bg-slate-50 border-t border-slate-200 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-6 mb-6">
+          {/* Left: Top menu + company info */}
+          <div className="flex-1">
         {/* Top menu */}
         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-2 gap-y-1 text-xs text-slate-500 mb-6">
           <Link
@@ -59,6 +62,25 @@ export default function Footer() {
           <p className="text-slate-400 italic mt-2">
             *Beta. Full service coming soon.
           </p>
+        </div>
+          </div>
+
+          {/* Right: PUMWI News links */}
+          <div className="sm:text-right">
+            <p className="text-xs font-medium text-slate-600 mb-2">PUMWI News</p>
+            <ul className="text-xs text-slate-500 space-y-1">
+              <li>
+                <Link href="/notice" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors">
+                  Latest News
+                </Link>
+              </li>
+              <li>
+                <Link href="/notice" className="text-slate-600 hover:text-slate-900 hover:underline transition-colors">
+                  Notice
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
 
         {/* Copyright + SNS */}

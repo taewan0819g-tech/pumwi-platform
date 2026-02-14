@@ -319,17 +319,23 @@ export default function ProfileHeader({
             </div>
           </>
         )}
-        {/* 2. 프로필 사진: 배너와 흰 영역 사이에 걸치도록 absolute */}
-        <div className="absolute left-4 sm:left-8 bottom-0 translate-y-1/2 z-10">
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full border-4 border-white bg-gray-100 overflow-hidden shadow-lg flex items-center justify-center ring-1 ring-gray-200">
+      </div>
+
+      {/* 2. Main content: Avatar (left) + Profile text (right) — avatar in content area, not overlapping banner */}
+      <CardContent className="bg-white py-4 px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6">
+          {/* Avatar: relative container, NO overflow-hidden; img and button are siblings */}
+          <div className="relative inline-block shrink-0 mr-0 sm:mr-6">
             {profile?.avatar_url ? (
               <img
                 src={profile.avatar_url}
                 alt=""
-                className="w-full h-full object-cover"
+                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
               />
             ) : (
-              <User className="h-12 w-12 sm:h-14 sm:w-14 text-gray-400" />
+              <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center border-4 border-white shadow-lg">
+                <User className="h-14 w-14 text-gray-400" />
+              </div>
             )}
             {isOwn && (
               <>
@@ -344,7 +350,7 @@ export default function ProfileHeader({
                   type="button"
                   onClick={() => avatarInputRef.current?.click()}
                   disabled={uploading}
-                  className="absolute bottom-0 right-0 p-1.5 rounded-full bg-[#8E86F5] text-white hover:opacity-90 shadow disabled:opacity-50"
+                  className="absolute bottom-0 right-0 z-10 p-1.5 rounded-full bg-[#8E86F5] text-white hover:opacity-90 shadow-md border-2 border-white disabled:opacity-50"
                   title="Change profile photo"
                 >
                   <Camera className="h-3.5 w-3.5" />
@@ -352,14 +358,6 @@ export default function ProfileHeader({
               </>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* 3. 흰색 프로필 정보 섹션: flex로 좌 [이름/소개] · 우 [작업실] 같은 높이, 여백 최소화 */}
-      <CardContent className="bg-white pt-12 sm:pt-14 py-4 px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
-          {/* 데스크톱: 아바타 공간 확보용 spacer */}
-          <div className="hidden sm:block w-28 shrink-0" />
           <div className="flex-1 min-w-0">
             {editing ? (
               <div className="space-y-2">
