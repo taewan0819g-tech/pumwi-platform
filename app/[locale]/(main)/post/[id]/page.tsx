@@ -48,7 +48,7 @@ export default async function PostDetailPage({
     post.type === 'pumwi_exhibition'
       ? { ...post, location: meta.location, country: meta.country }
       : post
-  const resolved = getContentByLocale(postForContent, locale)
+  const resolved = getContentByLocale(postForContent as any, locale)
   const descriptionText =
     post.type === 'pumwi_exhibition'
       ? locale === 'ko'
