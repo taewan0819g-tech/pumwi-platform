@@ -30,6 +30,7 @@ import ProfileCard from '@/components/ProfileCard'
 import ExhibitionWidget from '@/components/ExhibitionWidget'
 import ArtistList from '@/components/ArtistList'
 import { isExhibitionAdminEmail } from '@/lib/exhibition-admin'
+import BottomNav from '@/components/layout/BottomNav'
 
 const ARTISAN_OS_MENU = [
   { labelKey: 'command_center', href: '/artisan-os', icon: Home },
@@ -126,6 +127,7 @@ export default function Navbar({ user }: NavbarProps) {
   }
 
   return (
+    <>
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12 gap-4">
@@ -193,7 +195,7 @@ export default function Navbar({ user }: NavbarProps) {
           </div>
 
           {user ? (
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="hidden lg:flex items-center gap-1 sm:gap-2">
               <Link
                 href="/"
                 className="flex flex-col items-center justify-center min-w-[52px] sm:min-w-[64px] h-12 py-1 rounded hover:bg-slate-100 transition-colors text-gray-700"
@@ -425,6 +427,12 @@ export default function Navbar({ user }: NavbarProps) {
           </div>
         </>
       )}
-    </nav>
+      </nav>
+      <BottomNav
+        user={user}
+        unreadMessageCount={unreadMessageCount}
+        onOpenRightDrawer={() => setIsRightDrawerOpen(true)}
+      />
+    </>
   )
 }
