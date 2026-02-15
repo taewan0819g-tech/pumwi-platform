@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { User, Send } from 'lucide-react'
+import { User, Send, ArrowLeft } from 'lucide-react'
 import type { ConversationWithOther } from './page'
 
 type Message = {
@@ -220,9 +220,9 @@ export default function MessagesClient({ initialConversations, currentUserId, in
   }
 
   return (
-    <div className="flex h-[calc(100vh-140px)] min-h-[600px]">
-      {/* Left sidebar: when chat open show list to switch; when inbox show minimal */}
-      <aside className="w-1/4 min-w-[200px] max-w-[280px] flex-shrink-0 border-r border-gray-200 bg-white flex flex-col min-h-0">
+    <div className="flex h-[calc(100vh-140px)] min-h-[400px] md:min-h-[600px]">
+      {/* Left sidebar: desktop only; when chat open show list to switch */}
+      <aside className="hidden md:flex w-1/4 min-w-[200px] max-w-[280px] flex-shrink-0 border-r border-gray-200 bg-white flex-col min-h-0">
         <div className="p-3 border-b border-gray-100 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-[#2F5D50] font-serif">Messages</h2>
           {selectedId && (
@@ -286,8 +286,8 @@ export default function MessagesClient({ initialConversations, currentUserId, in
         )}
       </aside>
 
-      {/* Center: inbox list (no selection) or chat thread (selected) */}
-      <div className="flex-1 flex flex-col bg-white min-w-0 min-h-0 border-l border-gray-100">
+      {/* Center: inbox list (no selection) or chat thread (selected). Full width on mobile when aside hidden. */}
+      <div className="flex-1 flex flex-col bg-white min-w-0 min-h-0 w-full md:border-l border-gray-100">
         {!selectedId ? (
           /* Inbox view: conversation cards in center */
           <div className="flex-1 overflow-y-auto scrollbar-hide">
@@ -341,8 +341,16 @@ export default function MessagesClient({ initialConversations, currentUserId, in
           </div>
         ) : (
           <>
-            {/* Chat header */}
-            <div className="flex-shrink-0 flex items-center gap-3 p-3 border-b border-gray-200 bg-white">
+            {/* Chat header: Back button on mobile only */}
+            <div className="flex-shrink-0 flex items-center gap-2 md:gap-3 p-3 border-b border-gray-200 bg-white">
+              <button
+                type="button"
+                onClick={() => setSelectedId(null)}
+                className="md:hidden flex-shrink-0 p-2 -ml-1 rounded-md text-gray-600 hover:bg-gray-100"
+                aria-label="Back to list"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
               <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center flex-shrink-0">
                 {otherParticipant?.avatar_url ? (
                   <img src={otherParticipant.avatar_url} alt="" className="w-full h-full object-cover" />
@@ -350,7 +358,7 @@ export default function MessagesClient({ initialConversations, currentUserId, in
                   <User className="h-4 w-4 text-gray-500" />
                 )}
               </div>
-              <span className="font-semibold text-gray-900">
+              <span className="font-semibold text-gray-900 truncate">
                 {otherParticipant?.full_name ?? 'Unknown'}
               </span>
             </div>

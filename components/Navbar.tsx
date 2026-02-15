@@ -19,12 +19,17 @@ import {
   Sparkles,
   BookOpen,
   LineChart,
+  LayoutGrid,
   Newspaper,
+  Plus,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Profile } from '@/types/profile'
 import { createClient } from '@/lib/supabase/client'
 import ProfileCard from '@/components/ProfileCard'
+import ExhibitionWidget from '@/components/ExhibitionWidget'
+import ArtistList from '@/components/ArtistList'
+import { isExhibitionAdminEmail } from '@/lib/exhibition-admin'
 
 const ARTISAN_OS_MENU = [
   { labelKey: 'command_center', href: '/artisan-os', icon: Home },
@@ -51,6 +56,7 @@ export default function Navbar({ user }: NavbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
   const [mobileProfile, setMobileProfile] = useState<Profile | null>(null)
   const [mobileApplicationStatus, setMobileApplicationStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -226,6 +232,18 @@ export default function Navbar({ user }: NavbarProps) {
                   {t('messages')}
                 </span>
               </Link>
+              {/* Recommendations / Right sidebar toggle: mobile only */}
+              <button
+                type="button"
+                onClick={() => setIsRightDrawerOpen(true)}
+                className="xl:hidden flex flex-col items-center justify-center min-w-[52px] sm:min-w-[64px] h-12 py-1 rounded hover:bg-slate-100 transition-colors text-gray-700"
+                aria-label="Recommendations"
+              >
+                <LayoutGrid className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
+                <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
+                  More
+                </span>
+              </button>
               <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
@@ -360,6 +378,49 @@ export default function Navbar({ user }: NavbarProps) {
                   </Link>
                 </div>
               )}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Right drawer: Recommendations (Exhibitions + Artists) - mobile only */}
+      {isRightDrawerOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-[60] bg-black/40 xl:hidden"
+            aria-hidden
+            onClick={() => setIsRightDrawerOpen(false)}
+          />
+          <div
+            className="fixed inset-y-0 right-0 z-[70] w-[320px] max-w-[90vw] bg-white shadow-xl overflow-y-auto xl:hidden flex flex-col"
+            role="dialog"
+            aria-label="Recommendations"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+              <span className="font-semibold text-slate-900">{tSidebar('featuredArtists')}</span>
+              <button
+                type="button"
+                onClick={() => setIsRightDrawerOpen(false)}
+                className="p-2 rounded-md text-gray-500 hover:bg-slate-100"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-6 overflow-y-auto flex-1">
+              {user && isExhibitionAdminEmail(user.email) && (
+                <Link
+                  href="/?create=pumwi_exhibition"
+                  onClick={() => setIsRightDrawerOpen(false)}
+                  className="inline-flex items-center gap-2 w-full justify-center px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors hover:opacity-90"
+                  style={{ backgroundColor: '#2F5D50' }}
+                >
+                  <Plus className="h-4 w-4" />
+                  New Exhibition
+                </Link>
+              )}
+              <ExhibitionWidget />
+              <ArtistList />
             </div>
           </div>
         </>
