@@ -12,7 +12,7 @@ export default function RightSidebar() {
   const isAdmin = isExhibitionAdminEmail(user?.email)
 
   return (
-    <div className="sticky top-24 h-fit space-y-10">
+    <div className="hidden xl:block sticky top-24 h-fit space-y-10">
       {isAdmin && (
         <div className="mb-2">
           <Link

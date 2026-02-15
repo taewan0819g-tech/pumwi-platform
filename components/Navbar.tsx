@@ -9,10 +9,33 @@ import {
   Home,
   Users,
   MessageSquare,
+  MessageSquareText,
   UserCircle,
   LogOut,
+  Menu,
+  X,
+  Package,
+  ClipboardList,
+  Sparkles,
+  BookOpen,
+  LineChart,
+  Newspaper,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
+import type { Profile } from '@/types/profile'
+import { createClient } from '@/lib/supabase/client'
+import ProfileCard from '@/components/ProfileCard'
+
+const ARTISAN_OS_MENU = [
+  { labelKey: 'command_center', href: '/artisan-os', icon: Home },
+  { labelKey: 'orders_stock', href: '/artisan-os/orders', icon: Package },
+  { labelKey: 'operations_log', href: '/artisan-os/logs', icon: ClipboardList },
+  { labelKey: 'commissions', href: '/artisan-os/commissions', icon: MessageSquareText },
+  { labelKey: 'marketing', href: '/artisan-os/marketing', icon: Sparkles },
+  { labelKey: 'cs_master', href: '/artisan-os/cs', icon: MessageSquare },
+  { labelKey: 'command_playbook', href: '/artisan-os/playbook', icon: BookOpen },
+  { labelKey: 'insights', href: '/artisan-os/insights', icon: LineChart },
+] as const
 
 interface NavbarProps {
   user: SupabaseUser | null
@@ -20,14 +43,41 @@ interface NavbarProps {
 
 export default function Navbar({ user }: NavbarProps) {
   const t = useTranslations('nav')
+  const tSidebar = useTranslations('sidebar')
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
   const [searchQuery, setSearchQuery] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [unreadMessageCount, setUnreadMessageCount] = useState(0)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [mobileProfile, setMobileProfile] = useState<Profile | null>(null)
+  const [mobileApplicationStatus, setMobileApplicationStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const isMessagesActive = pathname === '/messages'
+
+  useEffect(() => {
+    if (!user?.id) {
+      setMobileProfile(null)
+      setMobileApplicationStatus(null)
+      return
+    }
+    const supabase = createClient()
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => setMobileProfile(data as Profile | null))
+    supabase
+      .from('artist_applications')
+      .select('status')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => setMobileApplicationStatus(data?.status ?? null))
+  }, [user?.id])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -73,6 +123,15 @@ export default function Navbar({ user }: NavbarProps) {
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12 gap-4">
+          {/* Hamburger: mobile only, left of Logo */}
+          <button
+            type="button"
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="lg:hidden flex-shrink-0 p-2 rounded-md text-gray-600 hover:bg-slate-100 transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
           <Link
             href="/"
             className="flex-shrink-0 flex items-center justify-center rounded-md px-1 py-1.5 hover:bg-slate-100 transition-colors"
@@ -219,6 +278,92 @@ export default function Navbar({ user }: NavbarProps) {
           )}
         </div>
       </div>
+
+      {/* Mobile drawer (slide-in from left) */}
+      {isMobileMenuOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-[60] bg-black/40 lg:hidden"
+            aria-hidden
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+          <div
+            className="fixed inset-y-0 left-0 z-[70] w-[280px] max-w-[85vw] bg-white shadow-xl overflow-y-auto lg:hidden transition-transform"
+            role="dialog"
+            aria-label="Menu"
+          >
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <span className="font-semibold text-slate-900">{tSidebar('title')}</span>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-md text-gray-500 hover:bg-slate-100"
+                aria-label="Close menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              {user ? (
+                <>
+                  <ProfileCard
+                    profile={mobileProfile}
+                    userEmail={user.email ?? null}
+                    applicationStatus={mobileApplicationStatus}
+                  />
+                  {mobileProfile?.role === 'artist' && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 pl-2">{tSidebar('title')}</p>
+                      <nav className="space-y-1">
+                        {ARTISAN_OS_MENU.map(({ labelKey, href, icon: Icon }) => {
+                          const isActive = pathname === href
+                          return (
+                            <Link
+                              key={href}
+                              href={href}
+                              onClick={() => setIsMobileMenuOpen(false)}
+                              className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${isActive ? 'bg-[#2F5D50]/10 text-[#2F5D50]' : 'text-gray-600 hover:bg-gray-50 hover:text-[#2F5D50]'}`}
+                            >
+                              <Icon className={`mr-3 h-5 w-5 flex-shrink-0 ${isActive ? 'text-[#2F5D50]' : 'text-gray-400 group-hover:text-[#2F5D50]'}`} />
+                              <span>{tSidebar(labelKey)}</span>
+                            </Link>
+                          )
+                        })}
+                      </nav>
+                    </div>
+                  )}
+                  {mobileProfile?.role === 'admin' && (
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 pl-2">{tSidebar('admin')}</p>
+                      <nav className="space-y-1">
+                        <Link
+                          href="/admin/news"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors ${pathname === '/admin/news' ? 'bg-[#2F5D50]/10 text-[#2F5D50]' : 'text-gray-600 hover:bg-gray-50 hover:text-[#2F5D50]'}`}
+                        >
+                          <Newspaper className={`mr-3 h-5 w-5 flex-shrink-0 ${pathname === '/admin/news' ? 'text-[#2F5D50]' : 'text-gray-400 group-hover:text-[#2F5D50]'}`} />
+                          <span>{tSidebar('newsManagement')}</span>
+                        </Link>
+                      </nav>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 text-center">
+                  <p className="text-slate-700 mb-4">{tSidebar('signInToViewProfile')}</p>
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="inline-block py-2 px-4 text-sm font-medium text-white rounded-md bg-[#8E86F5]"
+                  >
+                    {t('signIn')}
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </nav>
   )
 }

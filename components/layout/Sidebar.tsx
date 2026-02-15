@@ -31,7 +31,7 @@ export default function Sidebar({ user, profile, userEmail, applicationStatus }:
 
   // 핵심 수정: col-span-3과 order-1/2 같은 레이아웃 클래스를 모두 제거했습니다.
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="hidden lg:flex flex-col gap-4 w-full">
       {user ? (
         <>
           <ProfileCard profile={profile} userEmail={userEmail} applicationStatus={applicationStatus} />

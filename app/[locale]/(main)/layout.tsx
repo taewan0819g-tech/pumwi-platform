@@ -37,9 +37,9 @@ export default async function MainLayout({
           - gap-8: 두 번째 사진처럼 간격을 적절히 좁힘
           - min-w-[1200px]: 3단 구조 강제 고정
       */}
-      <div className="max-w-[1600px] min-w-[1200px] mx-auto grid grid-cols-12 gap-8 px-6 lg:px-8 py-6">
-        {/* [왼쪽] 사이드바: 화면 상단에 고정(Sticky) */}
-        <aside className="col-span-3">
+      <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+        {/* [왼쪽] 사이드바: 데스크톱만 표시 (lg+) */}
+        <aside className="hidden lg:block col-span-3">
           <div className="sticky top-24 h-fit">
             <Sidebar
               user={user ? { id: user.id, email: user.email ?? null } : null}
@@ -50,18 +50,15 @@ export default async function MainLayout({
           </div>
         </aside>
 
-        {/* [가운데] 피드:
-            - h-[calc(100vh-100px)]: 화면 높이에 맞춰 높이 고정
-            - overflow-y-auto: 여기만 마우스 올리고 굴리면 독립적으로 스크롤 됨
-        */}
-        <main className="col-span-6 h-[calc(100vh-100px)] overflow-y-auto scrollbar-hide px-2">
+        {/* [가운데] 피드: 모바일에서 w-full, 데스크톱에서 6열 */}
+        <main className="col-span-1 lg:col-span-9 xl:col-span-6 w-full min-h-[calc(100vh-120px)] lg:h-[calc(100vh-100px)] overflow-y-auto scrollbar-hide px-2">
           <div className="w-full max-w-2xl mx-auto pb-12">
             {children}
           </div>
         </main>
 
-        {/* [오른쪽] 위젯: 화면 상단에 고정(Sticky) */}
-        <aside className="col-span-3">
+        {/* [오른쪽] 위젯: xl 이상에서만 표시 */}
+        <aside className="hidden xl:block col-span-3">
           <RightSidebar />
         </aside>
       </div>
