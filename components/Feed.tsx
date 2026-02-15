@@ -679,7 +679,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
               })()}
               <div className="px-4 py-3">
                 {(() => {
-                  const resolved = getContent(post)
+                  const resolved = getContent(post as any)
                   return (
                     <>
                       <p className="text-sm font-medium text-slate-900">{resolved.title}</p>
