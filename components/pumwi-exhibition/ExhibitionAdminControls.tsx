@@ -1,9 +1,9 @@
 'use client'
 
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { Link } from '@/i18n/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { Pencil, Trash2 } from 'lucide-react'
-import { deleteExhibition } from '@/app/(main)/pumwi-exhibition/[id]/actions'
+import { deleteExhibition } from '@/app/[locale]/(main)/pumwi-exhibition/[id]/actions'
 
 interface ExhibitionAdminControlsProps {
   postId: string

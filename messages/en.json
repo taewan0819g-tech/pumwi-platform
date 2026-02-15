@@ -1,0 +1,157 @@
+{
+  "nav": {
+    "home": "Home",
+    "exhibitions": "Exhibitions",
+    "craft_diary": "Craft Diary",
+    "shop": "Shop",
+    "exhibition": "Exhibition",
+    "craftDiary": "Craft Diary",
+    "following": "Following",
+    "messages": "Messages",
+    "me": "Me",
+    "viewProfile": "View profile",
+    "signOut": "Sign out",
+    "signIn": "Sign In",
+    "join": "Join",
+    "search": "Search",
+    "searchPlaceholder": "Search..."
+  },
+  "sidebar": {
+    "title": "Artist Operations",
+    "command_center": "Dashboard",
+    "orders_stock": "Orders & Stock",
+    "operations_log": "Operations Log",
+    "commissions": "Commissions",
+    "marketing": "Marketing",
+    "cs_master": "CS Master",
+    "command_playbook": "Playbook",
+    "insights": "Insights",
+    "pumwiExhibition": "PUMWI Exhibition",
+    "globalOfflineEvents": "Global Offline Events",
+    "featuredArtists": "Featured Artists",
+    "allArtists": "All Artists",
+    "artisanOs": "Artisan OS",
+    "admin": "Admin",
+    "newsManagement": "News Management",
+    "signInToViewProfile": "Sign in to view your profile"
+  },
+  "feed": {
+    "tabs": {
+      "all": "All",
+      "exhibitions": "Exhibitions",
+      "craft_diary": "Craft Diary",
+      "for_sale": "For Sale"
+    },
+    "create_post": {
+      "placeholder_collapsed": "Share a Craft Diary, work for sale, or exhibition.",
+      "type_craft_diary": "Craft Diary",
+      "type_work_for_sale": "Work For Sale",
+      "type_exhibition": "Exhibition",
+      "input_title": "Title",
+      "input_placeholder": "What's on your mind?",
+      "btn_add_image": "Add images",
+      "btn_cancel": "Cancel",
+      "btn_post": "Post",
+      "publishing": "Publishing..."
+    }
+  },
+  "playbook": {
+    "header": {
+      "title": "Command Playbook",
+      "subtitle": "The Artisan OS Guide",
+      "description": "We handle the rest, so you can focus on making."
+    },
+    "intro_box": {
+      "title": "The Brain of Your Studio",
+      "description": "The Command Center is for everything except physical production. Treat it like a real assistant: say what happened, what you need, or what a customer asked — we organize it into Orders, Operations Log, and CS Master so you stay in control without the busywork."
+    },
+    "cards": {
+      "orders": {
+        "title": "Orders & Stock",
+        "subtitle": "Seamless Inventory Flow",
+        "description": "Quickly register products and track sales to keep inventory accurate.",
+        "try_saying_label": "Try Saying",
+        "example_1": "Register 'Blue Ceramic Mug' with 50 units. Code: MUG-001.",
+        "example_2": "Sold 2 Shadow jackets to James."
+      },
+      "operations": {
+        "title": "Operations Log",
+        "subtitle": "Your Internal Business Diary",
+        "description": "Keep internal notes, B2B requests, and production reminders separate from customer inquiries.",
+        "try_saying_label": "Try Saying",
+        "example_1": "Record: E-mart requested 100 additional white mugs.",
+        "example_2": "Note: Check fabric stock at Dongdaemun tomorrow."
+      },
+      "marketing": {
+        "title": "Marketing",
+        "subtitle": "Localized Global Growth",
+        "description": "Generate optimized content for X, Instagram, TikTok, and Facebook. Supports EN, JP, CN, and KR with natural, localized phrasing and high-performing hashtags."
+      },
+      "cs": {
+        "title": "CS Master",
+        "subtitle": "Intelligent Customer Relations",
+        "description": "Log and track customer inquiries through stages (Open, Waiting, In Progress).",
+        "try_saying_label": "Try Saying",
+        "example_1": "Mijong is asking for a delivery update on her shadow jacket.",
+        "example_2": "James complained about the stitching on the pink pants."
+      }
+    }
+  },
+  "profile": {
+    "tabs": {
+      "home": "Home",
+      "exhibitions": "Exhibitions",
+      "craft_diary": "Craft Diary",
+      "craftDiary": "Craft Diary",
+      "shop": "Shop"
+    },
+    "sections": {
+      "values": "Values & Philosophy",
+      "bio": "Exhibition & Bio",
+      "exhibitionBio": "Exhibition & Bio",
+      "recommendations": "Recommendations",
+      "write_recommendation": "Write a Recommendation"
+    },
+    "actions": {
+      "commission": "Commission",
+      "chat": "Chat",
+      "follow": "Follow",
+      "unfollow": "Unfollow",
+      "chat_opening": "Opening...",
+      "follow_processing": "Processing..."
+    }
+  },
+  "auth": {
+    "left_panel": {
+      "title": "Why PUMWI",
+      "subtitle": "A platform for artists who create with their best effort and consumers who understand that true value",
+      "feature1_title": "Verified Artists Only",
+      "feature1_desc": "Only artists who pass PUMWI's rigorous internal screening can showcase their work. We maintain a high standard of quality and trust.",
+      "feature2_title": "Systems Built for Artists",
+      "feature2_desc": "We designed our internal systems around artists so they can focus entirely on creation.",
+      "feature3_title": "Artist Story and Philosophy",
+      "feature3_desc": "Artists' philosophy and process naturally flow into their work and connect with consumers who understand that value."
+    },
+    "form": {
+      "email_label": "Email",
+      "email_placeholder": "your@email.com",
+      "password_label": "Password",
+      "signin_button": "Sign In",
+      "signing_in": "Signing in...",
+      "no_account": "Don't have an account?",
+      "join_link": "Join"
+    }
+  },
+  "footer": {
+    "pumwiNews": "PUMWI News",
+    "latestNews": "Latest News",
+    "notice": "Notice",
+    "about": "About",
+    "privacy": "Privacy",
+    "terms": "Terms of Service",
+    "termsShort": "Terms"
+  },
+  "home": {
+    "sharePlaceholder": "Share a Craft Diary, work for sale, or exhibition."
+  }
+}

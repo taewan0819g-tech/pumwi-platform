@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
-import { useRouter, usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useLocale } from 'next-intl'
+import { Link, useRouter, usePathname } from '@/i18n/navigation'
 import {
   Search,
   Home,
@@ -18,6 +19,8 @@ interface NavbarProps {
 }
 
 export default function Navbar({ user }: NavbarProps) {
+  const t = useTranslations('nav')
+  const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
   const [searchQuery, setSearchQuery] = useState('')
@@ -52,10 +55,10 @@ export default function Navbar({ user }: NavbarProps) {
   const handleLogout = async () => {
     setDropdownOpen(false)
     try {
-      await fetch('/auth/signout', { method: 'POST', redirect: 'manual' })
+      await fetch(`/${locale}/auth/signout`, { method: 'POST', redirect: 'manual' })
     } finally {
       router.refresh()
-      window.location.href = '/login'
+      window.location.href = `/${locale}/login`
     }
   }
 
@@ -92,18 +95,37 @@ export default function Navbar({ user }: NavbarProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search..."
+              placeholder={t('searchPlaceholder')}
               className="w-full h-8 pl-9 pr-9 bg-slate-100 border-0 rounded-md text-sm placeholder:text-gray-500 focus:ring-2 focus:ring-[#8E86F5] focus:bg-white outline-none transition"
             />
             <button
               type="submit"
               disabled={!searchQuery.trim()}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-gray-500 hover:text-[#8E86F5] hover:bg-slate-200/80 transition-colors disabled:opacity-40 disabled:pointer-events-none"
-              title="Search"
+              title={t('search')}
             >
               <Search className="h-4 w-4" />
             </button>
           </form>
+
+          {/* Language switcher: to the immediate left of User Avatar / Profile */}
+          <div className="flex items-center gap-0.5 text-xs font-medium text-slate-500 border border-slate-200 rounded-md p-0.5 shrink-0">
+            <Link
+              href={pathname}
+              locale="ko"
+              className={`px-2 py-1 rounded transition-colors ${locale === 'ko' ? 'bg-[#8E86F5] text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              KO
+            </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link
+              href={pathname}
+              locale="en"
+              className={`px-2 py-1 rounded transition-colors ${locale === 'en' ? 'bg-[#8E86F5] text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              EN
+            </Link>
+          </div>
 
           {user ? (
             <div className="flex items-center gap-1 sm:gap-2">
@@ -113,7 +135,7 @@ export default function Navbar({ user }: NavbarProps) {
               >
                 <Home className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  Home
+                  {t('home')}
                 </span>
               </Link>
               <Link
@@ -122,7 +144,7 @@ export default function Navbar({ user }: NavbarProps) {
               >
                 <Users className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  Following
+                  {t('following')}
                 </span>
               </Link>
               <Link
@@ -132,7 +154,7 @@ export default function Navbar({ user }: NavbarProps) {
                     ? 'text-[#2F5D50] bg-[#2F5D50]/10'
                     : 'text-gray-700 hover:text-[#2F5D50] hover:bg-slate-100'
                 }`}
-                title="Messages"
+                title={t('messages')}
               >
                 <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                 {unreadMessageCount > 0 && (
@@ -142,7 +164,7 @@ export default function Navbar({ user }: NavbarProps) {
                   />
                 )}
                 <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-                  Messages
+                  {t('messages')}
                 </span>
               </Link>
               <div className="relative" ref={dropdownRef}>
@@ -153,9 +175,9 @@ export default function Navbar({ user }: NavbarProps) {
                 >
                   <UserCircle className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0" />
                   <span className="text-[10px] sm:text-xs mt-0.5 hidden xs:block">
-Me
-                </span>
-              </button>
+                    {t('me')}
+                  </span>
+                </button>
                 {dropdownOpen && (
                   <div className="absolute right-0 top-full mt-1 w-48 py-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50">
                     <Link
@@ -164,7 +186,7 @@ Me
                       className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50"
                     >
                       <UserCircle className="h-4 w-4" />
-                      View profile
+                      {t('viewProfile')}
                     </Link>
                     <button
                       type="button"
@@ -172,7 +194,7 @@ Me
                       className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-slate-50"
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign out
+                      {t('signOut')}
                     </button>
                   </div>
                 )}
@@ -184,14 +206,14 @@ Me
                 href="/login"
                 className="px-3 py-1.5 text-sm text-gray-700 hover:bg-slate-100 rounded-md transition-colors"
               >
-                Sign In
+                {t('signIn')}
               </Link>
               <Link
                 href="/signup"
                 className="px-3 py-1.5 text-sm text-white rounded-md transition-opacity hover:opacity-90"
                 style={{ backgroundColor: '#8E86F5' }}
               >
-                Join
+                {t('join')}
               </Link>
             </div>
           )}

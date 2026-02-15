@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -23,6 +24,7 @@ export default function RecommendationsSection({
   currentUserId,
   isOwn,
 }: RecommendationsSectionProps) {
+  const t = useTranslations('profile.sections')
   const router = useRouter()
   const [items, setItems] = useState<Recommendation[]>([])
   const [loading, setLoading] = useState(true)
@@ -111,7 +113,7 @@ export default function RecommendationsSection({
             className={`${playfair.className} text-lg font-semibold tracking-tight`}
             style={{ color: '#2F5D50' }}
           >
-            Recommendations
+            {t('recommendations')}
           </h3>
           {!isOwn && (
             <Button
@@ -120,7 +122,7 @@ export default function RecommendationsSection({
               onClick={() => setModalOpen(true)}
               className="text-gray-500 hover:text-[#2F5D50]"
             >
-              <Plus className="w-4 h-4 mr-1" /> Write a Recommendation
+              <Plus className="w-4 h-4 mr-1" /> {t('write_recommendation')}
             </Button>
           )}
         </div>

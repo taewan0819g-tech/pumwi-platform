@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Camera, User, Pencil, MapPin, Send, MessageCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -29,6 +30,7 @@ export default function ProfileHeader({
   onUpdate,
   currentUserId,
 }: ProfileHeaderProps) {
+  const t = useTranslations('profile.actions')
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile?.full_name ?? '')
@@ -453,7 +455,7 @@ export default function ProfileHeader({
                         className="border-[#8E86F5] text-[#8E86F5] hover:bg-[#8E86F5]/10"
                       >
                         <Send className="h-4 w-4 mr-1.5" />
-                        Commission
+                        {t('commission')}
                       </Button>
                       <Button
                         size="sm"
@@ -463,7 +465,7 @@ export default function ProfileHeader({
                         className="border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
                       >
                         <MessageCircle className="h-4 w-4 mr-1.5" />
-                        {chatLoading ? 'Opening...' : 'Chat'}
+                        {chatLoading ? t('chat_opening') : t('chat')}
                       </Button>
                       <Button
                         size="sm"
@@ -477,10 +479,10 @@ export default function ProfileHeader({
                         }
                       >
                         {followLoading
-                          ? 'Processing...'
+                          ? t('follow_processing')
                           : isFollowing
-                            ? 'Unfollow'
-                            : 'Follow'}
+                            ? t('unfollow')
+                            : t('follow')}
                       </Button>
                     </>
                   )}

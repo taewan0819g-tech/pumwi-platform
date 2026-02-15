@@ -4,12 +4,17 @@ import Link from 'next/link'
 import ExhibitionAdminControls from '@/components/pumwi-exhibition/ExhibitionAdminControls'
 import ExhibitionHeroAndGallery from '@/components/pumwi-exhibition/ExhibitionHeroAndGallery'
 import { isExhibitionAdminEmail } from '@/lib/exhibition-admin'
+import { getContentByLocale } from '@/lib/content-language'
 
 interface PostRow {
   id: string
   type: string
   title: string
+  title_ko?: string | null
   content: string | null
+  content_ko?: string | null
+  location_ko?: string | null
+  country_ko?: string | null
   image_url: string | null
   image_urls: string[] | null
   created_at: string
@@ -52,14 +57,14 @@ function formatDateRange(start?: string, end?: string) {
 export default async function PumwiExhibitionDetailPage({
   params,
 }: {
-  params: Promise<{ id: string }>
+  params: Promise<{ locale: string; id: string }>
 }) {
-  const { id } = await params
+  const { locale, id } = await params
   const supabase = await createClient()
 
   const { data: post, error } = await supabase
     .from('posts')
-    .select('id, type, title, content, image_url, image_urls, created_at')
+    .select('id, type, title, title_ko, content, content_ko, location_ko, country_ko, image_url, image_urls, created_at')
     .eq('id', id)
     .single()
 
@@ -67,9 +72,15 @@ export default async function PumwiExhibitionDetailPage({
 
   const row = post as PostRow
   const meta = parseMeta(row.content)
+  const postForContent = { ...row, location: meta.location, country: meta.country }
+  const resolved = getContentByLocale(postForContent, locale)
+  const descriptionText = locale === 'ko'
+    ? (row.content_ko ?? meta.description ?? '')
+    : (meta.description ?? '')
+
   const mainPoster = row.image_url ?? (row.image_urls?.[0] ?? null)
   const galleryUrls = row.image_urls?.length ? row.image_urls : mainPoster ? [mainPoster] : []
-  const locationLine = [meta.location, meta.country].filter(Boolean).join(', ')
+  const locationLine = [resolved.location, resolved.country].filter(Boolean).join(', ')
   const dateLine = formatDateRange(meta.start_date, meta.end_date)
 
   let profile: { role?: string } | null = null
@@ -112,7 +123,7 @@ export default async function PumwiExhibitionDetailPage({
               {statusBadge.label}
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">{row.title}</h1>
+          <h1 className="text-2xl font-bold text-slate-900">{resolved.title}</h1>
           {dateLine && (
             <p className="text-sm text-gray-500 mt-1">{dateLine}</p>
           )}
@@ -130,13 +141,13 @@ export default async function PumwiExhibitionDetailPage({
       )}
 
       {/* 3. BELOW GALLERY: Description */}
-      {meta.description && (
+      {descriptionText && (
         <section className="p-6 border-b border-gray-100">
           <div
             className="text-slate-700 whitespace-pre-wrap text-[15px] leading-relaxed max-w-none font-serif"
             style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}
           >
-            {meta.description}
+            {descriptionText}
           </div>
         </section>
       )}

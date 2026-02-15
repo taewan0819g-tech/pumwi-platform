@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Pencil } from 'lucide-react'
@@ -22,6 +23,7 @@ export default function ValuePhilosophySection({
   isOwn,
   onUpdate,
 }: ValuePhilosophySectionProps) {
+  const t = useTranslations('profile.sections')
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [value, setValue] = useState(profile?.value_philosophy ?? '')
@@ -72,7 +74,7 @@ export default function ValuePhilosophySection({
           className={`${playfair.className} text-lg font-semibold text-slate-900 tracking-tight`}
           style={{ color: '#2F5D50' }}
         >
-          Values & philosophy
+          {t('values')}
         </h3>
         {isOwn && !editing && (
           <Button

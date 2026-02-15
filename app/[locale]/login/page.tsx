@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import ValuePropositionSection from '@/components/auth/ValuePropositionSection'
 
 export default function LoginPage() {
+  const t = useTranslations('auth.form')
+  const locale = useLocale()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,7 +21,7 @@ export default function LoginPage() {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        router.replace('/')
+        router.replace(`/${locale}`)
         return
       }
       setAuthChecked(true)
@@ -45,7 +48,7 @@ export default function LoginPage() {
 
       // 쿠키가 브라우저에 반영된 뒤 홈 요청 시 미들웨어·서버가 세션을 인식하도록 잠시 대기 후 전체 새로고침 이동
       await new Promise((r) => setTimeout(r, 600))
-      window.location.href = '/'
+      window.location.href = `/${locale}`
     } catch (err) {
       setError('Sign-in failed. Please try again.')
       setLoading(false)
@@ -92,7 +95,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Email
+                {t('email_label')}
               </label>
               <input
                 id="email"
@@ -101,7 +104,7 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none transition"
-                placeholder="your@email.com"
+                placeholder={t('email_placeholder')}
               />
             </div>
 
@@ -110,7 +113,7 @@ export default function LoginPage() {
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Password
+                {t('password_label')}
               </label>
               <input
                 id="password"
@@ -129,19 +132,19 @@ export default function LoginPage() {
               className="w-full text-white font-semibold py-3 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg hover:opacity-95"
               style={{ backgroundColor: '#8E86F5' }}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('signing_in') : t('signin_button')}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{' '}
+              {t('no_account')}{' '}
               <a
                 href="/signup"
                 className="font-medium hover:opacity-80"
                 style={{ color: '#8E86F5' }}
               >
-                Join
+                {t('join_link')}
               </a>
             </p>
           </div>

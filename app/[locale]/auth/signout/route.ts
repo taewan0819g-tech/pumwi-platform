@@ -2,7 +2,9 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {
-  const response = NextResponse.redirect(new URL('/login', request.url))
+  const url = new URL(request.url)
+  const locale = url.pathname.split('/')[1] || 'en'
+  const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url))
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

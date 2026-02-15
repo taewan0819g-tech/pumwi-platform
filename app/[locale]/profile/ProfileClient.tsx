@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Toaster } from 'react-hot-toast'
 import { Tabs } from '@/components/ui/Tabs'
@@ -15,13 +16,6 @@ import UserCollectionSection from '@/components/profile/user/UserCollectionSecti
 import UserFollowingSection from '@/components/profile/user/UserFollowingSection'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Profile } from '@/types/profile'
-
-const ARTIST_TABS = [
-  { value: 'home', label: 'Home' },
-  { value: 'exhibitions', label: 'Exhibitions' },
-  { value: 'studio_log', label: 'Craft Diary' },
-  { value: 'sales', label: 'Works for Sale' },
-]
 
 const USER_TABS = [
   { value: 'collection', label: 'Collection' },
@@ -50,10 +44,18 @@ interface ProfileClientProps {
 }
 
 export default function ProfileClient({ serverUser, initialProfile }: ProfileClientProps) {
+  const t = useTranslations('profile')
   const user = serverUser
   const [profile, setProfile] = useState<Profile | null>(initialProfile ?? null)
   const [loading, setLoading] = useState(!initialProfile)
   const [activeTab, setActiveTab] = useState('home')
+
+  const ARTIST_TABS = [
+    { value: 'home', label: t('tabs.home') },
+    { value: 'exhibitions', label: t('tabs.exhibitions') },
+    { value: 'studio_log', label: t('tabs.craft_diary') },
+    { value: 'sales', label: t('tabs.shop') },
+  ]
 
   useEffect(() => {
     if (initialProfile != null) {

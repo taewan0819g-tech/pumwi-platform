@@ -1,0 +1,157 @@
+{
+  "nav": {
+    "home": "홈",
+    "exhibitions": "전시",
+    "craft_diary": "작업일지",
+    "shop": "판매",
+    "exhibition": "전시",
+    "craftDiary": "작업일지",
+    "following": "팔로잉",
+    "messages": "메시지",
+    "me": "마이",
+    "viewProfile": "프로필 보기",
+    "signOut": "로그아웃",
+    "signIn": "로그인",
+    "join": "가입",
+    "search": "검색",
+    "searchPlaceholder": "검색..."
+  },
+  "sidebar": {
+    "title": "작가 운영 시스템",
+    "command_center": "대시보드",
+    "orders_stock": "주문 및 재고",
+    "operations_log": "운영 기록",
+    "commissions": "맞춤 주문",
+    "marketing": "마케팅",
+    "cs_master": "고객 관리",
+    "command_playbook": "운영 가이드",
+    "insights": "분석 리포트",
+    "pumwiExhibition": "PUMWI 전시",
+    "globalOfflineEvents": "글로벌 오프라인 이벤트",
+    "featuredArtists": "추천 아티스트",
+    "allArtists": "전체 아티스트",
+    "artisanOs": "아티잔 OS",
+    "admin": "관리자",
+    "newsManagement": "뉴스 관리",
+    "signInToViewProfile": "로그인하여 프로필을 확인하세요"
+  },
+  "feed": {
+    "tabs": {
+      "all": "전체",
+      "exhibitions": "전시",
+      "craft_diary": "작업일지",
+      "for_sale": "판매"
+    },
+    "create_post": {
+      "placeholder_collapsed": "작업일지, 판매 작품, 전시를 공유해 보세요.",
+      "type_craft_diary": "작업일지",
+      "type_work_for_sale": "판매 작품",
+      "type_exhibition": "전시",
+      "input_title": "제목",
+      "input_placeholder": "어떤 이야기를 나누고 싶으신가요?",
+      "btn_add_image": "사진 추가",
+      "btn_cancel": "취소",
+      "btn_post": "게시",
+      "publishing": "게시 중..."
+    }
+  },
+  "playbook": {
+    "header": {
+      "title": "운영 가이드",
+      "subtitle": "작가 운영 시스템 사용 안내",
+      "description": "작가님들이 창작에만 집중하실 수 있게, 운영을 자동화 했습니다."
+    },
+    "intro_box": {
+      "title": "관리",
+      "description": "대시보드는 제작을 제외한 모든 운영을 관리하는 공간입니다. 비서에게 말하듯이 입력하면 주문, 운영 기록, 고객 문의로 자동 정리되어 불필요한 업무를 줄일 수 있습니다."
+    },
+    "cards": {
+      "orders": {
+        "title": "주문 및 재고",
+        "subtitle": "재고를 쉽고 정확하게 관리하세요",
+        "description": "상품을 등록하고 판매를 기록하면 재고가 자동으로 반영됩니다.",
+        "try_saying_label": "입력 예시",
+        "example_1": "블루 세라믹 머그 50개 등록 (코드 MUG-001)",
+        "example_2": "Shadow 재킷 2개 판매"
+      },
+      "operations": {
+        "title": "운영 기록",
+        "subtitle": "업무 메모와 요청을 기록하세요",
+        "description": "내부 메모, 거래처 요청, 제작 일정 등을 고객 문의와 분리하여 관리할 수 있습니다.",
+        "try_saying_label": "입력 예시",
+        "example_1": "백화점에서 흰 머그 100개 추가 요청",
+        "example_2": "내일 흰 머그 재고 확인"
+      },
+      "marketing": {
+        "title": "마케팅",
+        "subtitle": "SNS 콘텐츠를 쉽게 만들고 공유하세요",
+        "description": "인스타그램, X, 틱톡, 페이스북에 최적화된 글과 해시태그를 자동으로 만들어 줍니다. 영어, 일본어, 중국어, 한국어도 현지에 맞춤화된 언어로 자연스럽게 작성됩니다."
+      },
+      "cs": {
+        "title": "고객 관리",
+        "subtitle": "고객 문의를 체계적으로 관리하세요",
+        "description": "문의 상태를 기록하고 진행 상황을 확인할 수 있습니다.",
+        "try_saying_label": "입력 예시",
+        "example_1": "홍길동 고객이 배송 일정 문의",
+        "example_2": "길동이가 봉제 상태 관련 문의"
+      }
+    }
+  },
+  "profile": {
+    "tabs": {
+      "home": "홈",
+      "exhibitions": "전시",
+      "craft_diary": "작업일지",
+      "craftDiary": "작업일지",
+      "shop": "판매"
+    },
+    "sections": {
+      "values": "가치와 철학",
+      "bio": "전시와 활동이력",
+      "exhibitionBio": "전시와 활동이력",
+      "recommendations": "추천",
+      "write_recommendation": "추천사 작성하기"
+    },
+    "actions": {
+      "commission": "맞춤제작",
+      "chat": "채팅",
+      "follow": "팔로우",
+      "unfollow": "팔로우 취소",
+      "chat_opening": "연결 중...",
+      "follow_processing": "처리 중..."
+    }
+  },
+  "auth": {
+    "left_panel": {
+      "title": "왜 PUMWI인가",
+      "subtitle": "최선의 노력으로 작품을 만드는 작가와 그 진정한 가치를 이해하는 소비자를 위한 플랫폼",
+      "feature1_title": "검증된 작가만 참여합니다",
+      "feature1_desc": "PUMWI의 엄격한 내부 심사를 통과한 작가만 작품을 선보일 수 있습니다. 우리는 높은 수준의 품질과 신뢰를 중요하게 여깁니다.",
+      "feature2_title": "작가를 위한 시스템",
+      "feature2_desc": "작가가 오직 창작에만 집중할 수 있도록 내부 시스템을 작가 맞춤형으로 설계했습니다.",
+      "feature3_title": "작가의 스토리와 철학",
+      "feature3_desc": "작가의 철학과 제작 과정이 작품에 자연스럽게 담기고, 그 가치를 이해하는 소비자와 연결됩니다."
+    },
+    "form": {
+      "email_label": "이메일",
+      "email_placeholder": "your@email.com",
+      "password_label": "비밀번호",
+      "signin_button": "로그인",
+      "signing_in": "로그인 중...",
+      "no_account": "아직 계정이 없으신가요?",
+      "join_link": "회원가입"
+    }
+  },
+  "footer": {
+    "pumwiNews": "PUMWI 소식",
+    "latestNews": "최신 뉴스",
+    "notice": "공지",
+    "about": "소개",
+    "privacy": "개인정보처리방침",
+    "terms": "이용약관",
+    "termsShort": "이용약관"
+  },
+  "home": {
+    "sharePlaceholder": "크래프트 다이어리, 판매 작품, 전시를 공유해 보세요."
+  }
+}

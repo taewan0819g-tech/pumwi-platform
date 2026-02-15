@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { PenLine, X, Pencil, Tag, Image as ImageIcon, Globe } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -20,6 +21,7 @@ interface PostInputProps {
 }
 
 export default function PostInput({ userId, profile, isExhibitionAdmin = false, onPostCreated }: PostInputProps) {
+  const tCreate = useTranslations('feed.create_post')
   const searchParams = useSearchParams()
   const isAdmin = isExhibitionAdmin || profile?.role === 'admin'
   const [expanded, setExpanded] = useState(false)
@@ -37,6 +39,10 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
   const [editionTotal, setEditionTotal] = useState('')
   const [exhibitionLocation, setExhibitionLocation] = useState('')
   const [exhibitionCountry, setExhibitionCountry] = useState('')
+  const [titleKo, setTitleKo] = useState('')
+  const [contentKo, setContentKo] = useState('')
+  const [exhibitionLocationKo, setExhibitionLocationKo] = useState('')
+  const [exhibitionCountryKo, setExhibitionCountryKo] = useState('')
   const [exhibitionStartDate, setExhibitionStartDate] = useState('')
   const [exhibitionEndDate, setExhibitionEndDate] = useState('')
   const [exhibitionStatus, setExhibitionStatus] = useState<'ongoing' | 'upcoming' | 'closed'>('upcoming')
@@ -74,6 +80,10 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
     setEditionTotal('')
     setExhibitionLocation('')
     setExhibitionCountry('')
+    setTitleKo('')
+    setContentKo('')
+    setExhibitionLocationKo('')
+    setExhibitionCountryKo('')
     setExhibitionStartDate('')
     setExhibitionEndDate('')
     setExhibitionStatus('upcoming')
@@ -184,7 +194,12 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
         payload.edition_number = edition_number
         payload.edition_total = edition_total
       }
-      // pumwi_exhibition status stored in content.exhibition_status (optional column exhibition_status can be added via migration)
+      if (dbType === 'pumwi_exhibition') {
+        if (titleKo.trim()) payload.title_ko = titleKo.trim()
+        if (contentKo.trim()) payload.content_ko = contentKo.trim()
+        if (exhibitionLocationKo.trim()) payload.location_ko = exhibitionLocationKo.trim()
+        if (exhibitionCountryKo.trim()) payload.country_ko = exhibitionCountryKo.trim()
+      }
 
       const { error } = await supabase.from('posts').insert(payload)
       if (error) throw error
@@ -224,7 +239,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
           onClick={() => setExpanded(true)}
           className="flex-1 text-left px-4 py-2.5 rounded-full border border-gray-200 bg-[#F3F2EF] hover:bg-gray-100 text-gray-500 text-sm transition-colors"
         >
-          Share a Craft Diary, work for sale, or exhibition.
+          {tCreate('placeholder_collapsed')}
         </button>
       </div>
       {expanded && (
@@ -242,7 +257,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
               )}
             >
               <Pencil className="h-4 w-4" />
-              Craft Diary
+              {tCreate('type_craft_diary')}
             </button>
             <button
               type="button"
@@ -255,7 +270,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
               )}
             >
               <Tag className="h-4 w-4" />
-              Work For Sale
+              {tCreate('type_work_for_sale')}
             </button>
             <button
               type="button"
@@ -268,7 +283,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
               )}
             >
               <ImageIcon className="h-4 w-4" />
-              Exhibition
+              {tCreate('type_exhibition')}
             </button>
             {isAdmin && (
               <button
@@ -295,32 +310,63 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
             <p className="text-xs text-gray-500">Global offline event: title, location, country, dates, and image required.</p>
           )}
           {/* Common: Title */}
-          <input
+          {postType === 'pumwi_exhibition' ? (
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Title (EN) *</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Title (English)"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+              />
+              <label className="block text-sm font-medium text-gray-700">Title (KO)</label>
+              <input
+                type="text"
+                value={titleKo}
+                onChange={(e) => setTitleKo(e.target.value)}
+                placeholder="제목 (한국어, 선택)"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+              />
+            </div>
+          ) : (
+<input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
+            placeholder={tCreate('input_title')}
             className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
           />
+          )}
           {/* Common: Content (multi-line for PUMWI Exhibition) */}
           {postType === 'pumwi_exhibition' ? (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                Exhibition Details (Description)
-              </label>
-              <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write the detailed exhibition introduction, curator's note, etc. here..."
-                rows={10}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-y min-h-[200px] text-slate-900"
-              />
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description (EN) *</label>
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Write the detailed exhibition introduction, curator's note, etc. here..."
+                  rows={8}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-y min-h-[160px] text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Description (KO)</label>
+                <textarea
+                  value={contentKo}
+                  onChange={(e) => setContentKo(e.target.value)}
+                  placeholder="전시 소개, 큐레이터 노트 등 (한국어, 선택)"
+                  rows={6}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-y min-h-[120px] text-slate-900"
+                />
+              </div>
             </div>
           ) : (
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="What's on your mind?"
+              placeholder={tCreate('input_placeholder')}
               rows={3}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-none text-slate-900"
             />
@@ -351,20 +397,46 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
                   ))}
                 </div>
               </div>
-              <input
-                type="text"
-                value={exhibitionLocation}
-                onChange={(e) => setExhibitionLocation(e.target.value)}
-                placeholder="Location (e.g. Paris)"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
-              />
-              <input
-                type="text"
-                value={exhibitionCountry}
-                onChange={(e) => setExhibitionCountry(e.target.value)}
-                placeholder="Country (e.g. France)"
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
-              />
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Location (EN) *</label>
+                <input
+                  type="text"
+                  value={exhibitionLocation}
+                  onChange={(e) => setExhibitionLocation(e.target.value)}
+                  placeholder="Location (e.g. Paris)"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Location (KO)</label>
+                <input
+                  type="text"
+                  value={exhibitionLocationKo}
+                  onChange={(e) => setExhibitionLocationKo(e.target.value)}
+                  placeholder="장소 (한국어, 선택)"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Country (EN) *</label>
+                <input
+                  type="text"
+                  value={exhibitionCountry}
+                  onChange={(e) => setExhibitionCountry(e.target.value)}
+                  placeholder="Country (e.g. France)"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Country (KO)</label>
+                <input
+                  type="text"
+                  value={exhibitionCountryKo}
+                  onChange={(e) => setExhibitionCountryKo(e.target.value)}
+                  placeholder="국가 (한국어, 선택)"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+                />
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Start Date</label>
@@ -433,7 +505,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
             htmlFor="post-input-images"
             className="inline-block px-3 py-1.5 text-sm text-[#8E86F5] hover:bg-[#8E86F5]/10 rounded-md cursor-pointer border border-[#8E86F5]/30"
           >
-            Add images (multiple)
+            {tCreate('btn_add_image')}
           </label>
           {previewUrls.length > 0 && (
             <div className="overflow-x-auto overflow-y-hidden">
@@ -470,7 +542,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
               }}
               className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md"
             >
-              Cancel
+              {tCreate('btn_cancel')}
             </button>
             <button
               type="button"
@@ -479,7 +551,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
               className="px-4 py-2 text-sm text-white rounded-md hover:opacity-90 disabled:opacity-50"
               style={{ backgroundColor: '#8E86F5' }}
             >
-              {posting ? 'Publishing...' : 'Post'}
+              {posting ? tCreate('publishing') : tCreate('btn_post')}
             </button>
           </div>
         </div>

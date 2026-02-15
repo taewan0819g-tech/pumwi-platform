@@ -1,13 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
+import { useContentLanguage } from '@/hooks/useContentLanguage'
 
 type ExhibitionPost = {
   id: string
   title: string
+  title_ko?: string | null
   content: string | null
+  content_ko?: string | null
+  location_ko?: string | null
+  country_ko?: string | null
   image_url: string | null
   image_urls: string[] | null
   exhibition_status?: string | null
@@ -62,6 +68,8 @@ function formatLocation(location: string | undefined, country: string | undefine
 }
 
 export default function ExhibitionWidget() {
+  const t = useTranslations('sidebar')
+  const getContent = useContentLanguage()
   const [posts, setPosts] = useState<ExhibitionPost[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -69,7 +77,7 @@ export default function ExhibitionWidget() {
     const supabase = createClient()
     supabase
       .from('posts')
-      .select('id, title, content, image_url, image_urls, created_at')
+      .select('id, title, title_ko, content, content_ko, location_ko, country_ko, image_url, image_urls, created_at')
       .eq('type', 'pumwi_exhibition')
       .order('created_at', { ascending: false })
       .limit(10)
@@ -87,8 +95,8 @@ export default function ExhibitionWidget() {
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden mb-8">
       <div className="p-4 border-b border-gray-100">
-        <h3 className="font-semibold text-slate-900">PUMWI Exhibition</h3>
-        <p className="text-xs text-gray-500 mt-0.5">Global Offline Events</p>
+        <h3 className="font-semibold text-slate-900">{t('pumwiExhibition')}</h3>
+        <p className="text-xs text-gray-500 mt-0.5">{t('globalOfflineEvents')}</p>
         <p className="text-xs text-gray-400 mt-1.5" aria-hidden>
           🔴 On-going | 🟡 Upcoming | ⚫ Closed
         </p>
@@ -103,8 +111,10 @@ export default function ExhibitionWidget() {
             const meta = parseExhibitionMeta(post.content)
             const status = post.exhibition_status ?? meta.exhibition_status
             const badge = getStatusBadge(status)
-            const locationStr = formatLocation(meta.location, meta.country)
-            const line = locationStr ? `${post.title} - ${locationStr}` : post.title
+            const postWithMeta = { ...post, location: meta.location, country: meta.country }
+            const resolved = getContent(postWithMeta)
+            const locationStr = formatLocation(resolved.location ?? undefined, resolved.country ?? undefined)
+            const line = locationStr ? `${resolved.title} - ${locationStr}` : resolved.title
             return (
               <li key={post.id}>
                 <Link

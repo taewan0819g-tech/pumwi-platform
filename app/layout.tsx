@@ -3,8 +3,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { createClient } from '@/lib/supabase/server'
 import { AuthProvider } from '@/components/providers/AuthProvider'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/layout/Footer'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,15 +18,12 @@ export default async function RootLayout({
 }) {
   const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
-  const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-[#F3F2EF] text-slate-900 min-h-screen flex flex-col`}>
         <AuthProvider initialSession={session}>
-          <Navbar user={user} />
-          <div className="flex-1">{children}</div>
-          <Footer />
+          {children}
         </AuthProvider>
       </body>
     </html>

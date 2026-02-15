@@ -1,12 +1,28 @@
+import createIntlMiddleware from 'next-intl/middleware'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { routing } from './i18n/routing'
+
+const intlMiddleware = createIntlMiddleware(routing)
+
+function getLocaleFromPathname(pathname: string): string {
+  const match = pathname.match(/^\/(en|ko)(\/|$)/)
+  return match ? match[1] : routing.defaultLocale
+}
+
+function pathnameWithoutLocale(pathname: string): string {
+  const without = pathname.replace(/^\/(en|ko)/, '') || '/'
+  return without
+}
 
 export async function middleware(request: NextRequest) {
-  // 1. 응답 객체를 먼저 만들고, setAll에서 이 응답에 쿠키를 쓰도록 함 (쿠키 동기화)
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+  const { pathname } = request.nextUrl
+  const pathWithoutLocale = pathnameWithoutLocale(pathname)
+  const locale = getLocaleFromPathname(pathname)
+
+  // 1. Supabase auth: refresh session and get user (so we can redirect if needed)
+  let authResponse = NextResponse.next({
+    request: { headers: request.headers },
   })
 
   const supabase = createServerClient(
@@ -20,7 +36,7 @@ export async function middleware(request: NextRequest) {
         setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value)
-            response.cookies.set(name, value, {
+            authResponse.cookies.set(name, value, {
               ...(options as Record<string, unknown>),
               secure: process.env.NODE_ENV === 'production',
               sameSite: 'lax',
@@ -32,31 +48,41 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // 2. 세션 검증 및 갱신 (getUser 호출 시 만료된 토큰이면 갱신 후 setAll로 쿠키 반영)
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const { pathname } = request.nextUrl
   const publicPaths = ['/login', '/signup', '/auth']
   const isPublicPath =
-    publicPaths.some((p) => pathname === p) || pathname.startsWith('/auth/')
+    publicPaths.some((p) => pathWithoutLocale === p) ||
+    pathWithoutLocale.startsWith('/auth/')
 
-  // 3. 로그인된 유저가 /login, /signup 접근 시 -> 홈으로
-  if ((pathname === '/login' || pathname === '/signup') && user) {
-    return NextResponse.redirect(new URL('/', request.url))
+  if ((pathWithoutLocale === '/login' || pathWithoutLocale === '/signup') && user) {
+    return NextResponse.redirect(new URL(`/${locale}`, request.url))
   }
 
-  // 4. 로그인 안 된 유저가 홈(/) 또는 기타 보호 경로 접근 시 -> /login으로
   if (!user && !isPublicPath) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
   }
 
-  return response
+  // 2. Run next-intl (redirects / to /en, rewrites, sets locale cookie)
+  const intlResponse = intlMiddleware(request)
+
+  if (intlResponse.status >= 300 && intlResponse.status < 400) {
+    authResponse.cookies.getAll().forEach((c) => {
+      intlResponse.cookies.set(c.name, c.value, c)
+    })
+    return intlResponse
+  }
+
+  authResponse.cookies.getAll().forEach((c) => {
+    intlResponse.cookies.set(c.name, c.value, c)
+  })
+  return intlResponse
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }

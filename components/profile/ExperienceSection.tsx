@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Dialog } from '@/components/ui/Dialog'
@@ -18,6 +19,7 @@ interface ExperienceSectionProps {
 }
 
 export default function ExperienceSection({ userId, isOwn }: ExperienceSectionProps) {
+  const t = useTranslations('profile.sections')
   const router = useRouter()
   const [careers, setCareers] = useState<Career[]>([])
   const [loading, setLoading] = useState(true)
@@ -160,7 +162,7 @@ export default function ExperienceSection({ userId, isOwn }: ExperienceSectionPr
             className={`${playfair.className} text-lg font-semibold tracking-tight`}
             style={{ color: '#2F5D50' }}
           >
-            Exhibitions & activity
+            {t('bio')}
           </h3>
           {isOwn && (
             <Button variant="ghost" size="sm" onClick={openAdd} className="text-gray-500 hover:text-[#2F5D50]">

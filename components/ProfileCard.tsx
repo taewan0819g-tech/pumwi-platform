@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { User } from 'lucide-react'
 import type { Profile } from '@/types/profile'
 import ArtistApplyModal from '@/components/profile/ArtistApplyModal'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 type ApplicationStatus = 'pending' | 'approved' | 'rejected' | null
 

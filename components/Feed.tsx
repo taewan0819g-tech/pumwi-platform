@@ -10,12 +10,14 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
 import { PostLikeComment, POST_ENGAGEMENT_CHANGED } from '@/components/post/PostLikeComment'
 import type { CommentRow as EngagementCommentRow } from '@/components/post/PostLikeComment'
+import { useContentLanguage } from '@/hooks/useContentLanguage'
+import { useTranslations } from 'next-intl'
 
 const BUCKET_POSTS = 'posts'
 
@@ -100,11 +102,11 @@ function PostImagesCarousel({ urls }: { urls: string[] }) {
 
 type FeedTab = 'all' | 'exhibitions' | 'work' | 'sale'
 
-const tabs: { id: FeedTab; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'exhibitions', label: 'Exhibitions' },
-  { id: 'work', label: 'Craft Diary' },
-  { id: 'sale', label: 'For Sale' },
+const TAB_IDS: { id: FeedTab; labelKey: 'all' | 'exhibitions' | 'craft_diary' | 'for_sale' }[] = [
+  { id: 'all', labelKey: 'all' },
+  { id: 'exhibitions', labelKey: 'exhibitions' },
+  { id: 'work', labelKey: 'craft_diary' },
+  { id: 'sale', labelKey: 'for_sale' },
 ]
 
 interface ProfileRow {
@@ -119,7 +121,11 @@ interface PostRow {
   user_id: string
   type: 'work_log' | 'studio_log' | 'sales' | 'exhibition'
   title: string
+  title_ko?: string | null
   content: string | null
+  content_ko?: string | null
+  location_ko?: string | null
+  country_ko?: string | null
   image_url: string | null
   image_urls?: string[] | null
   price: number | null
@@ -144,7 +150,10 @@ interface CommentRow {
 }
 
 export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
+  const tTabs = useTranslations('feed.tabs')
+  const getContent = useContentLanguage()
   const [activeTab, setActiveTab] = useState<FeedTab>('all')
+  const tabs = TAB_IDS.map(({ id, labelKey }) => ({ id, label: tTabs(labelKey) }))
   const [posts, setPosts] = useState<PostRow[]>([])
   const [loading, setLoading] = useState(true)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -669,12 +678,19 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                 return <PostImagesCarousel urls={urls} />
               })()}
               <div className="px-4 py-3">
-                <p className="text-sm font-medium text-slate-900">{post.title}</p>
-                {post.content && (
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap mt-1">
-                    {post.content}
-                  </p>
-                )}
+                {(() => {
+                  const resolved = getContent(post)
+                  return (
+                    <>
+                      <p className="text-sm font-medium text-slate-900">{resolved.title}</p>
+                      {resolved.content && (
+                        <p className="text-sm text-slate-700 whitespace-pre-wrap mt-1">
+                          {resolved.content}
+                        </p>
+                      )}
+                    </>
+                  )
+                })()}
               </div>
               <div className="px-4 pb-4 pt-2 bg-gray-50 border-t border-gray-100">
                 <PostLikeComment

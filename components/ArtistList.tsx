@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { User, X, Plus } from 'lucide-react'
-import Link from 'next/link'
+import { Link, useRouter } from '@/i18n/navigation'
 import toast from 'react-hot-toast'
 
 interface ArtistProfile {
@@ -17,6 +17,7 @@ interface ArtistProfile {
 const DISPLAY_LIMIT = 7
 
 export default function ArtistList() {
+  const t = useTranslations('sidebar')
   const router = useRouter()
   const [artists, setArtists] = useState<ArtistProfile[]>([])
   const [loading, setLoading] = useState(true)
@@ -135,7 +136,7 @@ export default function ArtistList() {
     <>
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-gray-100">
-          <h3 className="font-semibold text-slate-900">Featured Artists</h3>
+          <h3 className="font-semibold text-slate-900">{t('featuredArtists')}</h3>
         </div>
         {loading ? (
           <div className="p-4 space-y-3 animate-pulse">
@@ -224,7 +225,7 @@ export default function ArtistList() {
             className="bg-white rounded-3xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col"
           >
             <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
-              <h2 className="text-lg font-semibold text-slate-900">All Artists</h2>
+              <h2 className="text-lg font-semibold text-slate-900">{t('allArtists')}</h2>
               <button
                 type="button"
                 onClick={() => setViewAllOpen(false)}
