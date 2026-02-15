@@ -16,8 +16,7 @@ export default function RightSidebar() {
       {isAdmin && (
         <div className="mb-2">
           <Link
-            href="/"
-            query={{ create: 'pumwi_exhibition' }}
+            href="/?create=pumwi_exhibition"
             className="inline-flex items-center gap-2 w-full justify-center px-4 py-2.5 text-sm font-medium text-white rounded-lg transition-colors hover:opacity-90"
             style={{ backgroundColor: '#2F5D50' }}
           >
