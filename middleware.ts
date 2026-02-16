@@ -6,12 +6,12 @@ import { routing } from './i18n/routing'
 const intlMiddleware = createIntlMiddleware(routing)
 
 function getLocaleFromPathname(pathname: string): string {
-  const match = pathname.match(/^\/(en|ko)(\/|$)/)
+  const match = pathname.match(/^\/(en|ko|ja)(\/|$)/)
   return match ? match[1] : routing.defaultLocale
 }
 
 function pathnameWithoutLocale(pathname: string): string {
-  const without = pathname.replace(/^\/(en|ko)/, '') || '/'
+  const without = pathname.replace(/^\/(en|ko|ja)/, '') || '/'
   return without
 }
 

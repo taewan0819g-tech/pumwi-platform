@@ -1,0 +1,208 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "exhibitions": "展示",
+    "craft_diary": "制作日誌",
+    "shop": "販売",
+    "exhibition": "展示",
+    "craftDiary": "制作日誌",
+    "following": "フォロー中",
+    "messages": "メッセージ",
+    "me": "マイページ",
+    "viewProfile": "プロフィールを見る",
+    "signOut": "ログアウト",
+    "signIn": "ログイン",
+    "join": "新規登録",
+    "search": "検索",
+    "searchPlaceholder": "検索..."
+  },
+  "sidebar": {
+    "title": "作家運営システム",
+    "command_center": "ダッシュボード",
+    "orders_stock": "注文・在庫管理",
+    "operations_log": "運営記録",
+    "commissions": "オーダーメイド",
+    "marketing": "マーケティング",
+    "cs_master": "顧客管理",
+    "command_playbook": "運営ガイド",
+    "insights": "分析レポート",
+    "pumwiExhibition": "PUMWI展示",
+    "globalOfflineEvents": "海外オフラインイベント",
+    "featuredArtists": "注目の作家",
+    "allArtists": "すべての作家",
+    "artisanOs": "アーティザンOS",
+    "admin": "管理者",
+    "newsManagement": "ニュース管理",
+    "signInToViewProfile": "ログインしてプロフィールを確認してください",
+    "apply_button": "作家応募"
+  },
+  "feed": {
+    "tabs": {
+      "all": "すべて",
+      "exhibitions": "展示",
+      "craft_diary": "制作日誌",
+      "for_sale": "販売作品"
+    },
+    "create_post": {
+      "placeholder_collapsed": "制作日誌、販売作品、展示を共有してみましょう。",
+      "type_craft_diary": "制作日誌",
+      "type_work_for_sale": "販売作品",
+      "type_exhibition": "展示",
+      "input_title": "タイトル",
+      "input_placeholder": "どんなことを共有しますか？",
+      "btn_add_image": "写真を追加",
+      "btn_cancel": "キャンセル",
+      "btn_post": "投稿",
+      "publishing": "投稿中..."
+    }
+  },
+  "playbook": {
+    "header": {
+      "title": "運営ガイド",
+      "subtitle": "作家運営システムの使い方",
+      "description": "作家が制作に集中できるよう、運営を自動化しました。"
+    },
+    "intro_box": {
+      "title": "管理",
+      "description": "ダッシュボードでは制作以外の運営業務を管理できます。秘書に話すように入力すると、注文・運営記録・顧客対応として自動整理され、不要な作業を減らせます。"
+    },
+    "cards": {
+      "orders": {
+        "title": "注文・在庫管理",
+        "subtitle": "在庫を簡単かつ正確に管理できます",
+        "description": "商品を登録し販売を記録すると、在庫が自動で反映されます。",
+        "try_saying_label": "入力例",
+        "example_1": "ブルーセラミックマグを50個登録（コード MUG-001）",
+        "example_2": "Shadowジャケットを2点販売"
+      },
+      "operations": {
+        "title": "運営記録",
+        "subtitle": "業務メモや依頼を記録できます",
+        "description": "社内メモ、取引先からの依頼、制作スケジュールなどを顧客対応と分けて管理できます。",
+        "try_saying_label": "入力例",
+        "example_1": "百貨店から白いマグを100個追加依頼",
+        "example_2": "明日、白いマグの在庫確認"
+      },
+      "marketing": {
+        "title": "マーケティング",
+        "subtitle": "SNS投稿を簡単に作成・共有できます",
+        "description": "Instagram、X、TikTok、Facebookに最適化された文章とハッシュタグを自動生成します。英語、日本語、中国語、韓国語にも自然に対応します。"
+      },
+      "cs": {
+        "title": "顧客管理",
+        "subtitle": "問い合わせを体系的に管理できます",
+        "description": "問い合わせの状況を記録し、進行状況を確認できます。",
+        "try_saying_label": "入力例",
+        "example_1": "山田様が配送日程について問い合わせ",
+        "example_2": "佐藤様が縫製状態について問い合わせ"
+      }
+    }
+  },
+  "profile": {
+    "tabs": {
+      "home": "ホーム",
+      "exhibitions": "展示",
+      "craft_diary": "制作日誌",
+      "craftDiary": "制作日誌",
+      "shop": "販売"
+    },
+    "sections": {
+      "values": "価値と哲学",
+      "bio": "展示・活動履歴",
+      "exhibitionBio": "展示・活動履歴",
+      "recommendations": "推薦",
+      "write_recommendation": "推薦を書く"
+    },
+    "actions": {
+      "commission": "オーダーメイド",
+      "chat": "チャット",
+      "follow": "フォロー",
+      "unfollow": "フォロー解除",
+      "chat_opening": "接続中...",
+      "follow_processing": "処理中..."
+    }
+  },
+  "signup": {
+    "marketing_consent": "特典・イベント情報の受信に同意する（任意）",
+    "terms_agree": "以下の利用規約に同意します",
+    "terms_link": "利用規約",
+    "terms_required": "（必須）",
+    "terms_required_error": "登録するには利用規約への同意が必要です。",
+    "checking": "確認中...",
+    "welcome_redirect": "登録が完了しました。ログインページへ移動します...",
+    "registration_failed": "登録に失敗しました。もう一度お試しください。",
+    "join": "登録する",
+    "joining": "登録中...",
+    "welcome_btn": "登録完了！",
+    "sign_in": "ログイン",
+    "already_have_account": "すでにアカウントをお持ちですか？",
+    "terms_modal_title": "サービス利用規約",
+    "terms_modal_content": "第1条（目的）\n本規約は、PUMWI（以下「当社」といいます）が提供する仲介サービスおよび関連する諸サービス（以下「本サービス」といいます）の利用に関し、当社と会員との間の権利、義務および責任事項を規定することを目的とします。\n\n第2条（用語の定義）\n1. 「プラットフォーム」とは、当社が商品または役務を取引できるよう設定した仮想の営業場をいいます。\n2. 「作家」とは、プラットフォームに入店し、自身の創作物を販売する会員をいいます。\n\n第3条（サービスの内容）\n当社は以下のサービスを提供します。\n1. ハンドメイド・工芸作品の仲介プラットフォームの開発および運営\n2. 作家および作品に関する情報提供サービス\n3. その他当社が定める業務\n\n第4条（著作権の帰属）\n1. 作家が作成した掲示物（作品写真、説明など）の著作権は作家本人に帰属します。\n2. 当社はサービスの円滑な提供のために必要な範囲内で、掲示物を複製、展示、配布することができます。\n\n第5条（責任の制限）\n当社は通信販売仲介者であり、取引の当事者ではありません。入店作家が登録した商品情報および取引について責任を負いません。ただし、当社の故意または重過失による損害を除きます。\n\n（本規約はPUMWIサービス開始のための標準約款です。）",
+    "marketing_modal_title": "マーケティング情報受信同意",
+    "marketing_modal_content": "PUMWIは、情報通信網法の規定に基づき、以下の通りマーケティング情報の受信同意を求めます。\n\n1. 収集および利用目的\n- 新規作家の入店および新しい展示会のお知らせ\n- PUMWI限定版作品の発売およびプロモーション案内\n- 作家インタビューおよび制作日誌（Craft Diary）のニュースレター配信\n\n2. 収集項目\n- メールアドレス、氏名\n\n3. 保有および利用期間\n- 会員退会時または同意撤回時まで\n\n4. 同意拒否の権利\n- お客様は本同意を拒否する権利があります。ただし、拒否された場合、イベントや特典の案内を受け取ることができません。\n\nPUMWIはスパム性のある広告を排除し、作家様の芸術的価値に関連する厳選されたニュースのみをお届けすることをお約束します。",
+    "close_btn": "閉じる"
+  },
+  "apply": {
+    "title": "作家応募",
+    "style_label": "主な制作分野とスタイルを教えてください",
+    "style_placeholder": "例：ヴィンテージ風の手縫いレザー作品",
+    "process_label": "制作工程について教えてください。機械は使用しますか？",
+    "process_placeholder": "どの程度が手作業かも教えてください。",
+    "scale_label": "量産は行っていますか？制作規模を教えてください",
+    "scale_placeholder": "例：すべて受注制作で量産はしていません。",
+    "monthly_label": "1か月に何点ほど制作しますか？",
+    "monthly_placeholder": "例：月に5〜10点ほど制作します。",
+    "log_label": "制作日誌は週に何回投稿できますか？",
+    "log_placeholder": "例：週2〜3回投稿できます。",
+    "photos_label": "代表作品（最大3点）",
+    "photos_hint": "代表作品の写真を最大3点アップロードしてください。（必須）",
+    "agreement_title": "審査および資格同意",
+    "agreement_text": "すべての応募はPUMWIチームにより慎重に審査されます。作品が基準を満たさないと判断された場合、再審査が行われることがあります。審査結果により作家資格が取り消される場合があり、再応募が必要になる可能性があります。",
+    "submit": "応募を提出する",
+    "add": "追加",
+    "cancel": "キャンセル",
+    "submit_loading": "送信中...",
+    "agreement_required": "内容を読み、同意します（必須）"
+  },
+  "auth": {
+    "google_button": "Googleで続ける",
+    "or": "または",
+    "left_panel": {
+      "title": "なぜPUMWIなのか",
+      "subtitle": "最善を尽くして作品を作る作家と、その真の価値を理解する消費者のためのプラットフォーム",
+      "feature1_title": "厳選された作家のみ",
+      "feature1_desc": "PUMWIの厳格な内部審査を通過した作家のみが作品を公開できます。私たちは高い品質と信頼を大切にしています。",
+      "feature2_title": "作家のためのシステム",
+      "feature2_desc": "作家がひたすら創作に集中できるよう、内部システムを作家向けに最適化しました。",
+      "feature3_title": "作家のストーリーと哲学",
+      "feature3_desc": "作家の哲学と制作過程が作品に自然に溶け込み、その価値を理解する消費者と繋がります。"
+    },
+    "form": {
+      "email_label": "メールアドレス",
+      "email_placeholder": "your@email.com",
+      "password_label": "パスワード",
+      "signin_button": "ログイン",
+      "signing_in": "ログイン中...",
+      "no_account": "まだアカウントをお持ちではありませんか？",
+      "join_link": "新規登録"
+    }
+  },
+  "founders_letter": {
+    "title": "韓国より、職人精神への敬意を込めて",
+    "content": "作家様、こんにちは。私は韓国に住むPUMWIの設立者です。\n\n作家様の汗と時間が込められた作品が、オンライン上で正当な評価を受けられずにいる現実を、私は常に心苦しく思っていました。そこで作りました。作家様の価値が完全に輝くことができる場所を。\n\nどうか**「Craft Diary（制作日誌）」**と展示ニュースを継続的に記録してください。作家様の哲学を詳細に綴る時、そのストーリーはオンラインで作品の真の価値を認めさせる最も強力な力となります。\n\nまた、私たちが用意した**「Artisan Operation」**システムをぜひご利用ください。この自動化システムは、作家様が複雑な運営業務から解放され、ひたすら**「偉大な作品づくり」**にのみ集中できるよう支援するために作られました。\n\n作家様の指先から生まれる名作を、心より応援しております。",
+    "never_show": "今後表示しない",
+    "close": "閉じる"
+  },
+  "footer": {
+    "pumwiNews": "PUMWIニュース",
+    "latestNews": "最新ニュース",
+    "notice": "お知らせ",
+    "about": "紹介",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "termsShort": "利用規約"
+  },
+  "home": {
+    "sharePlaceholder": "制作日誌、販売作品、展示を共有してみましょう。"
+  }
+}

@@ -192,6 +192,14 @@ export default function Navbar({ user }: NavbarProps) {
             >
               EN
             </Link>
+            <span className="text-slate-300 select-none">|</span>
+            <Link
+              href={pathname}
+              locale="ja"
+              className={`px-2 py-1 rounded transition-colors ${locale === 'ja' ? 'bg-[#8E86F5] text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              JA
+            </Link>
           </div>
 
           {user ? (
