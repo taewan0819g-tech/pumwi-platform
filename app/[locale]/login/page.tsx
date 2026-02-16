@@ -88,15 +88,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/80 flex flex-col lg:flex-row lg:items-center lg:justify-center lg:gap-16 xl:gap-24 px-4 py-10 lg:py-12">
+    <div className="min-h-screen bg-gray-50/80 flex flex-col lg:flex-row lg:items-center lg:justify-center lg:gap-16 xl:gap-24 px-4 py-10 lg:py-12 overflow-x-hidden w-full max-w-full">
       {/* Value proposition: left on desktop, below form on mobile */}
-      <div className="order-2 lg:order-1 lg:max-w-md xl:max-w-lg">
+      <div className="order-2 lg:order-1 lg:max-w-md xl:max-w-lg w-full max-w-full min-w-0">
         <ValuePropositionSection />
       </div>
 
       {/* Login card: focal point */}
-      <div className="order-1 lg:order-2 w-full max-w-md flex-shrink-0 lg:flex-shrink-0">
-        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100">
+      <div className="order-1 lg:order-2 w-full max-w-full md:max-w-md flex-shrink-0 lg:flex-shrink-0 min-w-0">
+        <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100 w-full max-w-full box-border">
           <div className="text-center mb-6">
             <div className="relative h-20 w-[250px] mx-auto">
               <Image

@@ -1,8 +1,10 @@
 'use client'
 
-import { useTranslations } from 'next-intl'
+import { useState, useRef, useEffect } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
+import { useRouter } from 'next/navigation'
 import { Link, usePathname } from '@/i18n/navigation'
-import { Home, Users, MessageSquare, LayoutGrid, UserCircle } from 'lucide-react'
+import { Home, Users, MessageSquare, LayoutGrid, UserCircle, LogOut } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface BottomNavProps {
@@ -13,11 +15,37 @@ interface BottomNavProps {
 
 export default function BottomNav({ user, unreadMessageCount, onOpenRightDrawer }: BottomNavProps) {
   const t = useTranslations('nav')
+  const locale = useLocale()
+  const router = useRouter()
   const pathname = usePathname()
+  const [meMenuOpen, setMeMenuOpen] = useState(false)
+  const meMenuRef = useRef<HTMLDivElement>(null)
   const isMessagesActive = pathname === '/messages'
   const isHomeActive = pathname === '/'
   const isNeighborsActive = pathname === '/neighbors'
   const isProfileActive = pathname === '/profile'
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (meMenuRef.current && !meMenuRef.current.contains(e.target as Node)) {
+        setMeMenuOpen(false)
+      }
+    }
+    if (meMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [meMenuOpen])
+
+  const handleSignOut = async () => {
+    setMeMenuOpen(false)
+    try {
+      await fetch(`/${locale}/auth/signout`, { method: 'POST', redirect: 'manual' })
+    } finally {
+      router.refresh()
+      window.location.href = `/${locale}`
+    }
+  }
 
   if (!user) return null
 
@@ -67,15 +95,39 @@ export default function BottomNav({ user, unreadMessageCount, onOpenRightDrawer 
           <LayoutGrid className="h-6 w-6 flex-shrink-0" />
           <span className="text-[10px] mt-1 truncate w-full text-center">More</span>
         </button>
-        <Link
-          href="/profile"
-          className={`flex flex-col items-center justify-center py-3 px-2 rounded transition-colors ${
-            isProfileActive ? 'text-[#2F5D50]' : 'text-gray-600 hover:text-[#2F5D50]'
-          }`}
-        >
-          <UserCircle className="h-6 w-6 flex-shrink-0" />
-          <span className="text-[10px] mt-1 truncate w-full text-center">{t('me')}</span>
-        </Link>
+        <div className="relative flex flex-col items-center" ref={meMenuRef}>
+          <button
+            type="button"
+            onClick={() => setMeMenuOpen((v) => !v)}
+            className={`flex flex-col items-center justify-center w-full py-3 px-2 rounded transition-colors ${
+              isProfileActive ? 'text-[#2F5D50]' : 'text-gray-600 hover:text-[#2F5D50]'
+            }`}
+            aria-label={t('me')}
+          >
+            <UserCircle className="h-6 w-6 flex-shrink-0" />
+            <span className="text-[10px] mt-1 truncate w-full text-center">{t('me')}</span>
+          </button>
+          {meMenuOpen && (
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 min-w-[160px] py-1 bg-white rounded-lg border border-gray-200 shadow-lg z-[60]">
+              <Link
+                href="/profile"
+                onClick={() => setMeMenuOpen(false)}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-slate-50"
+              >
+                <UserCircle className="h-4 w-4 shrink-0" />
+                {t('viewProfile')}
+              </Link>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-slate-50"
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                {t('signOut')}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
