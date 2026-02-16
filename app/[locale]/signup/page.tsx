@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
+
+/** public/logo.png — 경로: 앞에 슬래시 포함, 파일명 소문자 logo.png */
+const LOGO_SRC = '/logo.png'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
@@ -112,11 +116,19 @@ export default function SignupPage() {
       {/* Join card: focal point */}
       <div className="order-1 lg:order-2 w-full max-w-md flex-shrink-0 lg:flex-shrink-0">
         <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold" style={{ color: '#8E86F5' }}>
-              PUMWI
-            </h1>
-            <p className="text-gray-600 mt-2">Where Art Meets Value</p>
+          <div className="text-center mb-6">
+            <div className="relative h-20 w-[250px] mx-auto">
+              <Image
+                src={LOGO_SRC}
+                alt="PUMWI"
+                fill
+                className="object-contain object-center mix-blend-multiply"
+                sizes="250px"
+                priority
+                unoptimized={false}
+              />
+            </div>
+            <p className="text-gray-600 mt-3">Where Art Meets Value</p>
           </div>
 
           <form onSubmit={handleSignup} className="space-y-6">

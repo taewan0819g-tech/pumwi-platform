@@ -1,6 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Image from 'next/image'
+
+/** public/logo.png — 경로는 반드시 앞에 슬래시 포함, 파일명 소문자 logo.png */
+const LOGO_SRC = '/logo.png'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { Link, useRouter, usePathname } from '@/i18n/navigation'
@@ -142,15 +146,20 @@ export default function Navbar({ user }: NavbarProps) {
           </button>
           <Link
             href="/"
-            className="flex-shrink-0 flex items-center justify-center rounded-md px-1 py-1.5 hover:bg-slate-100 transition-colors"
+            className="flex-shrink-0 flex items-center justify-center rounded-md py-1 px-0.5 min-h-[44px] hover:bg-slate-100 transition-colors"
             title="PUMWI Home"
           >
-            <span
-              className="text-lg sm:text-xl font-bold leading-none tracking-tight"
-              style={{ color: '#8E86F5' }}
-            >
-              PUMWI
-            </span>
+            <Image
+              src={LOGO_SRC}
+              alt="PUMWI"
+              width={100}
+              height={30}
+              className="h-[30px] w-auto object-contain mix-blend-multiply"
+              style={{ width: 'auto', height: '30px' }}
+              sizes="100px"
+              priority
+              unoptimized={false}
+            />
           </Link>
 
           <form
