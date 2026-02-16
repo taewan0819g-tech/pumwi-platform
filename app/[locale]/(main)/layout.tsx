@@ -50,8 +50,8 @@ export default async function MainLayout({
           </div>
         </aside>
 
-        {/* [가운데] 피드: 모바일에서 w-full, 데스크톱에서 6열 */}
-        <main className="col-span-1 lg:col-span-9 xl:col-span-6 w-full min-h-[calc(100vh-120px)] lg:h-[calc(100vh-100px)] overflow-y-auto scrollbar-hide px-2">
+        {/* [가운데] 피드/랜딩: 컨텐츠만큼 늘어나고, 전체 페이지 스크롤 */}
+        <main className="col-span-1 lg:col-span-9 xl:col-span-6 w-full min-h-[calc(100vh-120px)] px-2">
           <div className="w-full max-w-2xl mx-auto pb-12">
             {children}
           </div>

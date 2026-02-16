@@ -204,5 +204,29 @@
   },
   "home": {
     "sharePlaceholder": "Share a Craft Diary, work for sale, or exhibition."
+  },
+  "landing": {
+    "hero_title": "Where Art Meets Value",
+    "hero_subtitle": "A global platform for verified artists and collectors.",
+    "sectionA_title": "Global Art & Exhibitions",
+    "sectionA_desc": "Offline exhibitions meet online convenience. Discover verified artists worldwide.",
+    "sectionB_title": "Connect with Philosophy",
+    "sectionB_desc": "Every artwork has a story. Check the artist's bio, exhibition history, and peer recommendations before you buy.",
+    "sectionC_title": "Rigorous Screening, Continuous Monitoring",
+    "sectionC_desc": "We have a zero-tolerance policy. Artists must pass a 5-step screening process, and any fake activity leads to immediate disqualification by the community.",
+    "sectionD_title": "All-in-One Studio OS",
+    "sectionD_desc": "Inventory, AI Marketing, and CS Master. We handle the business so you can focus on creation."
+  },
+  "loginPage": {
+    "checking": "Checking...",
+    "section1_title": "Global Art & Exhibitions",
+    "section1_desc": "Offline exhibitions meet online convenience. Discover verified artists worldwide.",
+    "section2_title": "Connect with Philosophy",
+    "section2_desc": "Every artwork has a story. Check the artist's bio, exhibition history, and peer recommendations before you buy.",
+    "section3_title": "Rigorous Screening, Continuous Monitoring",
+    "section3_desc": "Only artists who pass our 5-step screening can join. The community and our team uphold quality together.",
+    "section3_strong": "Fake artists are removed immediately.",
+    "section4_title": "All-in-One Studio OS",
+    "section4_desc": "Inventory, AI Marketing, and CS Master. We handle the business so you can focus on creation."
   }
 }

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import type { Profile } from '@/types/profile'
 import HomeCenterColumn from '@/components/HomeCenterColumn'
 import HomePageWithFounderModal from '@/components/HomePageWithFounderModal'
+import LandingPage from '@/components/landing/LandingPage'
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -25,9 +26,7 @@ export default async function HomePage() {
         {user ? (
           <HomeCenterColumn userId={user.id} profile={profile} />
         ) : (
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-8 text-center text-gray-500">
-            Sign in to continue.
-          </div>
+          <LandingPage />
         )}
       </div>
     </HomePageWithFounderModal>

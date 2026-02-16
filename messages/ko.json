@@ -204,5 +204,29 @@
   },
   "home": {
     "sharePlaceholder": "크래프트 다이어리, 판매 작품, 전시를 공유해 보세요."
+  },
+  "landing": {
+    "hero_title": "Where Art Meets Value",
+    "hero_subtitle": "검증된 작가와 컬렉터를 위한 글로벌 플랫폼.",
+    "sectionA_title": "글로벌 아트 & 전시",
+    "sectionA_desc": "오프라인 전시와 온라인 편의가 만납니다. 전 세계 검증된 작가를 만나보세요.",
+    "sectionB_title": "철학으로 연결하다",
+    "sectionB_desc": "모든 작품에는 이야기가 있습니다. 구매 전 작가의 소개, 전시 이력, 동료 추천사를 확인하세요.",
+    "sectionC_title": "엄격한 심사, 지속적인 모니터링",
+    "sectionC_desc": "우리는 제로 톨러런스 원칙을 적용합니다. 작가는 5단계 심사를 통과해야 하며, 부정 행위 시 커뮤니티에 의해 즉시 자격이 박탈됩니다.",
+    "sectionD_title": "올인원 스튜디오 OS",
+    "sectionD_desc": "재고, AI 마케팅, CS 마스터. 비즈니스는 저희가, 창작은 당신이."
+  },
+  "loginPage": {
+    "checking": "확인 중...",
+    "section1_title": "글로벌 아트 & 전시",
+    "section1_desc": "오프라인 전시와 온라인 편의가 만납니다. 전 세계 검증된 작가를 만나보세요.",
+    "section2_title": "철학으로 연결하다",
+    "section2_desc": "모든 작품에는 이야기가 있습니다. 구매 전 작가의 소개, 전시 이력, 동료 추천사를 확인하세요.",
+    "section3_title": "엄격한 심사, 지속적인 모니터링",
+    "section3_desc": "5단계 심사를 통과한 작가만 입점합니다. 커뮤니티와 팀이 함께 품질을 지킵니다.",
+    "section3_strong": "가짜 작가는 즉시 퇴출됩니다.",
+    "section4_title": "올인원 스튜디오 OS",
+    "section4_desc": "재고, AI 마케팅, CS 마스터. 비즈니스는 저희가, 창작은 당신이."
   }
 }
