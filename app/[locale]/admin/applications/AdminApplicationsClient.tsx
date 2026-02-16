@@ -2,12 +2,13 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { User } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
 import { approveApplication, rejectApplication } from './actions'
-import { APPLICATION_DETAILS_FIELDS } from '@/components/profile/ArtistApplyModal'
+import { APPLICATION_FIELD_CONFIG } from '@/components/profile/ArtistApplyModal'
 
 interface ApplicationRow {
   id: string
@@ -15,6 +16,7 @@ interface ApplicationRow {
   status: string
   answers: Record<string, unknown>
   application_details: Record<string, unknown> | null
+  portfolio_images: string[] | null
   created_at: string
   profiles: { full_name: string | null; avatar_url: string | null } | null
 }
@@ -25,6 +27,7 @@ export default function AdminApplicationsClient({
   applications: ApplicationRow[]
 }) {
   const router = useRouter()
+  const t = useTranslations('apply')
   const [detailId, setDetailId] = useState<string | null>(null)
   const [loadingId, setLoadingId] = useState<string | null>(null)
   const detail = applications.find((a) => a.id === detailId)
@@ -138,6 +141,30 @@ export default function AdminApplicationsClient({
                 <p className="text-xs text-gray-500">{formatDate(detail.created_at)}</p>
               </div>
             </div>
+
+            {detail.portfolio_images && detail.portfolio_images.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-slate-700">Representative Artworks</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {detail.portfolio_images.map((url, i) => (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block rounded-lg overflow-hidden border border-gray-200 bg-gray-50 hover:border-[#8E86F5] focus:outline-none focus:ring-2 focus:ring-[#8E86F5]"
+                    >
+                      <img
+                        src={url}
+                        alt={`Artwork ${i + 1}`}
+                        className="h-48 w-full object-cover"
+                      />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="space-y-6 max-h-96 overflow-y-auto">
               {detail.answers?.content != null ? (
                 <div>
@@ -149,12 +176,12 @@ export default function AdminApplicationsClient({
                   </p>
                 </div>
               ) : (detail.application_details || detail.answers) ? (
-                APPLICATION_DETAILS_FIELDS.map((field) => {
+                APPLICATION_FIELD_CONFIG.map((field) => {
                   const source = detail.application_details ?? detail.answers
                   const value = source?.[field.key]
                   return (
                     <div key={field.key}>
-                      <p className="text-sm font-medium text-slate-700 mb-1">{field.label}</p>
+                      <p className="text-sm font-medium text-slate-700 mb-1">{t(field.labelKey)}</p>
                       <p className="text-sm text-slate-600 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">
                         {typeof value === 'string' ? value : value != null ? String(value) : '—'}
                       </p>

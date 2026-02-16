@@ -8,6 +8,7 @@ interface ApplicationRow {
   status: string
   answers: Record<string, unknown>
   application_details: Record<string, unknown> | null
+  portfolio_images: string[] | null
   created_at: string
   profiles: { full_name: string | null; avatar_url: string | null } | null
 }
@@ -31,7 +32,7 @@ export default async function AdminApplicationsPage() {
 
   const { data: applications, error } = await supabase
     .from('artist_applications')
-    .select('id, user_id, status, answers, created_at, profiles(full_name, avatar_url)')
+    .select('id, user_id, status, answers, portfolio_images, created_at, profiles(full_name, avatar_url)')
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
 
@@ -49,6 +50,7 @@ export default async function AdminApplicationsPage() {
     status: row.status as string,
     answers: (row.answers as Record<string, unknown>) ?? {},
     application_details: (row.application_details as Record<string, unknown> | undefined) ?? null,
+    portfolio_images: (row.portfolio_images as string[] | undefined) ?? null,
     created_at: row.created_at as string,
     profiles: row.profiles as { full_name: string | null; avatar_url: string | null } | null,
   })) as ApplicationRow[]

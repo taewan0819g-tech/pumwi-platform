@@ -33,7 +33,8 @@
     "artisanOs": "Artisan OS",
     "admin": "Admin",
     "newsManagement": "News Management",
-    "signInToViewProfile": "Sign in to view your profile"
+    "signInToViewProfile": "Sign in to view your profile",
+    "apply_button": "Apply as Artist"
   },
   "feed": {
     "tabs": {
@@ -121,7 +122,51 @@
       "follow_processing": "Processing..."
     }
   },
+  "signup": {
+    "marketing_consent": "Agree to receive marketing updates (Optional)",
+    "terms_agree": "I agree to the",
+    "terms_link": "Terms of Service",
+    "terms_required": "(Required)",
+    "terms_required_error": "You must agree to the Terms of Service to sign up.",
+    "checking": "Checking...",
+    "welcome_redirect": "Welcome! Redirecting you to sign in...",
+    "registration_failed": "Registration failed. Please try again.",
+    "join": "Join",
+    "joining": "Joining...",
+    "welcome_btn": "Welcome!",
+    "sign_in": "Sign In",
+    "already_have_account": "Already have an account?",
+    "terms_modal_title": "Terms of Service",
+    "terms_modal_content": "Article 1 (Purpose)\nThe purpose of these Terms and Conditions is to prescribe the rights, obligations, and responsibilities of PUMWI (hereinafter referred to as the 'Company') and the User in connection with the use of the intermediary services provided by the Company.\n\nArticle 2 (Definitions)\n1. 'Platform' refers to the virtual business place established by the Company for trading goods or services.\n2. 'Artist' refers to a member who enters the platform to sell their creations.\n\nArticle 3 (Services)\nThe Company provides the following services:\n1. Development and operation of a handmade/craft brokerage platform.\n2. Information provision regarding artists and artworks.\n3. Other businesses determined by the Company.\n\nArticle 4 (Copyright)\n1. The copyright of posts (photos, descriptions, etc.) created by the Artist belongs to the Artist.\n2. The Company may reproduce, display, and distribute posts within the scope necessary for smooth service provision.\n\nArticle 5 (Limitation of Liability)\nAs a mail-order intermediary, the Company is not a party to the transaction and is not responsible for the product information or transactions registered by the Artist, except in cases of intentional or gross negligence by the Company.\n\n(These terms are standard for the PUMWI service launch.)",
+    "marketing_modal_title": "Marketing Consent",
+    "marketing_modal_content": "PUMWI requests your consent to receive marketing information as follows:\n\n1. Purpose of Collection and Use\n- Notifications of new artist entries and exhibitions.\n- News on limited edition releases and promotions.\n- Newsletters featuring artist interviews and studio logs.\n\n2. Items Collected\n- Email address, Name.\n\n3. Retention and Use Period\n- Until membership withdrawal or consent withdrawal.\n\n4. Right to Refuse\n- You have the right to refuse this consent. However, you may not receive event and benefit notifications if you do so.\n\nPUMWI promises to send only carefully selected news related to artistic values and avoids spam.",
+    "close_btn": "Close"
+  },
+  "apply": {
+    "title": "Apply as Artist",
+    "style_label": "What is your main craft and artistic style?",
+    "style_placeholder": "e.g., Hand-stitched leather goods with a vintage look",
+    "process_label": "Describe your handmade process. Do you use any machinery?",
+    "process_placeholder": "Tell us how much of your work is done by hand...",
+    "scale_label": "Do you mass-produce? Please describe your production scale.",
+    "scale_placeholder": "e.g., Everything is made to order, no mass production.",
+    "monthly_label": "How many artworks can you typically complete in a month?",
+    "monthly_placeholder": "e.g., Around 5 to 10 unique pieces",
+    "log_label": "How many times a week can you share your 'Studio Log'?",
+    "log_placeholder": "e.g., I can update my process 2-3 times a week",
+    "photos_label": "Representative Artworks (Max 3)",
+    "photos_hint": "Upload exactly 3 photos of your work. Required.",
+    "agreement_title": "Review & Qualification Agreement",
+    "agreement_text": "All applications are carefully reviewed by the PUMWI team. I understand that if my work is found not to meet PUMWI's artist standards, it may be subject to re-evaluation. My Artist status may be revoked based on the review results.",
+    "submit": "Submit Application",
+    "add": "Add",
+    "cancel": "Cancel",
+    "submit_loading": "Submitting Application...",
+    "agreement_required": "I have read and agree to the terms above (Required)"
+  },
   "auth": {
+    "google_button": "Continue with Google",
+    "or": "OR",
     "left_panel": {
       "title": "Why PUMWI",
       "subtitle": "A platform for artists who create with their best effort and consumers who understand that true value",

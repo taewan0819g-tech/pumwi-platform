@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { User } from 'lucide-react'
 import type { Profile } from '@/types/profile'
 import ArtistApplyModal from '@/components/profile/ArtistApplyModal'
@@ -18,6 +19,7 @@ interface ProfileCardProps {
 
 export default function ProfileCard({ profile, userEmail, applicationStatus }: ProfileCardProps) {
   const router = useRouter()
+  const t = useTranslations('sidebar')
   const [applyModalOpen, setApplyModalOpen] = useState(false)
   // Show "Under Review" immediately after submit, before router.refresh() completes
   const [justSubmittedPending, setJustSubmittedPending] = useState(false)
@@ -129,7 +131,7 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
                     className="block w-full py-2 px-4 text-sm font-medium text-white rounded-md transition-opacity hover:opacity-90 text-center"
                     style={{ backgroundColor: '#8E86F5' }}
                   >
-                    Apply as Artist
+                    {t('apply_button')}
                   </span>
                 )}
               </div>
