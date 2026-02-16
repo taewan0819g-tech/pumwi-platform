@@ -187,6 +187,12 @@
       "join_link": "Join"
     }
   },
+  "founders_letter": {
+    "title": "A Letter from Korea, with Respect for Your Craft",
+    "content": "Dear Artist,\n\nI am the founder of PUMWI, writing to you from Korea. I created this platform because I could not stand seeing true craftsmanship being undervalued online.\n\nI want your dedication to be recognized for its true worth.\n\nPlease consistently share your **'Craft Diary'** and exhibition news. When you detail your philosophy and values, this storytelling becomes the key to having your true worth recognized online.\n\nAlso, please utilize our **'Artisan Operation'** system. We built this automation system to handle complex administration, so you can focus solely on **'Creating Masterpieces'**.\n\nWe are here to support your art.",
+    "never_show": "Don't show again",
+    "close": "Close"
+  },
   "footer": {
     "pumwiNews": "PUMWI News",
     "latestNews": "Latest News",
