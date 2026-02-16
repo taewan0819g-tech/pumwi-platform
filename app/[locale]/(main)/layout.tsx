@@ -31,16 +31,13 @@ export default async function MainLayout({
   }
 
   return (
-    // 1. 전체 배경 및 최소 높이 설정 (푸터 도달 가능하게)
-    <div className="w-full bg-[#F9F9F8] min-h-screen overflow-x-hidden">
-      {/* 2. 그리드 컨테이너:
-          - gap-8: 두 번째 사진처럼 간격을 적절히 좁힘
-          - min-w-[1200px]: 3단 구조 강제 고정
-      */}
-      <div className="w-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-        {/* [왼쪽] 사이드바: 데스크톱만 표시 (lg+) */}
-        <aside className="hidden lg:block col-span-3">
-          <div className="sticky top-24 h-fit">
+    // 1. 전체 컨테이너: 화면 높이 고정(헤더 제외), 전체 스크롤 방지 → 3단 각각 독립 스크롤
+    <div className="w-full bg-[#F9F9F8] h-[calc(100vh-64px)] overflow-hidden overflow-x-hidden">
+      {/* 2. 3단 그리드: h-full로 컨테이너 채움, 각 컬럼은 overflow-y-auto로 독립 스크롤 */}
+      <div className="w-full h-full max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
+        {/* [왼쪽] 사이드바: h-full + overflow-y-auto + scrollbar-hide */}
+        <aside className="hidden lg:block col-span-3 h-full overflow-y-auto scrollbar-hide">
+          <div className="pb-6">
             <Sidebar
               user={user ? { id: user.id, email: user.email ?? null } : null}
               profile={profile}
@@ -50,15 +47,15 @@ export default async function MainLayout({
           </div>
         </aside>
 
-        {/* [가운데] 피드/랜딩: 컨텐츠만큼 늘어나고, 전체 페이지 스크롤 */}
-        <main className="col-span-1 lg:col-span-9 xl:col-span-6 w-full min-h-[calc(100vh-120px)] px-2">
+        {/* [가운데] 피드/랜딩: h-full + overflow-y-auto + scrollbar-hide */}
+        <main className="col-span-1 lg:col-span-9 xl:col-span-6 w-full h-full overflow-y-auto scrollbar-hide px-2">
           <div className="w-full max-w-2xl mx-auto pb-12">
             {children}
           </div>
         </main>
 
-        {/* [오른쪽] 위젯: xl 이상에서만 표시 */}
-        <aside className="hidden xl:block col-span-3">
+        {/* [오른쪽] 위젯: h-full + overflow-y-auto + scrollbar-hide */}
+        <aside className="hidden xl:block col-span-3 h-full overflow-y-auto scrollbar-hide">
           <RightSidebar />
         </aside>
       </div>
