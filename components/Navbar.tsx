@@ -152,11 +152,11 @@ export default function Navbar({ user }: NavbarProps) {
             <Image
               src={LOGO_SRC}
               alt="PUMWI"
-              width={100}
-              height={30}
-              className="h-[30px] w-auto object-contain mix-blend-multiply"
-              style={{ width: 'auto', height: '30px' }}
-              sizes="100px"
+              width={88}
+              height={26}
+              className="h-[26px] w-auto object-contain mix-blend-multiply"
+              style={{ width: 'auto', height: '26px' }}
+              sizes="88px"
               priority
               unoptimized={false}
             />
