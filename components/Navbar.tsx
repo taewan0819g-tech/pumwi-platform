@@ -26,6 +26,8 @@ import {
   LayoutGrid,
   Newspaper,
   Plus,
+  Globe,
+  Check,
 } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Profile } from '@/types/profile'
@@ -59,12 +61,14 @@ export default function Navbar({ user }: NavbarProps) {
   const pathname = usePathname()
   const [searchQuery, setSearchQuery] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
   const [unreadMessageCount, setUnreadMessageCount] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
   const [mobileProfile, setMobileProfile] = useState<Profile | null>(null)
   const [mobileApplicationStatus, setMobileApplicationStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const langDropdownRef = useRef<HTMLDivElement>(null)
   const isMessagesActive = pathname === '/messages'
 
   useEffect(() => {
@@ -94,6 +98,9 @@ export default function Navbar({ user }: NavbarProps) {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setDropdownOpen(false)
+      }
+      if (langDropdownRef.current && !langDropdownRef.current.contains(e.target as Node)) {
+        setLangDropdownOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -184,31 +191,38 @@ export default function Navbar({ user }: NavbarProps) {
             </button>
           </form>
 
-          {/* Language switcher: to the immediate left of User Avatar / Profile */}
-          <div className="flex items-center gap-0.5 text-xs font-medium text-slate-500 border border-slate-200 rounded-md p-0.5 shrink-0">
-            <Link
-              href={pathname}
-              locale="ko"
-              className={`px-2 py-1 rounded transition-colors ${locale === 'ko' ? 'bg-[#8E86F5] text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+          {/* Language switcher: Globe icon + dropdown */}
+          <div className="relative shrink-0" ref={langDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setLangDropdownOpen((v) => !v)}
+              className="flex items-center justify-center w-9 h-9 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+              title="Language"
+              aria-label="Select language"
             >
-              KO
-            </Link>
-            <span className="text-slate-300 select-none">|</span>
-            <Link
-              href={pathname}
-              locale="en"
-              className={`px-2 py-1 rounded transition-colors ${locale === 'en' ? 'bg-[#8E86F5] text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              EN
-            </Link>
-            <span className="text-slate-300 select-none">|</span>
-            <Link
-              href={pathname}
-              locale="ja"
-              className={`px-2 py-1 rounded transition-colors ${locale === 'ja' ? 'bg-[#8E86F5] text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-            >
-              JA
-            </Link>
+              <Globe className="h-4 w-4" />
+            </button>
+            {langDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1 min-w-[100px] py-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50">
+                <div className="px-3 py-1.5 text-xs text-slate-400 border-b border-gray-100">
+                  {locale === 'ko' ? '한국어' : locale === 'ja' ? '日本語' : 'English'}
+                </div>
+                {(['ko', 'en', 'ja'] as const).map((loc) => (
+                  <Link
+                    key={loc}
+                    href={pathname}
+                    locale={loc}
+                    onClick={() => setLangDropdownOpen(false)}
+                    className={`flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors ${
+                      locale === loc ? 'bg-[#8E86F5]/10 text-[#8E86F5] font-medium' : 'text-gray-700 hover:bg-slate-50'
+                    }`}
+                  >
+                    {loc.toUpperCase()}
+                    {locale === loc && <Check className="h-4 w-4 shrink-0" />}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {user ? (

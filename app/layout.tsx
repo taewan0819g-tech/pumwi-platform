@@ -9,6 +9,11 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'PUMWI — Where Art Meets Value',
   description: 'Where Art Meets Value. PUMWI — A global art platform for artists and collectors.',
+  openGraph: {
+    title: 'PUMWI — Where Art Meets Value',
+    description: 'Where Art Meets Value. PUMWI — A global art platform for artists and collectors.',
+    // app/opengraph-image.png is automatically used by Next.js file convention for og:image
+  },
 }
 
 export default async function RootLayout({
