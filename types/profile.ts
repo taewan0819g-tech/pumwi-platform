@@ -11,6 +11,14 @@ export interface Profile {
   value_philosophy: string | null
   /** 작업실 위치 (예: 서울 성수동) */
   studio_location?: string | null
+  /** 활동 지역: 도시 (profiles.city) */
+  city?: string | null
+  /** 활동 지역: 국가 (profiles.country, 예: kr, jp, usa 또는 기타 입력값) */
+  country?: string | null
+  /** 위도 (Google Places 선택 시 저장) */
+  lat?: number | null
+  /** 경도 (Google Places 선택 시 저장) */
+  lng?: number | null
   role: ProfileRole
   is_artist_pending: boolean
   updated_at?: string

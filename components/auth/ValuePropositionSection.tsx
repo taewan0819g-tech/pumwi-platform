@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { MapPin } from 'lucide-react'
 
 export default function ValuePropositionSection() {
   const t = useTranslations('landing')
@@ -17,7 +18,7 @@ export default function ValuePropositionSection() {
       </div>
 
       <div className="space-y-6">
-        {/* Point 1: Verified Artists (Trust) */}
+        {/* 1. 철저한 검증과 신뢰 */}
         <div className="flex gap-4 p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-transparent hover:border-gray-100">
           <div className="w-12 h-12 rounded-full bg-[#F4F3FF] flex items-center justify-center flex-shrink-0 text-2xl">
             🛡️
@@ -30,9 +31,22 @@ export default function ValuePropositionSection() {
           </div>
         </div>
 
-        {/* Point 2: System (OS) */}
+        {/* 2. 내 곁의 아티스트 (Location Service) — MapPin */}
         <div className="flex gap-4 p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-transparent hover:border-gray-100">
-          <div className="w-12 h-12 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0 text-2xl">
+          <div className="w-12 h-12 rounded-full bg-[#E8F5E9] flex items-center justify-center flex-shrink-0 text-[#8E86F5]">
+            <MapPin className="w-6 h-6" aria-hidden />
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900 mb-1">{t('location_title')}</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {t('location_desc')}
+            </p>
+          </div>
+        </div>
+
+        {/* 3. 올인원 스튜디오 OS */}
+        <div className="flex gap-4 p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-transparent hover:border-gray-100">
+          <div className="w-12 h-12 rounded-full bg-[#E3F2FD] flex items-center justify-center flex-shrink-0 text-2xl">
             ⚙️
           </div>
           <div>
@@ -43,7 +57,7 @@ export default function ValuePropositionSection() {
           </div>
         </div>
 
-        {/* Point 3: Philosophy */}
+        {/* 4. 철학으로 연결되다 */}
         <div className="flex gap-4 p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-transparent hover:border-gray-100">
           <div className="w-12 h-12 rounded-full bg-[#FFF3E0] flex items-center justify-center flex-shrink-0 text-2xl">
             💜

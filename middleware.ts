@@ -17,6 +17,12 @@ function pathnameWithoutLocale(pathname: string): string {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+
+  // Skip static files (e.g. favicon.ico, .png, .jpg) so they are not treated as locale paths
+  if (pathname.includes('.')) {
+    return NextResponse.next()
+  }
+
   const pathWithoutLocale = pathnameWithoutLocale(pathname)
   const locale = getLocaleFromPathname(pathname)
 
@@ -82,6 +88,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // 정적 파일(이미지, 파비콘 등)은 미들웨어를 거치지 않도록 제외
-  matcher: ['/((?!api|_next|.*\\..*).*)'],
+  // 1. api, _next, favicon.ico 등 모든 정적 파일을 명확히 제외
+  // 2. 확장자가 있는 파일(.png, .jpg 등)도 제외
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images|.*\\..*).*)'],
 }

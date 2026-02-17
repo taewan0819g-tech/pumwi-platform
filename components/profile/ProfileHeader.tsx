@@ -4,15 +4,26 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { Camera, User, Pencil, MapPin, Send, MessageCircle } from 'lucide-react'
+import { Camera, User, Pencil, MapPin, Send, MessageCircle, Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/Card'
 import toast from 'react-hot-toast'
 import type { Profile } from '@/types/profile'
 import RequestArtworkModal from '@/components/request/RequestArtworkModal'
+import LocationPlacesAutocomplete from '@/components/profile/LocationPlacesAutocomplete'
 
 const BUCKET_AVATARS = 'avatars'
 const BUCKET_BACKGROUNDS = 'backgrounds'
+
+const COUNTRY_OPTIONS = [
+  { value: 'kr', labelKey: 'country_kr' as const },
+  { value: 'jp', labelKey: 'country_jp' as const },
+  { value: 'usa', labelKey: 'country_usa' as const },
+  { value: 'france', labelKey: 'country_france' as const },
+  { value: 'uk', labelKey: 'country_uk' as const },
+  { value: 'germany', labelKey: 'country_germany' as const },
+  { value: 'other', labelKey: 'country_other' as const },
+]
 
 interface ProfileHeaderProps {
   profile: Profile
@@ -31,6 +42,8 @@ export default function ProfileHeader({
   currentUserId,
 }: ProfileHeaderProps) {
   const t = useTranslations('profile.actions')
+  const tProfile = useTranslations('profile')
+  const tApply = useTranslations('apply')
   const router = useRouter()
   const [editing, setEditing] = useState(false)
   const [fullName, setFullName] = useState(profile?.full_name ?? '')
@@ -41,6 +54,13 @@ export default function ProfileHeader({
   const [studioLocation, setStudioLocation] = useState(
     profile?.studio_location ?? ''
   )
+  const [editingLocation, setEditingLocation] = useState(false)
+  const [editCity, setEditCity] = useState(profile?.city ?? '')
+  const [editCountry, setEditCountry] = useState(profile?.country ?? '')
+  const [editCustomCountry, setEditCustomCountry] = useState('')
+  const [editLat, setEditLat] = useState<number | null>(profile?.lat ?? null)
+  const [editLng, setEditLng] = useState<number | null>(profile?.lng ?? null)
+  const [savingLocation, setSavingLocation] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false)
@@ -55,7 +75,19 @@ export default function ProfileHeader({
     setBio(profile?.bio ?? '')
     setValuePhilosophy(profile?.value_philosophy ?? '')
     setStudioLocation(profile?.studio_location ?? '')
-  }, [profile?.full_name, profile?.bio, profile?.value_philosophy, profile?.studio_location])
+    if (!editingLocation) {
+      setEditCity(profile?.city ?? '')
+      setEditCountry(profile?.country ?? '')
+      setEditLat(profile?.lat ?? null)
+      setEditLng(profile?.lng ?? null)
+      if (profile?.country && !COUNTRY_OPTIONS.some((o) => o.value === profile?.country)) {
+        setEditCustomCountry(profile.country)
+        setEditCountry('other')
+      } else {
+        setEditCustomCountry('')
+      }
+    }
+  }, [profile?.full_name, profile?.bio, profile?.value_philosophy, profile?.studio_location, profile?.city, profile?.country, profile?.lat, profile?.lng, editingLocation])
 
   // 이웃(팔로우) 상태 조회
   useEffect(() => {
@@ -170,6 +202,111 @@ export default function ProfileHeader({
     } finally {
       setUploading(false)
       e.target.value = ''
+    }
+  }
+
+  const getCountryDisplayLabel = (countryCode: string | null | undefined): string => {
+    if (!countryCode) return ''
+    const opt = COUNTRY_OPTIONS.find((o) => o.value === countryCode)
+    return opt ? tApply(opt.labelKey) : countryCode
+  }
+
+  const handleOpenLocationEdit = () => {
+    setEditCity(profile?.city ?? '')
+    setEditLat(profile?.lat ?? null)
+    setEditLng(profile?.lng ?? null)
+    const c = profile?.country ?? ''
+    if (c && !COUNTRY_OPTIONS.some((o) => o.value === c)) {
+      setEditCountry('other')
+      setEditCustomCountry(c)
+    } else {
+      setEditCountry(c)
+      setEditCustomCountry('')
+    }
+    setEditingLocation(true)
+  }
+
+  const handleCancelLocationEdit = () => {
+    setEditingLocation(false)
+    setEditCity(profile?.city ?? '')
+    setEditCountry(profile?.country ?? '')
+    setEditCustomCountry('')
+    setEditLat(profile?.lat ?? null)
+    setEditLng(profile?.lng ?? null)
+  }
+
+  const handlePlaceSelect = (result: { city: string; country: string; lat: number; lng: number }) => {
+    setEditCity(result.city)
+    const code = result.country?.toLowerCase() ?? ''
+    const known = new Map([
+      ['kr', 'kr'], ['korea', 'kr'], ['jp', 'jp'], ['ja', 'jp'], ['us', 'usa'], ['usa', 'usa'],
+      ['gb', 'uk'], ['uk', 'uk'], ['fr', 'france'], ['de', 'germany'],
+    ])
+    const optionValue = known.get(code) ?? (COUNTRY_OPTIONS.some((o) => o.value === code) ? code : null)
+    if (optionValue) {
+      setEditCountry(optionValue)
+      setEditCustomCountry('')
+    } else if (result.country) {
+      setEditCountry('other')
+      setEditCustomCountry(result.country)
+    }
+    setEditLat(result.lat)
+    setEditLng(result.lng)
+  }
+
+  const handleSaveLocation = async () => {
+    if (!profile?.id) return
+    const countryValue = editCountry === 'other' ? editCustomCountry.trim() : editCountry.trim()
+    if (!countryValue || !editCity.trim()) {
+      toast.error('Please enter country and city.')
+      return
+    }
+    setSavingLocation(true)
+    try {
+      const payload: Record<string, unknown> = {
+        city: editCity.trim() || null,
+        country: countryValue || null,
+      }
+      if (editLat != null && editLng != null) {
+        payload.lat = editLat
+        payload.lng = editLng
+      }
+      const { error } = await supabase
+        .from('profiles')
+        .update(payload)
+        .eq('id', profile.id)
+      if (error) throw error
+      const updated = {
+        ...profile,
+        city: editCity.trim() || null,
+        country: countryValue || null,
+        lat: editLat,
+        lng: editLng,
+      }
+      onUpdate(updated)
+      toast.success('Saved!')
+      setEditingLocation(false)
+      router.refresh()
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err)
+      if (message.includes('lat') || message.includes('lng') || message.includes('column') || message.includes('does not exist')) {
+        const { error: fallbackError } = await supabase
+          .from('profiles')
+          .update({ city: editCity.trim() || null, country: countryValue || null })
+          .eq('id', profile.id)
+        if (fallbackError) {
+          toast.error(fallbackError.message)
+        } else {
+          onUpdate({ ...profile, city: editCity.trim() || null, country: countryValue || null })
+          toast.success('Address saved (coordinates not stored).')
+          setEditingLocation(false)
+          router.refresh()
+        }
+      } else {
+        toast.error(message)
+      }
+    } finally {
+      setSavingLocation(false)
     }
   }
 
@@ -429,6 +566,112 @@ export default function ProfileHeader({
                 <p className="text-sm text-slate-600 mt-0.5">
                   {roleLabel}
                 </p>
+
+                {/* Location: 📍 City, Country (click → Google Maps); own profile: pencil → inline edit */}
+                {(profile?.city || profile?.country || isOwn) && (
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
+                    {editingLocation ? (
+                      <div className="flex flex-col gap-2 p-3 rounded-xl border border-gray-200 bg-gray-50/50 w-full max-w-sm">
+                        <LocationPlacesAutocomplete
+                          value={editCity}
+                          onChange={handlePlaceSelect}
+                          placeholder={tApply('city_placeholder')}
+                          label={tApply('location_search_label')}
+                        />
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">{tApply('country_label')}</label>
+                          <select
+                            value={editCountry}
+                            onChange={(e) => {
+                              setEditCountry(e.target.value)
+                              if (e.target.value !== 'other') setEditCustomCountry('')
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-slate-900 text-sm focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none bg-white"
+                          >
+                            <option value="">{tApply('country_default')}</option>
+                            {COUNTRY_OPTIONS.map((opt) => (
+                              <option key={opt.value} value={opt.value}>{tApply(opt.labelKey)}</option>
+                            ))}
+                          </select>
+                          {editCountry === 'other' && (
+                            <input
+                              type="text"
+                              value={editCustomCountry}
+                              onChange={(e) => setEditCustomCountry(e.target.value)}
+                              placeholder={tApply('country_other_placeholder')}
+                              className="mt-1.5 w-full px-3 py-2 border border-gray-300 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] outline-none"
+                            />
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-gray-600 mb-1">{tApply('city_label')}</label>
+                          <input
+                            type="text"
+                            value={editCity}
+                            onChange={(e) => setEditCity(e.target.value)}
+                            placeholder={tApply('city_placeholder')}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] outline-none"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={handleSaveLocation}
+                            disabled={savingLocation}
+                            className="p-1.5 rounded-lg bg-[#8E86F5] text-white hover:opacity-90 disabled:opacity-50"
+                            aria-label="Save location"
+                          >
+                            <Check className="h-4 w-4" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCancelLocationEdit}
+                            className="p-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100"
+                            aria-label="Cancel"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <a
+                          href={
+                            profile?.lat != null && profile?.lng != null
+                              ? `https://www.google.com/maps?q=${profile.lat},${profile.lng}`
+                              : (profile?.city || profile?.country)
+                                ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([profile?.city ?? '', profile?.country ?? ''].filter(Boolean).join(', '))}`
+                                : '#'
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={`inline-flex items-center gap-1.5 text-sm ${profile?.city || profile?.country ? 'text-slate-600 hover:text-blue-600 cursor-pointer' : 'text-gray-400 cursor-default'}`}
+                          onClick={(e) => {
+                            if (!profile?.city && !profile?.country) e.preventDefault()
+                          }}
+                        >
+                          <MapPin className="h-4 w-4 shrink-0" />
+                          <span>
+                            {profile?.city || profile?.country
+                              ? [profile.city?.trim(), getCountryDisplayLabel(profile.country)].filter(Boolean).join(', ')
+                              : tProfile('location_empty')}
+                          </span>
+                        </a>
+                        {isOwn && (
+                          <button
+                            type="button"
+                            onClick={handleOpenLocationEdit}
+                            className="p-1 rounded text-gray-500 hover:bg-gray-100 hover:text-slate-700"
+                            aria-label="Edit location"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+
                 {profile?.bio && (
                   <p className="text-slate-700 mt-1.5 whitespace-pre-wrap leading-relaxed text-sm">
                     {profile.bio}

@@ -49,6 +49,7 @@ export default function LoginPage() {
   const imgApply = `/landing-apply${suffix}.png`
   const imgMenu = `/landing-menu${suffix}.png`
   const imgFeatures = `/landing-features${suffix}.png`
+  const imgLocation = `/landing-location${suffix}.png`
 
   // 로그인 상태 체크
   useEffect(() => {
@@ -191,6 +192,34 @@ export default function LoginPage() {
              <div className="w-full rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
                <Image src={imgFeed} alt="Global Discovery" width={0} height={0} sizes="100vw" className="w-full h-auto" />
              </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2.5: GLOBAL CONNECTION (Location) — between Exhibitions and Philosophy */}
+      <section className="py-24 px-6 lg:px-20 bg-gray-50/50 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
+          <div className="lg:w-1/2 space-y-8">
+            <h2
+              className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight"
+              dangerouslySetInnerHTML={{ __html: tLanding('sectionC_title') }}
+            />
+            <div className="w-16 h-1 bg-[#8E86F5] rounded-full"></div>
+            <p className="text-xl text-gray-600 leading-relaxed">
+              {tLanding('sectionC_desc')}
+            </p>
+          </div>
+          <div className="lg:w-1/3 w-full max-w-md">
+            <div className="w-full rounded-2xl overflow-hidden shadow-2xl border border-gray-100 max-h-[450px]">
+              <Image
+                src={imgLocation}
+                alt="Global Connection"
+                width={0}
+                height={0}
+                sizes="(max-width: 1024px) 100vw, 33vw"
+                className="w-full h-auto object-contain max-h-[450px]"
+              />
+            </div>
           </div>
         </div>
       </section>

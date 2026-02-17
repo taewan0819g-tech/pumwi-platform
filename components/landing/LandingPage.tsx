@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import ValuePropositionSection from '@/components/auth/ValuePropositionSection'
 
 const LOGO_SRC = '/logo.png'
@@ -29,10 +29,13 @@ function useFadeInUp(threshold = 0.15) {
 export default function LandingPage() {
   const t = useTranslations('landing')
   const tNav = useTranslations('nav')
+  const locale = useLocale()
   const sectionA = useFadeInUp()
+  const sectionGlobalConnection = useFadeInUp()
   const sectionB = useFadeInUp()
   const sectionC = useFadeInUp()
   const sectionD = useFadeInUp()
+  const featureImageSrc = `/landing_feature_${locale === 'ko' ? 'ko' : locale === 'ja' ? 'ja' : 'en'}.png`
 
   const fadeClass = (visible: boolean) =>
     `transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`
@@ -70,7 +73,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section A: Global Discovery — text left / image right */}
+      {/* Section A: Exhibitions (예술 & 전시) — text left / image right */}
       <section
         ref={sectionA.ref}
         className={`py-12 lg:py-16 ${fadeClass(sectionA.visible)}`}
@@ -82,6 +85,28 @@ export default function LandingPage() {
           </div>
           <div className="lg:w-1/2 relative aspect-video lg:aspect-[4/3] rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
             <Image src="/landing-feed.png" alt="Feed" fill className="object-contain" sizes="(max-width: 1024px) 100vw, 50vw" />
+          </div>
+        </div>
+      </section>
+
+      {/* Global Connection (Location Service) — between Exhibitions and Philosophy */}
+      <section
+        ref={sectionGlobalConnection.ref}
+        className={`py-12 lg:py-16 ${fadeClass(sectionGlobalConnection.visible)}`}
+      >
+        <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
+          <div className="lg:w-1/2 space-y-4">
+            <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t('sectionC_title')}</h2>
+            <p className="text-gray-600 leading-relaxed">{t('sectionC_desc')}</p>
+          </div>
+          <div className="lg:w-1/2 relative aspect-video lg:aspect-[4/3] rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
+            <Image
+              src={featureImageSrc}
+              alt="Global Connection"
+              fill
+              className="object-contain"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
           </div>
         </div>
       </section>
@@ -115,8 +140,8 @@ export default function LandingPage() {
       >
         <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12 text-white">
           <div className="lg:w-1/2 space-y-4">
-            <h2 className="text-2xl lg:text-3xl font-bold">{t('sectionC_title')}</h2>
-            <p className="text-slate-300 leading-relaxed">{t('sectionC_desc')}</p>
+            <h2 className="text-2xl lg:text-3xl font-bold">{t('trust_title')}</h2>
+            <p className="text-slate-300 leading-relaxed">{t('trust_desc')}</p>
           </div>
           <div className="lg:w-1/2 relative aspect-video rounded-xl overflow-hidden bg-slate-800/50">
             <Image src="/landing-apply.png" alt="Apply" fill className="object-contain" sizes="(max-width: 1024px) 100vw, 50vw" />

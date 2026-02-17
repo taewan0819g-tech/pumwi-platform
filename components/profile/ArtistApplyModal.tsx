@@ -25,6 +25,8 @@ export type ApplicationDetailsPayload = {
   production_scale: string
   monthly_output: string
   studio_log_commitment: string
+  country: string
+  city: string
 }
 
 interface ArtistApplyModalProps {
@@ -40,7 +42,19 @@ const initialValues: ApplicationDetailsPayload = {
   production_scale: '',
   monthly_output: '',
   studio_log_commitment: '',
+  country: '',
+  city: '',
 }
+
+const COUNTRY_OPTIONS = [
+  { value: 'kr', labelKey: 'country_kr' as const },
+  { value: 'jp', labelKey: 'country_jp' as const },
+  { value: 'usa', labelKey: 'country_usa' as const },
+  { value: 'france', labelKey: 'country_france' as const },
+  { value: 'uk', labelKey: 'country_uk' as const },
+  { value: 'germany', labelKey: 'country_germany' as const },
+  { value: 'other', labelKey: 'country_other' as const },
+]
 
 export default function ArtistApplyModal({
   open,
@@ -50,11 +64,14 @@ export default function ArtistApplyModal({
 }: ArtistApplyModalProps) {
   const t = useTranslations('apply')
   const [details, setDetails] = useState<ApplicationDetailsPayload>(initialValues)
+  const [customCountry, setCustomCountry] = useState('')
   const [portfolioFiles, setPortfolioFiles] = useState<File[]>([])
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [isAgreed, setIsAgreed] = useState(false)
   const supabase = createClient()
+
+  const isOtherCountry = details.country === 'other'
 
   useEffect(() => {
     if (portfolioFiles.length === 0) {
@@ -68,6 +85,7 @@ export default function ArtistApplyModal({
 
   const handleChange = (key: keyof ApplicationDetailsPayload, value: string) => {
     setDetails((prev) => ({ ...prev, [key]: value }))
+    if (key === 'country' && value !== 'other') setCustomCountry('')
   }
 
   const handlePortfolioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,15 +101,32 @@ export default function ArtistApplyModal({
   }
 
   const handleSubmit = async () => {
+    const countryForDb = isOtherCountry ? customCountry.trim() : details.country.trim()
     const a = {
       primary_craft_style: details.primary_craft_style.trim(),
       handmade_process: details.handmade_process.trim(),
       production_scale: details.production_scale.trim(),
       monthly_output: details.monthly_output.trim(),
       studio_log_commitment: details.studio_log_commitment.trim(),
+      country: countryForDb,
+      city: details.city.trim(),
     }
-    if (Object.values(a).some((v) => !v)) {
+    if (
+      !a.primary_craft_style ||
+      !a.handmade_process ||
+      !a.production_scale ||
+      !a.monthly_output ||
+      !a.studio_log_commitment
+    ) {
       alert('Please answer all five questions.')
+      return
+    }
+    if (!a.country || !a.city) {
+      alert('Please select country and enter city/region.')
+      return
+    }
+    if (isOtherCountry && !customCountry.trim()) {
+      alert('Please enter your country name.')
       return
     }
     if (portfolioFiles.length !== PORTFOLIO_MAX) {
@@ -142,7 +177,7 @@ export default function ArtistApplyModal({
       .insert({
         user_id: user.id,
         status: 'pending',
-        answers: { content },
+        answers: { content, country: a.country, city: a.city },
         portfolio_images: uploadedUrls,
       })
 
@@ -159,6 +194,7 @@ export default function ArtistApplyModal({
 
     setSubmitting(false)
     setDetails(initialValues)
+    setCustomCountry('')
     setPortfolioFiles([])
     onSuccess()
     onClose()
@@ -197,6 +233,59 @@ export default function ArtistApplyModal({
             )}
           </div>
         ))}
+
+        {/* Activity Location (Required) */}
+        <div className="space-y-4 pt-2">
+          <h4 className="text-sm font-semibold text-slate-800">
+            {t('activity_location_title')} <span className="text-red-500">*</span>
+          </h4>
+          <div className="space-y-2">
+            <label htmlFor="country" className="block text-sm font-medium text-slate-800">
+              {t('country_label')} <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="country"
+              value={details.country}
+              onChange={(e) => handleChange('country', e.target.value)}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-slate-900 text-sm focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none bg-white"
+            >
+              <option value="">{t('country_default')}</option>
+              {COUNTRY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {t(opt.labelKey)}
+                </option>
+              ))}
+            </select>
+            {isOtherCountry && (
+              <div className="mt-3 animate-[fadeIn_0.2s_ease-out]">
+                <input
+                  type="text"
+                  value={customCountry}
+                  onChange={(e) => setCustomCountry(e.target.value)}
+                  placeholder={t('country_other_placeholder')}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                  aria-label={t('country_other_placeholder')}
+                />
+              </div>
+            )}
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="city" className="block text-sm font-medium text-slate-800">
+              {t('city_label')} <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="city"
+              type="text"
+              value={details.city}
+              onChange={(e) => handleChange('city', e.target.value)}
+              placeholder={t('city_placeholder')}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+            />
+            <p className="text-xs text-gray-500">{t('city_hint')}</p>
+          </div>
+        </div>
 
         {/* Representative Artwork Photos (Required, Max 3) */}
         <div className="space-y-2">

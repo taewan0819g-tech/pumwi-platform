@@ -3,6 +3,7 @@
 import { useAuth } from '@/components/providers/AuthProvider'
 import { Link } from '@/i18n/navigation'
 import ExhibitionWidget from '@/components/ExhibitionWidget'
+import NearbyArtists from '@/components/right-sidebar/NearbyArtists'
 import ArtistList from '@/components/ArtistList'
 import { Plus } from 'lucide-react'
 import { isExhibitionAdminEmail } from '@/lib/exhibition-admin'
@@ -26,6 +27,7 @@ export default function RightSidebar() {
         </div>
       )}
       <ExhibitionWidget />
+      <NearbyArtists currentUserId={user?.id ?? null} />
       <ArtistList />
     </div>
   )
