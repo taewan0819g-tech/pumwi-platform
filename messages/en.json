@@ -206,16 +206,22 @@
     "sharePlaceholder": "Share a Craft Diary, work for sale, or exhibition."
   },
   "landing": {
-    "hero_title": "Where Art Meets Value",
-    "hero_subtitle": "A global platform for verified artists and collectors.",
-    "sectionA_title": "Global Art & Exhibitions",
-    "sectionA_desc": "Offline exhibitions meet online convenience. Discover verified artists worldwide.",
-    "sectionB_title": "Connect with Philosophy",
-    "sectionB_desc": "Every artwork has a story. Check the artist's bio, exhibition history, and peer recommendations before you buy.",
-    "sectionC_title": "Rigorous Screening, Continuous Monitoring",
-    "sectionC_desc": "We have a zero-tolerance policy. Artists must pass a 5-step screening process, and any fake activity leads to immediate disqualification by the community.",
-    "sectionD_title": "All-in-One Studio OS",
-    "sectionD_desc": "Inventory, AI Marketing, and CS Master. We handle the business so you can focus on creation."
+    "main_description": "A platform for artists who create with their best effort and consumers who understand that true value.",
+    "process_title": "How to Apply as an Artist",
+    "step1_title": "Sign Up",
+    "step1_desc": "Create an account to get started.",
+    "step2_title": "Submit Artist Application",
+    "step2_desc": "Share your philosophy in the application. We review each submission carefully.",
+    "step3_title": "Global Debut",
+    "step3_desc": "Once approved, you connect with collectors worldwide.",
+    "discovery_title": "Art & Exhibitions",
+    "discovery_desc": "The impact of offline exhibitions with the convenience of online. Meet verified artists.",
+    "philosophy_title": "Connected by Philosophy",
+    "philosophy_desc": "Every piece has a story. We value the artist's philosophy over specs.",
+    "trust_title": "Rigorous Verification and Trust",
+    "trust_desc": "We run a strict review process. Zero tolerance for inauthentic art activity.",
+    "os_title": "All-in-One Studio OS",
+    "os_desc": "From inventory and marketing to CS. We handle the business so you can create."
   },
   "loginPage": {
     "checking": "Checking...",

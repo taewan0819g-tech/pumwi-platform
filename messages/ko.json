@@ -111,7 +111,7 @@
       "bio": "전시와 활동이력",
       "exhibitionBio": "전시와 활동이력",
       "recommendations": "추천",
-      "write_recommendation": "추천사 작성하기"
+      "write_recommendation": "추천하기"
     },
     "actions": {
       "commission": "맞춤제작",
@@ -206,16 +206,22 @@
     "sharePlaceholder": "크래프트 다이어리, 판매 작품, 전시를 공유해 보세요."
   },
   "landing": {
-    "hero_title": "Where Art Meets Value",
-    "hero_subtitle": "검증된 작가와 컬렉터를 위한 글로벌 플랫폼.",
-    "sectionA_title": "글로벌 아트 & 전시",
-    "sectionA_desc": "오프라인 전시와 온라인 편의가 만납니다. 전 세계 검증된 작가를 만나보세요.",
-    "sectionB_title": "철학으로 연결하다",
-    "sectionB_desc": "모든 작품에는 이야기가 있습니다. 구매 전 작가의 소개, 전시 이력, 동료 추천사를 확인하세요.",
-    "sectionC_title": "엄격한 심사, 지속적인 모니터링",
-    "sectionC_desc": "우리는 제로 톨러런스 원칙을 적용합니다. 작가는 5단계 심사를 통과해야 하며, 부정 행위 시 커뮤니티에 의해 즉시 자격이 박탈됩니다.",
-    "sectionD_title": "올인원 스튜디오 OS",
-    "sectionD_desc": "재고, AI 마케팅, CS 마스터. 비즈니스는 저희가, 창작은 당신이."
+    "main_description": "최선을 다해 창작하는 작가와 그 진정한 가치를 알아보는 소비자를 위한 플랫폼.",
+    "process_title": "작가 신청 방법",
+    "step1_title": "회원가입",
+    "step1_desc": "먼저 계정을 생성하여 시작하세요.",
+    "step2_title": "작가 지원서 작성",
+    "step2_desc": "질문지에 작가님의 철학을 정성껏 적어주세요. 꼼꼼한 심사가 진행됩니다.",
+    "step3_title": "글로벌 데뷔",
+    "step3_desc": "심사 통과 시, 전 세계 컬렉터와 연결됩니다.",
+    "discovery_title": "예술 & 전시",
+    "discovery_desc": "오프라인 전시의 감동을 온라인의 편리함으로. 검증된 작가들을 만나보세요.",
+    "philosophy_title": "철학으로 연결되다",
+    "philosophy_desc": "모든 작품에는 이야기가 있습니다. 단순 스펙보다 작가의 철학을 소중히 여깁니다.",
+    "trust_title": "철저한 검증과 신뢰",
+    "trust_desc": "엄격한 심사 과정을 거칩니다. 가짜 예술 활동에는 무관용 원칙을 적용합니다.",
+    "os_title": "올인원 스튜디오 OS",
+    "os_desc": "재고 관리부터 마케팅, CS까지. 비즈니스는 저희가, 창작은 작가님이."
   },
   "loginPage": {
     "checking": "확인 중...",

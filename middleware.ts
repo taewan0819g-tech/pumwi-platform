@@ -82,7 +82,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  // 정적 파일(이미지, 파비콘 등)은 미들웨어를 거치지 않도록 제외
+  matcher: ['/((?!api|_next|.*\\..*).*)'],
 }
