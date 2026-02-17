@@ -55,6 +55,10 @@ interface UserPosition {
 interface NearbyArtistsProps {
   /** Logged-in user id; used as origin and excluded from the list */
   currentUserId?: string | null
+  /** 'sidebar' = desktop right sidebar, 'drawer' = mobile More menu drawer (touch-optimized) */
+  variant?: 'sidebar' | 'drawer'
+  /** Override origin for distance (e.g. from address search); when set, used instead of profile position */
+  searchOrigin?: { lat: number; lng: number } | null
 }
 
 interface DisplayArtist extends ArtistProfile {
@@ -63,8 +67,13 @@ interface DisplayArtist extends ArtistProfile {
   isNear: boolean
 }
 
-export default function NearbyArtists({ currentUserId = null }: NearbyArtistsProps) {
+export default function NearbyArtists({
+  currentUserId = null,
+  variant = 'sidebar',
+  searchOrigin = null,
+}: NearbyArtistsProps) {
   const t = useTranslations('nearbyArtists')
+  const isDrawer = variant === 'drawer'
   const [status, setStatus] = useState<LocationStatus>('loading')
   const [userPosition, setUserPosition] = useState<UserPosition | null>(null)
   const [artistsAll, setArtistsAll] = useState<ArtistProfile[]>([])
@@ -72,6 +81,7 @@ export default function NearbyArtists({ currentUserId = null }: NearbyArtistsPro
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const NEAR_KM = 30
+  const effectivePosition = searchOrigin ?? userPosition
 
   const artistsFiltered = useMemo(() => {
     if (!currentUserId) return artistsAll
@@ -80,7 +90,7 @@ export default function NearbyArtists({ currentUserId = null }: NearbyArtistsPro
 
   const sortedDisplayArtists = useMemo((): DisplayArtist[] => {
     if (artistsFiltered.length === 0) return []
-    const pos = userPosition
+    const pos = effectivePosition
     const withMeta: DisplayArtist[] = artistsFiltered.map((a) => {
       const locationLabel = [a.city, a.country].filter(Boolean).join(', ') || '—'
       let distanceKm: number | null = null
@@ -100,9 +110,9 @@ export default function NearbyArtists({ currentUserId = null }: NearbyArtistsPro
       if (b.distanceKm == null) return -1
       return a.distanceKm - b.distanceKm
     })
-  }, [artistsFiltered, userPosition])
+  }, [artistsFiltered, effectivePosition])
 
-  const isFallbackList = userPosition === null && sortedDisplayArtists.length > 0
+  const isFallbackList = effectivePosition === null && sortedDisplayArtists.length > 0
   const displayList = sortedDisplayArtists.slice(0, INITIAL_DISPLAY)
   const hasMore = sortedDisplayArtists.length > INITIAL_DISPLAY
 
@@ -171,20 +181,27 @@ export default function NearbyArtists({ currentUserId = null }: NearbyArtistsPro
       artist.distanceKm != null
         ? `📍 ${formatDistanceKm(artist.distanceKm)}`
         : `📍 ${t('noLocation')}`
+    const avatarSize = isDrawer ? 'h-11 w-11' : 'h-10 w-10'
+    const rowPadding = isDrawer ? 'min-h-[48px] py-3 px-2 gap-3' : spacious ? 'gap-4 p-3' : 'p-2'
+    const nameClass = isDrawer ? 'text-[15px] font-medium' : 'text-sm font-medium'
+    const metaClass = isDrawer ? 'text-xs' : 'text-xs'
     return (
       <li
         key={artist.id}
-        className={`flex items-center gap-3 rounded-lg transition-colors hover:bg-gray-50 ${spacious ? 'gap-4 p-3' : 'p-2'} ${artist.isNear ? 'border-l-2 border-[#8E86F5] bg-[#F4F3FF]/30' : ''}`}
+        className={`flex items-center rounded-lg transition-colors hover:bg-gray-50 ${rowPadding} ${artist.isNear ? 'border-l-2 border-[#8E86F5] bg-[#F4F3FF]/30' : ''}`}
       >
-        <Link href={`/profile/${artist.id}`} className="flex min-w-0 flex-1 items-center gap-3 no-underline">
-          <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded-full bg-[#F4F3FF]">
+        <Link
+          href={`/profile/${artist.id}`}
+          className="flex min-w-0 flex-1 items-center gap-3 no-underline touch-manipulation"
+        >
+          <div className={`relative flex-shrink-0 overflow-hidden rounded-full bg-[#F4F3FF] ${avatarSize}`}>
             {artist.avatar_url ? (
               <Image
                 src={artist.avatar_url}
                 alt=""
                 fill
                 className="object-cover"
-                sizes="40px"
+                sizes={isDrawer ? '44px' : '40px'}
               />
             ) : (
               <span
@@ -196,8 +213,8 @@ export default function NearbyArtists({ currentUserId = null }: NearbyArtistsPro
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-gray-900">{name}</p>
-            <p className="truncate text-xs text-gray-500">{artist.locationLabel}</p>
+            <p className={`truncate text-gray-900 ${nameClass}`}>{name}</p>
+            <p className={`truncate text-gray-500 ${metaClass}`}>{artist.locationLabel}</p>
           </div>
         </Link>
         <span className="flex flex-shrink-0 items-center gap-1 text-xs font-medium whitespace-nowrap">
@@ -215,35 +232,57 @@ export default function NearbyArtists({ currentUserId = null }: NearbyArtistsPro
   }
 
   const SkeletonRow = () => (
-    <div className="flex items-center gap-3 rounded-lg p-2">
-      <div className="h-10 w-10 flex-shrink-0 rounded-full bg-gray-200 animate-pulse" />
+    <div
+      className={
+        isDrawer
+          ? 'flex items-center gap-3 rounded-lg py-3 px-2 min-h-[48px]'
+          : 'flex items-center gap-3 rounded-lg p-2'
+      }
+    >
+      <div
+        className={`flex-shrink-0 rounded-full bg-gray-200 animate-pulse ${isDrawer ? 'h-11 w-11' : 'h-10 w-10'}`}
+      />
       <div className="min-w-0 flex-1 space-y-1">
         <div className="h-3.5 w-20 rounded bg-gray-200 animate-pulse" />
         <div className="h-3 w-16 rounded bg-gray-100 animate-pulse" />
       </div>
-      <div className="h-3 w-14 rounded bg-gray-100 animate-pulse" />
+      <div className="h-3 w-14 rounded bg-gray-100 animate-pulse flex-shrink-0" />
     </div>
   )
 
   return (
     <>
-      <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-        <div className="mb-3 flex items-center gap-2">
-          <h3 className="flex items-center gap-2 text-sm font-bold text-gray-900">
+      <div
+        className={
+          isDrawer
+            ? 'rounded-lg border border-gray-200 bg-white p-3 shadow-sm'
+            : 'rounded-xl border border-gray-200 bg-white p-4 shadow-sm'
+        }
+      >
+        <div className={isDrawer ? 'mb-2 flex items-center gap-2' : 'mb-3 flex items-center gap-2'}>
+          <h3
+            className={
+              isDrawer
+                ? 'flex items-center gap-2 text-[13px] font-bold text-gray-900'
+                : 'flex items-center gap-2 text-sm font-bold text-gray-900'
+            }
+          >
             <MapPin className="h-4 w-4 shrink-0 text-[#8E86F5]" aria-hidden />
             <span>{t('title')}</span>
-            <span className="hidden text-gray-400 font-normal sm:inline">({t('titleEn')})</span>
+            {!isDrawer && (
+              <span className="hidden text-gray-400 font-normal sm:inline">({t('titleEn')})</span>
+            )}
           </h3>
         </div>
 
-        {status === 'loading' && (
+        {status === 'loading' && !searchOrigin && (
           <div className="flex items-center justify-center py-8 text-gray-500">
             <Loader2 className="h-6 w-6 animate-spin text-[#8E86F5]" />
             <span className="ml-2 text-sm">{t('loading')}</span>
           </div>
         )}
 
-        {status === 'no_address' && (
+        {status === 'no_address' && !searchOrigin && (
           <div className="flex flex-col items-center justify-center py-4 px-2 text-center">
             <AlertCircle className="h-8 w-8 text-amber-500 mb-2" />
             <p className="text-sm text-gray-600">{t('setAddressPrompt')}</p>
@@ -256,38 +295,47 @@ export default function NearbyArtists({ currentUserId = null }: NearbyArtistsPro
           </div>
         )}
 
-        {status === 'error' && (
+        {status === 'error' && !searchOrigin && (
           <div className="flex flex-col items-center justify-center py-6 px-2 text-center">
             <AlertCircle className="h-8 w-8 text-gray-400 mb-2" />
             <p className="text-sm text-gray-600">{t('error')}</p>
           </div>
         )}
 
-        {(status === 'success' || status === 'idle' || status === 'no_address') && artistsLoading && (
-          <ul className="space-y-3">
+        {(effectivePosition != null || status === 'success' || status === 'idle' || status === 'no_address') &&
+          artistsLoading && (
+          <ul className={isDrawer ? 'space-y-2' : 'space-y-3'}>
             {[1, 2, 3, 4, 5].map((i) => (
               <SkeletonRow key={i} />
             ))}
           </ul>
         )}
 
-        {(status === 'success' || status === 'idle' || status === 'no_address') && !artistsLoading && artistsFiltered.length === 0 && (
+        {(effectivePosition != null || status === 'success' || status === 'idle' || status === 'no_address') &&
+          !artistsLoading &&
+          artistsFiltered.length === 0 && (
           <p className="py-6 text-center text-sm text-gray-500">{t('noArtists')}</p>
         )}
 
-        {(status === 'success' || status === 'idle' || status === 'no_address') && !artistsLoading && sortedDisplayArtists.length > 0 && (
+        {(effectivePosition != null || status === 'success' || status === 'idle' || status === 'no_address') &&
+          !artistsLoading &&
+          sortedDisplayArtists.length > 0 && (
           <>
             {isFallbackList && (
               <p className="mb-2 text-xs text-gray-500">{t('allArtistsFallback')}</p>
             )}
-            <ul className="space-y-3">
+            <ul className={isDrawer ? 'space-y-2' : 'space-y-3'}>
               {displayList.map((artist) => renderArtistRow(artist))}
             </ul>
             {hasMore && (
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="mt-3 w-full rounded-md py-2 text-center text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                className={
+                  isDrawer
+                    ? 'mt-2 w-full rounded-md py-3 text-center text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 touch-manipulation min-h-[44px]'
+                    : 'mt-3 w-full rounded-md py-2 text-center text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                }
               >
                 {t('seeMore')}
               </button>

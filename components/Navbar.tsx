@@ -34,7 +34,9 @@ import type { Profile } from '@/types/profile'
 import { createClient } from '@/lib/supabase/client'
 import ProfileCard from '@/components/ProfileCard'
 import ExhibitionWidget from '@/components/ExhibitionWidget'
+import NearbyArtists from '@/components/right-sidebar/NearbyArtists'
 import ArtistList from '@/components/ArtistList'
+import LocationPlacesAutocomplete from '@/components/profile/LocationPlacesAutocomplete'
 import { isExhibitionAdminEmail } from '@/lib/exhibition-admin'
 import BottomNav from '@/components/layout/BottomNav'
 
@@ -67,9 +69,12 @@ export default function Navbar({ user }: NavbarProps) {
   const [isRightDrawerOpen, setIsRightDrawerOpen] = useState(false)
   const [mobileProfile, setMobileProfile] = useState<Profile | null>(null)
   const [mobileApplicationStatus, setMobileApplicationStatus] = useState<'pending' | 'approved' | 'rejected' | null>(null)
+  const [drawerSearchOrigin, setDrawerSearchOrigin] = useState<{ lat: number; lng: number } | null>(null)
+  const [addressSearchKey, setAddressSearchKey] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const langDropdownRef = useRef<HTMLDivElement>(null)
   const isMessagesActive = pathname === '/messages'
+  const tNearby = useTranslations('nearbyArtists')
 
   useEffect(() => {
     if (!user?.id) {
@@ -425,7 +430,7 @@ export default function Navbar({ user }: NavbarProps) {
             onClick={() => setIsRightDrawerOpen(false)}
           />
           <div
-            className="fixed inset-y-0 right-0 z-[70] w-[320px] max-w-[90vw] bg-white shadow-xl overflow-y-auto xl:hidden flex flex-col"
+            className="fixed inset-y-0 right-0 z-[70] w-[320px] max-w-[90vw] h-full max-h-[100dvh] bg-white shadow-xl xl:hidden flex flex-col overflow-hidden"
             role="dialog"
             aria-label="Recommendations"
           >
@@ -440,7 +445,8 @@ export default function Navbar({ user }: NavbarProps) {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-4 space-y-6 overflow-y-auto flex-1">
+            {/* Single scroll container: Exhibitions, Search, Near Me, Recommended — smooth scroll, keyboard-safe */}
+            <div className="p-4 space-y-6 flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-behavior-y-contain scroll-smooth touch-pan-y">
               {user && isExhibitionAdminEmail(user.email) && (
                 <Link
                   href="/?create=pumwi_exhibition"
@@ -453,6 +459,35 @@ export default function Navbar({ user }: NavbarProps) {
                 </Link>
               )}
               <ExhibitionWidget />
+              {/* Address search: above "Artists Near Me", locale-aware placeholder & API language */}
+              <section className="flex-shrink-0 space-y-2" aria-label="Address search">
+                <LocationPlacesAutocomplete
+                  key={addressSearchKey}
+                  value=""
+                  onChange={(result) => setDrawerSearchOrigin({ lat: result.lat, lng: result.lng })}
+                  placeholder={tNearby('searchPlaceholder')}
+                  language={locale === 'ja' ? 'ja' : locale === 'ko' ? 'ko' : 'en'}
+                  className="w-full"
+                  inputClassName="w-full rounded-lg border border-gray-200 py-3 px-3 text-[15px] touch-manipulation min-h-[48px] focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent"
+                />
+                {drawerSearchOrigin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDrawerSearchOrigin(null)
+                      setAddressSearchKey((k) => k + 1)
+                    }}
+                    className="w-full rounded-lg py-2.5 text-center text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 touch-manipulation min-h-[44px]"
+                  >
+                    {tNearby('searchClear')}
+                  </button>
+                )}
+              </section>
+              <NearbyArtists
+                currentUserId={user?.id ?? null}
+                variant="drawer"
+                searchOrigin={drawerSearchOrigin}
+              />
               <ArtistList />
             </div>
           </div>

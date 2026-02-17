@@ -263,6 +263,8 @@
   "nearbyArtists": {
     "title": "Artists Near Me",
     "titleEn": "Artists Near Me",
+    "searchPlaceholder": "Enter address or city name",
+    "searchClear": "Clear search",
     "seeMore": "See More",
     "showLess": "Show Less",
     "loading": "Getting location...",

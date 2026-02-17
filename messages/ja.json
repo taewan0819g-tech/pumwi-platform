@@ -263,6 +263,8 @@
   "nearbyArtists": {
     "title": "近くの作家",
     "titleEn": "Artists Near Me",
+    "searchPlaceholder": "住所または地域名を入力してください",
+    "searchClear": "検索をクリア",
     "seeMore": "もっと見る",
     "showLess": "閉じる",
     "loading": "位置情報を取得中...",

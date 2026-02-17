@@ -19,6 +19,8 @@ interface LocationPlacesAutocompleteProps {
   label?: string
   className?: string
   inputClassName?: string
+  /** Google Maps API language (e.g. 'ko', 'en', 'ja') for autocomplete results */
+  language?: string
 }
 
 export default function LocationPlacesAutocomplete({
@@ -28,6 +30,7 @@ export default function LocationPlacesAutocomplete({
   label,
   className = '',
   inputClassName = '',
+  language,
 }: LocationPlacesAutocompleteProps) {
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -38,6 +41,7 @@ export default function LocationPlacesAutocomplete({
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
     libraries: LIBRARIES,
+    language: language ?? 'en',
   })
 
   const onPlaceSelect = useCallback(() => {

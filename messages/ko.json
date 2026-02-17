@@ -263,6 +263,8 @@
   "nearbyArtists": {
     "title": "내 주변 작가",
     "titleEn": "Artists Near Me",
+    "searchPlaceholder": "주소 또는 지역명을 입력하세요",
+    "searchClear": "검색 초기화",
     "seeMore": "더 보기",
     "showLess": "접기",
     "loading": "위치 확인 중...",
