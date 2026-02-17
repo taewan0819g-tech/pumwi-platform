@@ -38,7 +38,7 @@ export default function FoundersLetterModal({
   onClose,
   onNeverShowAgain,
 }: FoundersLetterModalProps) {
-  const t = useTranslations('founders_letter')
+  const t = useTranslations('welcome_popup')
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -88,24 +88,34 @@ export default function FoundersLetterModal({
           </button>
         </div>
 
-        {/* Header */}
-        <h2 className="text-xl font-bold text-slate-900 px-6 pt-4 pb-2">
+        {/* Header: PUMWI team identity */}
+        <h2 className="text-xl font-bold text-slate-900 px-6 pt-4 pb-1">
           {t('title')}
         </h2>
+        <p className="px-6 text-sm text-slate-600 font-medium">
+          {t('subtitle')}
+        </p>
 
-        {/* Body */}
-        <div className="px-6 py-4 overflow-y-auto flex-1 text-slate-700 text-[15px] leading-relaxed">
+        {/* Body: line breaks and bold preserved */}
+        <div className="px-6 py-4 overflow-y-auto flex-1 text-slate-700 text-[15px] leading-relaxed whitespace-pre-wrap">
           {renderLetterContent(t('content'))}
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-100 flex justify-end">
+        {/* Footer: Close + Don't show again */}
+        <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between gap-4">
           <button
             type="button"
             onClick={handleNeverShow}
             className="text-sm font-medium text-gray-500 hover:text-gray-700 underline"
           >
-            {t('never_show')}
+            {t('close_today')}
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg bg-slate-800 text-white text-sm font-medium hover:bg-slate-700 transition-colors"
+          >
+            {t('close')}
           </button>
         </div>
       </div>

@@ -209,6 +209,13 @@
     "never_show": "Don't show again",
     "close": "Close"
   },
+  "welcome_popup": {
+    "title": "A Letter from PUMWI Team",
+    "subtitle": "Connecting your sincerity to the world",
+    "content": "Welcome, artist! We are the PUMWI team. As you build your space with care, nearby collectors will discover your true value. Please remember these two steps:\n\n1. **Sincere Profile**: Build trust by sharing your unique philosophy in your profile.\n2. **Exhibit Works & Logs**: Share **at least 3** representative works along with your work journals.\n\nOnce ready, local consumers can find you and **reach out via chat**. PUMWI sincerely supports your creative journey.",
+    "close_today": "Don't show again",
+    "close": "Close"
+  },
   "footer": {
     "pumwiNews": "PUMWI News",
     "latestNews": "Latest News",
