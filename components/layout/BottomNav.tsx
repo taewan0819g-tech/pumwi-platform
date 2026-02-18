@@ -13,6 +13,8 @@ interface BottomNavProps {
   onOpenRightDrawer: () => void
 }
 
+const NEARBY_FALLBACK: Record<string, string> = { ko: '내 주변', en: 'Nearby', ja: '近く' }
+
 export default function BottomNav({ user, unreadMessageCount, onOpenRightDrawer }: BottomNavProps) {
   const t = useTranslations('nav')
   const locale = useLocale()
@@ -24,6 +26,16 @@ export default function BottomNav({ user, unreadMessageCount, onOpenRightDrawer 
   const isHomeActive = pathname === '/'
   const isNearbyActive = pathname === '/nearby'
   const isProfileActive = pathname === '/profile'
+
+  const nearbyLabel = (() => {
+    try {
+      const value = t('nearby')
+      if (value && typeof value === 'string') return value
+    } catch {
+      // fallback if key missing (e.g. locale message load failure)
+    }
+    return NEARBY_FALLBACK[locale] ?? 'Nearby'
+  })()
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -68,7 +80,7 @@ export default function BottomNav({ user, unreadMessageCount, onOpenRightDrawer 
           }`}
         >
           <MapPin className="h-6 w-6 flex-shrink-0" />
-          <span className="text-[10px] mt-1 truncate w-full text-center">{t('nearby')}</span>
+          <span className="text-[10px] mt-1 truncate w-full text-center">{nearbyLabel}</span>
         </Link>
         <Link
           href="/messages"
