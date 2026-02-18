@@ -21,24 +21,7 @@ interface LocationPlacesAutocompleteProps {
   language?: string
 }
 
-declare global {
-  interface Window {
-    google?: typeof google
-  }
-}
-
-type Place = {
-  fetchFields: (opts: { fields: string[] }) => Promise<void>
-  location?: { lat: () => number; lng: () => number } | { lat: number; lng: number }
-  formattedAddress?: string
-  displayName?: string
-  addressComponents?: Array<{ longText?: string; shortText?: string; types: string[] }>
-}
-
-type PlacePrediction = { toPlace: () => Promise<Place> }
-
-type GmpSelectDetail = { place?: Place; placePrediction?: PlacePrediction }
-type GmpSelectEvent = CustomEvent<GmpSelectDetail> & { placePrediction?: PlacePrediction; place?: Place }
+const DEBOUNCE_MS = 300
 
 export default function LocationPlacesAutocomplete({
   value,
@@ -47,122 +30,181 @@ export default function LocationPlacesAutocomplete({
   label,
   className = '',
   inputClassName = '',
-  language,
+  language = 'en',
 }: LocationPlacesAutocompleteProps) {
+  const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const elementRef = useRef<HTMLElement | null>(null)
-  const handlerRef = useRef<((e: Event) => void) | null>(null)
-  const onChangeRef = useRef(onChange)
-  onChangeRef.current = onChange
+  const mapDivRef = useRef<HTMLDivElement>(null)
+  const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null)
+  const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null)
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const [inputValue, setInputValue] = useState(value)
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  const [ready, setReady] = useState(false)
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''
   const { isLoaded, loadError: loaderError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
     preventGoogleFontsLoading: true,
+    libraries: ['places'],
   })
 
-  const deliverResult = useCallback((result: LocationPlaceResult) => {
-    onChangeRef.current(result)
-  }, [])
-
+  // Sync controlled value into local state when parent updates (e.g. after submit clear)
   useEffect(() => {
-    if (!isLoaded || loaderError || !window.google?.maps) return
-    let cancelled = false
-    ;(async () => {
-      try {
-        const lib = await window.google!.maps.importLibrary('places')
-        const PlaceAutocompleteElement = (lib as { PlaceAutocompleteElement?: new (opts?: Record<string, unknown>) => HTMLElement }).PlaceAutocompleteElement
-        if (cancelled) return
-        if (typeof PlaceAutocompleteElement !== 'function') {
-          setLoadError('PlaceAutocompleteElement not available')
-          return
-        }
-        setReady(true)
-      } catch (e) {
-        if (!cancelled) setLoadError(e instanceof Error ? e.message : 'Places library failed to load')
+    setInputValue(value)
+  }, [value])
+
+  // Init services when script is loaded
+  useEffect(() => {
+    if (!isLoaded || loaderError || !window.google?.maps?.places) return
+    try {
+      autocompleteServiceRef.current = new window.google.maps.places.AutocompleteService()
+      if (mapDivRef.current) {
+        placesServiceRef.current = new window.google.maps.places.PlacesService(mapDivRef.current)
       }
-    })()
-    return () => { cancelled = true }
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Places service init failed')
+    }
   }, [isLoaded, loaderError])
 
+  // PlacesService needs a div attached to DOM; ensure we have it when ready
   useEffect(() => {
-    if (!ready || !containerRef.current || !window.google?.maps) return
-    const container = containerRef.current
-    let cancelled = false
-    ;(async () => {
-      try {
-        const lib = await window.google.maps.importLibrary('places')
-        const PlaceAutocompleteElement = (lib as { PlaceAutocompleteElement?: new (opts?: Record<string, unknown>) => HTMLElement }).PlaceAutocompleteElement
-        if (cancelled || !PlaceAutocompleteElement || !containerRef.current) return
-        const el = new PlaceAutocompleteElement({
-          placeholder: placeholder ?? 'Search address...',
-          requestedLanguage: language ?? 'en',
-        }) as HTMLElement
-        elementRef.current = el
-        el.setAttribute('placeholder', placeholder ?? 'Search address...')
-        container.innerHTML = ''
-        container.appendChild(el)
-
-        const handler: (e: Event) => void = async (e: Event) => {
-          const ev = e as GmpSelectEvent
-          const placePrediction = ev.placePrediction ?? (ev as { detail?: { placePrediction?: PlacePrediction } }).detail?.placePrediction
-          const placeObj = (ev as { place?: Place }).place
-          if (!placePrediction && !placeObj) return
-          try {
-            const place: Place = placeObj ?? await placePrediction!.toPlace()
-            await place.fetchFields({
-              fields: ['location', 'formattedAddress', 'displayName', 'addressComponents'],
-            })
-            const loc = place.location
-            if (!loc) return
-            const lat = typeof (loc as { lat: number }).lat === 'number' ? (loc as { lat: number }).lat : (loc as { lat: () => number }).lat()
-            const lng = typeof (loc as { lng: number }).lng === 'number' ? (loc as { lng: number }).lng : (loc as { lng: () => number }).lng()
-            const components = place.addressComponents ?? []
-            let country = ''
-            let city = (place.formattedAddress ?? place.displayName ?? '') as string
-            for (const c of components) {
-              if (c.types?.includes('country')) {
-                country = (c.shortText ?? c.longText ?? '') as string
-                break
-              }
-            }
-            const locality = components.find((c) => c.types?.includes('locality'))
-            const admin1 = components.find((c) => c.types?.includes('administrative_area_level_1'))
-            const localityStr = (locality?.longText ?? locality?.shortText) as string | undefined
-            const admin1Str = (admin1?.longText ?? admin1?.shortText) as string | undefined
-            if (localityStr) city = [localityStr, admin1Str].filter(Boolean).join(', ')
-            else if (!city) city = (place.displayName as string) ?? ''
-            deliverResult({ city: city.trim(), country, lat, lng })
-          } catch (_) {}
-        }
-        handlerRef.current = handler
-        el.addEventListener('gmp-select', handler)
-      } catch (_) {}
-    })()
-    return () => {
-      cancelled = true
-      const el = elementRef.current
-      const handler = handlerRef.current
-      if (el && container.contains(el) && handler) {
-        el.removeEventListener('gmp-select', handler)
-        container.removeChild(el)
-      }
-      elementRef.current = null
-      handlerRef.current = null
+    if (!isLoaded || loaderError || !window.google?.maps?.places || !mapDivRef.current) return
+    if (!placesServiceRef.current) {
+      placesServiceRef.current = new window.google.maps.places.PlacesService(mapDivRef.current)
     }
-  }, [ready, placeholder, language, deliverResult])
+  }, [isLoaded, loaderError])
+
+  const fetchPredictions = useCallback(
+    (input: string) => {
+      if (!autocompleteServiceRef.current || !input.trim()) {
+        setPredictions([])
+        setDropdownOpen(false)
+        return
+      }
+      setLoading(true)
+      const request: google.maps.places.AutocompletionRequest = {
+        input: input.trim(),
+        language: language || 'en',
+      }
+      autocompleteServiceRef.current.getPlacePredictions(request, (results, status) => {
+        setLoading(false)
+        if (status !== window.google.maps.places.PlacesServiceStatus.OK || !results) {
+          setPredictions([])
+          return
+        }
+        setPredictions(results)
+        setDropdownOpen(true)
+      })
+    },
+    [language]
+  )
+
+  const debouncedFetch = useCallback(
+    (input: string) => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+      debounceTimerRef.current = setTimeout(() => {
+        debounceTimerRef.current = null
+        fetchPredictions(input)
+      }, DEBOUNCE_MS)
+    },
+    [fetchPredictions]
+  )
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const v = e.target.value
+      setInputValue(v)
+      if (!v.trim()) {
+        setPredictions([])
+        setDropdownOpen(false)
+        return
+      }
+      debouncedFetch(v)
+    },
+    [debouncedFetch]
+  )
+
+  const handleSelectPrediction = useCallback(
+    (prediction: google.maps.places.AutocompletePrediction) => {
+      const places = placesServiceRef.current
+      if (!places) {
+        setInputValue(prediction.description)
+        setDropdownOpen(false)
+        setPredictions([])
+        return
+      }
+      places.getDetails(
+        {
+          placeId: prediction.place_id,
+          fields: ['geometry', 'address_components', 'formatted_address'],
+        },
+        (place, status) => {
+          setDropdownOpen(false)
+          setPredictions([])
+          setInputValue(prediction.description)
+          if (status !== window.google.maps.places.PlacesServiceStatus.OK || !place) return
+          const loc = place.geometry?.location as
+            | { lat: number; lng: number }
+            | { lat: () => number; lng: () => number }
+          if (!loc) return
+          const lat: number =
+            typeof (loc as { lat: unknown }).lat === 'function'
+              ? (loc as { lat: () => number }).lat()
+              : (loc as { lat: number }).lat
+          const lng: number =
+            typeof (loc as { lng: unknown }).lng === 'function'
+              ? (loc as { lng: () => number }).lng()
+              : (loc as { lng: number }).lng
+          const components = place.address_components || []
+          let country = ''
+          let city = place.formatted_address || ''
+          for (const c of components) {
+            if (c.types.includes('country')) {
+              country = c.short_name || c.long_name || ''
+              break
+            }
+          }
+          const locality = components.find((c) => c.types.includes('locality'))
+          const admin1 = components.find((c) => c.types.includes('administrative_area_level_1'))
+          const localityStr = locality?.long_name || locality?.short_name
+          const admin1Str = admin1?.long_name || admin1?.short_name
+          if (localityStr) city = [localityStr, admin1Str].filter(Boolean).join(', ')
+          onChange({ city: city.trim(), country, lat, lng })
+        }
+      )
+    },
+    [onChange]
+  )
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const onMouseDown = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onMouseDown)
+    return () => document.removeEventListener('mousedown', onMouseDown)
+  }, [])
 
   const stopPropagation = useCallback((e: React.MouseEvent) => {
     e.stopPropagation()
-    e.preventDefault()
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current)
+    }
   }, [])
 
   if (!apiKey) {
     return (
       <div className={className}>
-        {label && <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>}
+        {label ? <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label> : null}
         <p className="text-sm text-amber-600">Set NEXT_PUBLIC_GOOGLE_MAPS_API_KEY for address search.</p>
       </div>
     )
@@ -171,7 +213,7 @@ export default function LocationPlacesAutocomplete({
   if (loaderError || loadError) {
     return (
       <div className={className}>
-        {label && <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>}
+        {label ? <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label> : null}
         <p className="text-sm text-amber-600">{loadError || 'Maps failed to load. Check API key.'}</p>
       </div>
     )
@@ -180,10 +222,10 @@ export default function LocationPlacesAutocomplete({
   if (!isLoaded) {
     return (
       <div className={className}>
-        {label && <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>}
+        {label ? <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label> : null}
         <input
           type="text"
-          defaultValue={value}
+          value={inputValue}
           placeholder={placeholder}
           disabled
           className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 bg-gray-100 ${inputClassName}`}
@@ -193,66 +235,55 @@ export default function LocationPlacesAutocomplete({
     )
   }
 
-  if (!ready) {
-    return (
-      <div className={className}>
-        {label && <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>}
-        <input
-          type="text"
-          defaultValue={value}
-          placeholder={placeholder}
-          disabled
-          className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 bg-gray-100 ${inputClassName}`}
-        />
-        <p className="mt-1 text-xs text-gray-500">Loading Places...</p>
-      </div>
-    )
-  }
-
   return (
     <div
+      ref={containerRef}
       className={className}
       onMouseDown={stopPropagation}
       onClick={stopPropagation}
-      role="presentation"
-      style={{ position: 'relative', zIndex: 1, pointerEvents: 'auto' }}
+      style={{ position: 'relative' }}
     >
-      {label && <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>}
-      <div
-        ref={containerRef}
+      {/* Hidden div required by PlacesService */}
+      <div ref={mapDivRef} style={{ position: 'absolute', left: -9999, width: 1, height: 1 }} aria-hidden="true" />
+      {label ? <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label> : null}
+      <input
+        ref={inputRef}
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={() => predictions.length > 0 && setDropdownOpen(true)}
+        placeholder={placeholder}
+        autoComplete="off"
         className={inputClassName}
-        style={{
-          position: 'relative',
-          zIndex: 1,
-          pointerEvents: 'auto',
-          minHeight: 42,
-        }}
+        aria-autocomplete="list"
+        aria-expanded={dropdownOpen}
+        aria-haspopup="listbox"
+        role="combobox"
       />
-      <style jsx>{`
-        div :global(gmp-place-autocomplete),
-        div :global(.gmp-place-autocomplete) {
-          display: block !important;
-          width: 100% !important;
-          min-height: 42px;
-          pointer-events: auto !important;
-          z-index: 1;
-        }
-        div :global(gmp-place-autocomplete)::part(input) {
-          width: 100%;
-          padding: 0.5rem 0.75rem;
-          border: 1px solid #d1d5db;
-          border-radius: 0.5rem;
-          font-size: 0.875rem;
-          color: #0f172a;
-          background: white;
-          pointer-events: auto;
-        }
-        div :global(gmp-place-autocomplete)::part(input):focus {
-          outline: none;
-          box-shadow: 0 0 0 2px #8E86F5;
-          border-color: #8E86F5;
-        }
-      `}</style>
+      {loading && !dropdownOpen && (
+        <p className="mt-1 text-xs text-gray-500">Searching...</p>
+      )}
+      {dropdownOpen && predictions.length > 0 && (
+        <ul
+          className="absolute left-0 right-0 top-full mt-0 z-[100] max-h-60 overflow-auto rounded-b-xl border border-t-0 border-gray-300 bg-white shadow-lg list-none p-0 m-0"
+          role="listbox"
+          style={{ minWidth: '100%' }}
+        >
+          {predictions.map((p) => (
+            <li
+              key={p.place_id}
+              role="option"
+              className="px-4 py-3 text-sm text-slate-900 cursor-pointer hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
+              onMouseDown={(e) => {
+                e.preventDefault()
+                handleSelectPrediction(p)
+              }}
+            >
+              {p.description}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
