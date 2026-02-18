@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Link, usePathname } from '@/i18n/navigation'
-import { Home, Users, MessageSquare, LayoutGrid, UserCircle, LogOut } from 'lucide-react'
+import { Home, MapPin, MessageSquare, LayoutGrid, UserCircle, LogOut } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface BottomNavProps {
@@ -22,7 +22,7 @@ export default function BottomNav({ user, unreadMessageCount, onOpenRightDrawer 
   const meMenuRef = useRef<HTMLDivElement>(null)
   const isMessagesActive = pathname === '/messages'
   const isHomeActive = pathname === '/'
-  const isNeighborsActive = pathname === '/neighbors'
+  const isNearbyActive = pathname === '/nearby'
   const isProfileActive = pathname === '/profile'
 
   useEffect(() => {
@@ -62,13 +62,13 @@ export default function BottomNav({ user, unreadMessageCount, onOpenRightDrawer 
           <span className="text-[10px] mt-1 truncate w-full text-center">{t('home')}</span>
         </Link>
         <Link
-          href="/neighbors"
+          href="/nearby"
           className={`flex flex-col items-center justify-center py-3 px-2 rounded transition-colors ${
-            isNeighborsActive ? 'text-[#2F5D50]' : 'text-gray-600 hover:text-[#2F5D50]'
+            isNearbyActive ? 'text-[#2F5D50]' : 'text-gray-600 hover:text-[#2F5D50]'
           }`}
         >
-          <Users className="h-6 w-6 flex-shrink-0" />
-          <span className="text-[10px] mt-1 truncate w-full text-center">{t('following')}</span>
+          <MapPin className="h-6 w-6 flex-shrink-0" />
+          <span className="text-[10px] mt-1 truncate w-full text-center">{t('nearby')}</span>
         </Link>
         <Link
           href="/messages"

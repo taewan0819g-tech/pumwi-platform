@@ -7,6 +7,7 @@
     "exhibition": "전시",
     "craftDiary": "작업일지",
     "following": "팔로잉",
+    "nearby": "내 주변",
     "messages": "메시지",
     "me": "마이",
     "viewProfile": "프로필 보기",
@@ -15,6 +16,13 @@
     "join": "가입",
     "search": "검색",
     "searchPlaceholder": "검색..."
+  },
+  "more": {
+    "exhibitions": "전시",
+    "recommended": "추천 아티스트",
+    "following": "팔로잉",
+    "view_all": "더보기",
+    "following_empty": "아직 팔로잉한 작가가 없어요."
   },
   "sidebar": {
     "title": "작가 운영 시스템",

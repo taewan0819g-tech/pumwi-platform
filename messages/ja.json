@@ -7,6 +7,7 @@
     "exhibition": "展示",
     "craftDiary": "制作日誌",
     "following": "フォロー中",
+    "nearby": "近く",
     "messages": "メッセージ",
     "me": "マイページ",
     "viewProfile": "プロフィール表示",
@@ -15,6 +16,13 @@
     "join": "新規登録",
     "search": "検索",
     "searchPlaceholder": "検索..."
+  },
+  "more": {
+    "exhibitions": "展示",
+    "recommended": "おすすめアーティスト",
+    "following": "フォロー中",
+    "view_all": "すべて見る",
+    "following_empty": "フォロー中の作家はいません。"
   },
   "sidebar": {
     "title": "作家運営システム",

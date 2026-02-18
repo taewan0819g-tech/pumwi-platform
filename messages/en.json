@@ -7,6 +7,7 @@
     "exhibition": "Exhibition",
     "craftDiary": "Craft Diary",
     "following": "Following",
+    "nearby": "Nearby",
     "messages": "Messages",
     "me": "Me",
     "viewProfile": "View profile",
@@ -15,6 +16,13 @@
     "join": "Join",
     "search": "Search",
     "searchPlaceholder": "Search..."
+  },
+  "more": {
+    "exhibitions": "Exhibitions",
+    "recommended": "Recommended Artists",
+    "following": "Following",
+    "view_all": "View All",
+    "following_empty": "No one in your following list yet."
   },
   "sidebar": {
     "title": "Artist Operations",
