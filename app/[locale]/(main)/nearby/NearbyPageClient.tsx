@@ -14,12 +14,25 @@ const NEARBY_PAGE_FALLBACKS: Record<string, Record<string, string>> = {
 function useSafeNearbyArtistsTranslations() {
   const t = useTranslations('nearbyArtists')
   const locale = useLocale()
-  const fallback = NEARBY_PAGE_FALLBACKS[locale] ?? NEARBY_PAGE_FALLBACKS.en
-  return useMemo(() => ({
-    title: (() => { try { const v = t('title'); return (v && typeof v === 'string') ? v : fallback.title } catch { return fallback.title })(),
-    searchPlaceholder: (() => { try { const v = t('searchPlaceholder'); return (v && typeof v === 'string') ? v : fallback.searchPlaceholder } catch { return fallback.searchPlaceholder })(),
-    searchClear: (() => { try { const v = t('searchClear'); return (v && typeof v === 'string') ? v : fallback.searchClear } catch { return fallback.searchClear })(),
-  }), [t, locale, fallback.title, fallback.searchPlaceholder, fallback.searchClear])
+
+  const safeT = (key: string, fallbackText: string): string => {
+    try {
+      const text = t(key)
+      if (!text || typeof text !== 'string' || text === key) return fallbackText
+      return text
+    } catch {
+      return fallbackText
+    }
+  }
+
+  return useMemo(() => {
+    const fallback = NEARBY_PAGE_FALLBACKS[locale] ?? NEARBY_PAGE_FALLBACKS.en
+    return {
+      title: safeT('title', fallback.title),
+      searchPlaceholder: safeT('searchPlaceholder', fallback.searchPlaceholder),
+      searchClear: safeT('searchClear', fallback.searchClear),
+    }
+  }, [t, locale])
 }
 
 interface NearbyPageClientProps {
