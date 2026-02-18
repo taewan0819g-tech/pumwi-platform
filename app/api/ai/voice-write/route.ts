@@ -47,15 +47,14 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData()
-    const audio = formData.get('audio')
+    const audio = formData.get('audio') as File | null
     const tabParam = formData.get('tab')
 
-    if (!audio || !(audio instanceof Blob)) {
-      return NextResponse.json(
-        { error: 'Missing or invalid audio file.' },
-        { status: 400 }
-      )
+    if (!audio) {
+      return NextResponse.json({ error: 'No audio provided' }, { status: 400 })
     }
+
+    const file = audio
 
     const tab: VoiceWriteTab =
       tabParam === 'product' || tabParam === 'exhibition'
@@ -63,11 +62,6 @@ export async function POST(request: NextRequest) {
         : 'journal'
 
     const openai = new OpenAI({ apiKey })
-
-    const file =
-      audio instanceof File
-        ? audio
-        : new File([audio], 'audio.webm', { type: audio.type || 'audio/webm' })
 
     const transcription = await openai.audio.transcriptions.create({
       file,
