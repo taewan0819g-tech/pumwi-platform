@@ -11,39 +11,36 @@ const NEARBY_PAGE_FALLBACKS: Record<string, Record<string, string>> = {
   ja: { title: '近くの作家', searchPlaceholder: '住所または地域名を入力してください', searchClear: '検索をクリア' },
 }
 
-function useSafeNearbyArtistsTranslations() {
+interface NearbyPageClientProps {
+  currentUserId: string | null
+}
+
+export default function NearbyPageClient({ currentUserId }: NearbyPageClientProps) {
   const t = useTranslations('nearbyArtists')
   const locale = useLocale()
+  const [searchOrigin, setSearchOrigin] = useState<{ lat: number; lng: number } | null>(null)
+  const [addressSearchKey, setAddressSearchKey] = useState(0)
 
-  const safeT = (key: string, fallbackText: string): string => {
+  const getSafeText = (key: string, fallbackText: string): string => {
     try {
       const text = t(key)
-      if (!text || typeof text !== 'string' || text === key) return fallbackText
+      if (!text || text === key || (typeof text === 'string' && text.includes('.'))) {
+        return fallbackText
+      }
       return text
     } catch {
       return fallbackText
     }
   }
 
-  return useMemo(() => {
+  const textData = useMemo(() => {
     const fallback = NEARBY_PAGE_FALLBACKS[locale] ?? NEARBY_PAGE_FALLBACKS.en
     return {
-      title: safeT('title', fallback.title),
-      searchPlaceholder: safeT('searchPlaceholder', fallback.searchPlaceholder),
-      searchClear: safeT('searchClear', fallback.searchClear),
+      title: getSafeText('title', fallback.title),
+      searchPlaceholder: getSafeText('searchPlaceholder', fallback.searchPlaceholder),
+      searchClear: getSafeText('searchClear', fallback.searchClear),
     }
   }, [t, locale])
-}
-
-interface NearbyPageClientProps {
-  currentUserId: string | null
-}
-
-export default function NearbyPageClient({ currentUserId }: NearbyPageClientProps) {
-  const safeT = useSafeNearbyArtistsTranslations()
-  const locale = useLocale()
-  const [searchOrigin, setSearchOrigin] = useState<{ lat: number; lng: number } | null>(null)
-  const [addressSearchKey, setAddressSearchKey] = useState(0)
 
   const mapLanguage = locale === 'ja' ? 'ja' : locale === 'ko' ? 'ko' : 'en'
 
@@ -51,15 +48,15 @@ export default function NearbyPageClient({ currentUserId }: NearbyPageClientProp
     <div className="min-h-screen bg-[#F3F2EF] pb-12">
       <div className="max-w-2xl mx-auto px-4 pt-6 space-y-6">
         <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-          <span>{safeT.title}</span>
+          <span>{textData.title}</span>
         </h1>
 
-        <section className="flex-shrink-0 space-y-2" aria-label={safeT.searchPlaceholder}>
+        <section className="flex-shrink-0 space-y-2" aria-label={textData.searchPlaceholder}>
           <LocationPlacesAutocomplete
             key={addressSearchKey}
             value=""
             onChange={(result) => setSearchOrigin({ lat: result.lat, lng: result.lng })}
-            placeholder={safeT.searchPlaceholder}
+            placeholder={textData.searchPlaceholder}
             language={mapLanguage}
             className="w-full"
             inputClassName="w-full rounded-lg border border-gray-200 py-3 px-3 text-[15px] min-h-[48px] focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent bg-white"
@@ -73,7 +70,7 @@ export default function NearbyPageClient({ currentUserId }: NearbyPageClientProp
               }}
               className="w-full rounded-lg py-2.5 text-center text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700 min-h-[44px]"
             >
-              {safeT.searchClear}
+              {textData.searchClear}
             </button>
           )}
         </section>
