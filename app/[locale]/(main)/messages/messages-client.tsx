@@ -47,6 +47,7 @@ export default function MessagesClient({ initialConversations, currentUserId, in
   const otherParticipant = selectedConversation?.otherParticipant
   const conversationIds = conversations.map((c) => c.id)
 
+  // 읽음 처리: conversation_id로만 필터 (receiver_id 미사용)
   const markAsRead = async (conversationId: string) => {
     const supabase = createClient()
     const { error } = await supabase
@@ -93,7 +94,7 @@ export default function MessagesClient({ initialConversations, currentUserId, in
     })
   }
 
-  // Load messages when conversation is selected
+  // Load messages: conversation_id로만 필터 (receiver_id 컬럼 미사용)
   useEffect(() => {
     if (!selectedId) {
       setMessages([])

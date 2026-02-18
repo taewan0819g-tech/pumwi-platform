@@ -22,7 +22,7 @@ export default async function MessagesPage({ searchParams }: PageProps) {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) redirect('/login')
-
+    // user.id = auth.uid() (구글 로그인 포함 동일 UUID). participant_ids에 이 값이 들어있는 대화만 조회
     const { data: convRows } = await supabase
       .from('conversations')
       .select('id, participant_ids, updated_at')
@@ -48,6 +48,7 @@ export default async function MessagesPage({ searchParams }: PageProps) {
     }
 
     const unreadByConv: Record<string, number> = {}
+    // 메시지: conversation_id로만 필터 (receiver_id 미사용)
     if (convIds.length > 0) {
       const { data: unreadRows } = await supabase
         .from('messages')

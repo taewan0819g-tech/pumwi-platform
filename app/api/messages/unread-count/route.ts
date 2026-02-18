@@ -21,10 +21,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ count: 0 })
     }
 
+    // 메시지는 conversation_id로만 필터 (receiver_id 컬럼 사용 안 함)
     const { count, error } = await supabase
       .from('messages')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .in('conversation_id', conversationIds)
+      .eq('is_read', false)
       .neq('sender_id', user.id)
 
     if (error) {
