@@ -48,15 +48,15 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = await request.formData()
-    const audio = formData.get('audio')
+    const audio = formData.get('audio') as File | null
     const tabParam = formData.get('tab')
 
-    if (!audio || !(audio instanceof Blob)) {
-      return NextResponse.json(
-        { error: 'Missing or invalid audio file.' },
-        { status: 400 }
-      )
+    if (!audio) {
+      return NextResponse.json({ error: 'No audio provided' }, { status: 400 })
     }
+
+    // OpenAI API에 전달하기 위해 File 객체 그대로 사용
+    const file = audio
 
     const tabRaw = typeof tabParam === 'string' ? tabParam.trim().toLowerCase() : 'log'
     const tab: 'journal' | 'product' | 'exhibition' =
@@ -65,7 +65,6 @@ export async function POST(request: NextRequest) {
     const openai = new OpenAI({ apiKey })
 
     // 1) Transcribe with Whisper
-    const file = audio instanceof File ? audio : new File([audio], 'audio.webm', { type: audio.type || 'audio/webm' })
     const transcription = await openai.audio.transcriptions.create({
       file,
       model: 'whisper-1',
