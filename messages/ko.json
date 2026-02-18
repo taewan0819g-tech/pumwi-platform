@@ -58,6 +58,7 @@
       "recording": "녹음 중...",
       "listening": "듣고 있어요...",
       "refiningText": "글 정리 중...",
+      "doneSpeaking": "다 말했어요",
       "processing": "처리 중..."
     }
   },

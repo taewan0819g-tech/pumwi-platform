@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useTranslations } from 'next-intl'
-import { Mic, Loader2 } from 'lucide-react'
+import { Mic, Loader2, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 
@@ -93,8 +93,8 @@ export default function VoiceWriteButton({
 
   const handleClick = () => {
     if (processing) return
-    if (isRecording) stopRecording()
-    else startRecording()
+    if (isRecording) return // 녹음 중에는 메인 버튼으로 중지하지 않음 → 모달의 '다 말했어요' 버튼으로만 종료
+    startRecording()
   }
 
   const label = t('writeByVoice')
@@ -149,6 +149,15 @@ export default function VoiceWriteButton({
                 <p className="text-center text-sm text-slate-500">
                   {t('recording')}
                 </p>
+                <button
+                  type="button"
+                  onClick={stopRecording}
+                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-[#8E86F5] bg-[#8E86F5] px-6 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-[#7B73E0] focus:outline-none focus:ring-2 focus:ring-[#8E86F5] focus:ring-offset-2"
+                  aria-label={t('doneSpeaking')}
+                >
+                  <Check className="h-5 w-5" aria-hidden />
+                  {t('doneSpeaking')}
+                </button>
               </>
             ) : (
               <>

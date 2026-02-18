@@ -58,6 +58,7 @@
       "recording": "録音中...",
       "listening": "聞いています...",
       "refiningText": "文章を整えています...",
+      "doneSpeaking": "話し終わりました",
       "processing": "処理中..."
     }
   },

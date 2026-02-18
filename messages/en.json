@@ -58,6 +58,7 @@
       "recording": "Recording...",
       "listening": "Listening...",
       "refiningText": "Refining text...",
+      "doneSpeaking": "I'm done",
       "processing": "Processing..."
     }
   },
