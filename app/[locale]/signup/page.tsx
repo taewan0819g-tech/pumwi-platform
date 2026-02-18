@@ -5,9 +5,10 @@ import Image from 'next/image'
 
 /** public/logo.png — 경로: 앞에 슬래시 포함, 파일명 소문자 logo.png */
 const LOGO_SRC = '/logo.png'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import toast from 'react-hot-toast'
 import { createClient } from '@/lib/supabase/client'
 import ValuePropositionSection from '@/components/auth/ValuePropositionSection'
 import { Dialog } from '@/components/ui/Dialog'
@@ -26,6 +27,8 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function SignupPage() {
   const router = useRouter()
+  const params = useParams()
+  const locale = (params?.locale as string) ?? 'en'
   const t = useTranslations('signup')
   const tAuth = useTranslations('auth')
   const [email, setEmail] = useState('')
@@ -33,6 +36,7 @@ export default function SignupPage() {
   const [termsAgreed, setTermsAgreed] = useState(false)
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [authChecked, setAuthChecked] = useState(false)
@@ -41,7 +45,31 @@ export default function SignupPage() {
 
   const handleGoogleSignIn = async () => {
     const supabase = createClient()
-    await supabase.auth.signInWithOAuth({ provider: 'google' })
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`,
+      },
+    })
+  }
+
+  const handleResendVerification = async () => {
+    if (!email || resendLoading) return
+    setResendLoading(true)
+    try {
+      const supabase = createClient()
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      })
+      if (resendError) {
+        toast.error(t('resend_error'))
+        return
+      }
+      toast.success(t('resend_success'))
+    } finally {
+      setResendLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -67,11 +95,16 @@ export default function SignupPage() {
 
     try {
       const supabase = createClient()
+      const redirectTo =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}/${locale}/welcome`
+          : undefined
       const { error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: { marketing_consent: marketingConsent },
+          emailRedirectTo: redirectTo,
         },
       })
 
@@ -81,14 +114,8 @@ export default function SignupPage() {
         return
       }
 
-      // 성공 시 환영 메시지 표시
       setSuccess(true)
       setLoading(false)
-
-      // 2초 후 로그인 페이지로 이동
-      setTimeout(() => {
-        router.push('/login')
-      }, 2000)
     } catch (err) {
       setError(t('registration_failed'))
       setLoading(false)
@@ -131,16 +158,37 @@ export default function SignupPage() {
             <p className="text-gray-600 mt-3">Where Art Meets Value</p>
           </div>
 
+          {success ? (
+            <div className="space-y-6 text-center">
+              <div className="rounded-full bg-green-100 text-green-600 w-16 h-16 flex items-center justify-center mx-auto">
+                <Check className="w-8 h-8" strokeWidth={2.5} />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">
+                {t('email_confirm_title')}
+              </h2>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                {t('email_confirm_body')}
+              </p>
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resendLoading}
+                className="w-full py-3 px-4 rounded-xl border-2 border-[#8E86F5] text-[#8E86F5] font-medium hover:bg-[#F4F3FF] transition-colors disabled:opacity-50"
+              >
+                {resendLoading ? t('joining') : t('resend_verification')}
+              </button>
+              <p className="text-sm text-gray-500 pt-2">
+                {t('already_have_account')}{' '}
+                <Link href={`/${locale}/login`} className="font-medium" style={{ color: '#8E86F5' }}>
+                  {t('sign_in')}
+                </Link>
+              </p>
+            </div>
+          ) : (
           <form onSubmit={handleSignup} className="space-y-6">
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
                 {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-                {t('welcome_redirect')}
               </div>
             )}
 
@@ -275,19 +323,22 @@ export default function SignupPage() {
               {tAuth('google_button')}
             </button>
           </form>
+          )}
 
+          {!success && (
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               {t('already_have_account')}{' '}
-              <a
-                href="/login"
+              <Link
+                href={`/${locale}/login`}
                 className="font-medium hover:opacity-80"
                 style={{ color: '#8E86F5' }}
               >
                 {t('sign_in')}
-              </a>
+              </Link>
             </p>
           </div>
+          )}
         </div>
       </div>
 

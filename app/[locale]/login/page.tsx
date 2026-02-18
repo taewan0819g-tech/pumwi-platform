@@ -66,7 +66,12 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     const supabase = createClient()
-    await supabase.auth.signInWithOAuth({ provider: 'google' })
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/callback`,
+      },
+    })
   }
 
   const handleLogin = async (e: React.FormEvent) => {

@@ -153,7 +153,12 @@
     "terms_modal_content": "Article 1 (Purpose)\nThe purpose of these Terms and Conditions is to prescribe the rights, obligations, and responsibilities of PUMWI (hereinafter referred to as the 'Company') and the User in connection with the use of the intermediary services provided by the Company.\n\nArticle 2 (Definitions)\n1. 'Platform' refers to the virtual business place established by the Company for trading goods or services.\n2. 'Artist' refers to a member who enters the platform to sell their creations.\n\nArticle 3 (Services)\nThe Company provides the following services:\n1. Development and operation of a handmade/craft brokerage platform.\n2. Information provision regarding artists and artworks.\n3. Other businesses determined by the Company.\n\nArticle 4 (Copyright)\n1. The copyright of posts (photos, descriptions, etc.) created by the Artist belongs to the Artist.\n2. The Company may reproduce, display, and distribute posts within the scope necessary for smooth service provision.\n\nArticle 5 (Limitation of Liability)\nAs a mail-order intermediary, the Company is not a party to the transaction and is not responsible for the product information or transactions registered by the Artist, except in cases of intentional or gross negligence by the Company.\n\n(These terms are standard for the PUMWI service launch.)",
     "marketing_modal_title": "Marketing Consent",
     "marketing_modal_content": "PUMWI requests your consent to receive marketing information as follows:\n\n1. Purpose of Collection and Use\n- Notifications of new artist entries and exhibitions.\n- News on limited edition releases and promotions.\n- Newsletters featuring artist interviews and studio logs.\n\n2. Items Collected\n- Email address, Name.\n\n3. Retention and Use Period\n- Until membership withdrawal or consent withdrawal.\n\n4. Right to Refuse\n- You have the right to refuse this consent. However, you may not receive event and benefit notifications if you do so.\n\nPUMWI promises to send only carefully selected news related to artistic values and avoids spam.",
-    "close_btn": "Close"
+    "close_btn": "Close",
+    "email_confirm_title": "Please check your email!",
+    "email_confirm_body": "We sent a confirmation link to your email. Click the link in your inbox to complete signup.",
+    "resend_verification": "Resend verification email",
+    "resend_success": "Verification email sent again.",
+    "resend_error": "Failed to resend. Please try again later."
   },
   "apply": {
     "title": "Apply as Artist",
