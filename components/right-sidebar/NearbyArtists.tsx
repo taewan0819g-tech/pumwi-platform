@@ -68,33 +68,6 @@ interface DisplayArtist extends ArtistProfile {
   isNear: boolean
 }
 
-const NEARBY_ARTISTS_FALLBACKS: Record<string, string> = {
-  title: 'Nearby Artists',
-  titleEn: 'Nearby',
-  nearYou: 'Near you',
-  noLocation: 'No location',
-  seeMore: 'See More',
-  loading: 'Finding artists...',
-  setAddressPrompt: 'Please set your location to see nearby artists.',
-  setAddressCta: 'Go to Profile',
-  error: 'Failed to load artists.',
-  noArtists: 'No artists found nearby.',
-  allArtistsFallback: 'Showing all artists (Location not set)',
-  modalTitle: 'All Nearby Artists',
-  searchPlaceholder: 'Enter address or city name',
-  searchClear: 'Clear search',
-  showLess: 'Show Less',
-  permissionDenied: 'Allow location to see artists near you.',
-  settings: 'Settings',
-  useGps: 'Current location (GPS)',
-  setManually: 'Set location manually',
-  cityPlaceholder: 'City (e.g. New York, Paris)',
-  apply: 'Apply',
-  noArtistsInRegion: 'No artists in this region.',
-  sameRegion: 'Same Region',
-  locationLabel: 'Location',
-}
-
 export default function NearbyArtists({
   currentUserId = null,
   variant = 'sidebar',
@@ -103,15 +76,13 @@ export default function NearbyArtists({
   const t = useTranslations('nearbyArtists')
   const isDrawer = variant === 'drawer'
 
-  const getSafeText = (key: string, fallbackText: string): string => {
+  const getSafeT = (key: string, fallback: string): string => {
     try {
       const text = t(key)
-      if (!text || text === key || (typeof text === 'string' && text.includes('.'))) {
-        return fallbackText
-      }
+      if (!text || text === key || (typeof text === 'string' && text.includes('.'))) return fallback
       return text
     } catch {
-      return fallbackText
+      return fallback
     }
   }
   const [status, setStatus] = useState<LocationStatus>('loading')
@@ -220,7 +191,7 @@ export default function NearbyArtists({
     const distanceText =
       artist.distanceKm != null
         ? `📍 ${formatDistanceKm(artist.distanceKm)}`
-        : `📍 ${getSafeText('noLocation', NEARBY_ARTISTS_FALLBACKS.noLocation)}`
+        : `📍 ${getSafeT('noLocation', 'No location')}`
     const avatarSize = isDrawer ? 'h-11 w-11' : 'h-10 w-10'
     const rowPadding = isDrawer ? 'min-h-[48px] py-3 px-2 gap-3' : spacious ? 'gap-4 p-3' : 'p-2'
     const nameClass = isDrawer ? 'text-[15px] font-medium' : 'text-sm font-medium'
@@ -260,7 +231,7 @@ export default function NearbyArtists({
         <span className="flex flex-shrink-0 items-center gap-1 text-xs font-medium whitespace-nowrap">
           {artist.isNear ? (
             <>
-              <span className="rounded bg-[#8E86F5]/15 px-1.5 py-0.5 text-[#8E86F5]">{getSafeText('nearYou', NEARBY_ARTISTS_FALLBACKS.nearYou)}</span>
+              <span className="rounded bg-[#8E86F5]/15 px-1.5 py-0.5 text-[#8E86F5]">{getSafeT('nearYou', 'Near you')}</span>
               <span className="text-[#8E86F5]">{distanceText}</span>
             </>
           ) : (
@@ -308,9 +279,9 @@ export default function NearbyArtists({
             }
           >
             <MapPin className="h-4 w-4 shrink-0 text-[#8E86F5]" aria-hidden />
-            <span>{getSafeText('title', NEARBY_ARTISTS_FALLBACKS.title)}</span>
+            <span>{getSafeT('title', 'Nearby Artists')}</span>
             {!isDrawer && (
-              <span className="hidden text-gray-400 font-normal sm:inline">({getSafeText('titleEn', NEARBY_ARTISTS_FALLBACKS.titleEn)})</span>
+              <span className="hidden text-gray-400 font-normal sm:inline">({getSafeT('titleEn', 'Nearby')})</span>
             )}
           </h3>
         </div>
@@ -318,19 +289,19 @@ export default function NearbyArtists({
         {status === 'loading' && !searchOrigin && (
           <div className="flex items-center justify-center py-8 text-gray-500">
             <Loader2 className="h-6 w-6 animate-spin text-[#8E86F5]" />
-            <span className="ml-2 text-sm">{getSafeText('loading', NEARBY_ARTISTS_FALLBACKS.loading)}</span>
+            <span className="ml-2 text-sm">{getSafeT('loading', 'Finding artists...')}</span>
           </div>
         )}
 
         {status === 'no_address' && !searchOrigin && (
           <div className="flex flex-col items-center justify-center py-4 px-2 text-center">
             <AlertCircle className="h-8 w-8 text-amber-500 mb-2" />
-            <p className="text-sm text-gray-600">{getSafeText('setAddressPrompt', NEARBY_ARTISTS_FALLBACKS.setAddressPrompt)}</p>
+            <p className="text-sm text-gray-600">{getSafeT('setAddressPrompt', 'Please set your location to see nearby artists.')}</p>
             <Link
               href="/profile"
               className="mt-3 text-xs font-medium text-[#8E86F5] hover:underline"
             >
-              {getSafeText('setAddressCta', NEARBY_ARTISTS_FALLBACKS.setAddressCta)}
+              {getSafeT('setAddressCta', 'Go to Profile')}
             </Link>
           </div>
         )}
@@ -338,7 +309,7 @@ export default function NearbyArtists({
         {status === 'error' && !searchOrigin && (
           <div className="flex flex-col items-center justify-center py-6 px-2 text-center">
             <AlertCircle className="h-8 w-8 text-gray-400 mb-2" />
-            <p className="text-sm text-gray-600">{getSafeText('error', NEARBY_ARTISTS_FALLBACKS.error)}</p>
+            <p className="text-sm text-gray-600">{getSafeT('error', 'Failed to load artists.')}</p>
           </div>
         )}
 
@@ -354,7 +325,7 @@ export default function NearbyArtists({
         {(effectivePosition != null || status === 'success' || status === 'idle' || status === 'no_address') &&
           !artistsLoading &&
           artistsFiltered.length === 0 && (
-          <p className="py-6 text-center text-sm text-gray-500">{getSafeText('noArtists', NEARBY_ARTISTS_FALLBACKS.noArtists)}</p>
+          <p className="py-6 text-center text-sm text-gray-500">{getSafeT('noArtists', 'No artists found nearby.')}</p>
         )}
 
         {(effectivePosition != null || status === 'success' || status === 'idle' || status === 'no_address') &&
@@ -362,7 +333,7 @@ export default function NearbyArtists({
           sortedDisplayArtists.length > 0 && (
           <>
             {isFallbackList && (
-              <p className="mb-2 text-xs text-gray-500">{getSafeText('allArtistsFallback', NEARBY_ARTISTS_FALLBACKS.allArtistsFallback)}</p>
+              <p className="mb-2 text-xs text-gray-500">{getSafeT('allArtistsFallback', 'Showing all artists')}</p>
             )}
             <ul className={isDrawer ? 'space-y-2' : 'space-y-3'}>
               {displayList.map((artist) => renderArtistRow(artist))}
@@ -377,7 +348,7 @@ export default function NearbyArtists({
                     : 'mt-3 w-full rounded-md py-2 text-center text-sm text-gray-500 hover:bg-gray-50 hover:text-gray-700'
                 }
               >
-                {getSafeText('seeMore', NEARBY_ARTISTS_FALLBACKS.seeMore)}
+                {getSafeT('seeMore', 'See More')}
               </button>
             )}
           </>
@@ -402,7 +373,7 @@ export default function NearbyArtists({
             <div className="flex items-center justify-between shrink-0 border-b border-gray-100 px-5 py-4">
               <h2 id="nearby-artists-modal-title" className="flex items-center gap-2 text-lg font-bold text-gray-900">
                 <MapPin className="h-5 w-5 text-[#8E86F5]" aria-hidden />
-                {getSafeText('modalTitle', NEARBY_ARTISTS_FALLBACKS.modalTitle)}
+                {getSafeT('modalTitle', 'All Nearby Artists')}
               </h2>
               <button
                 type="button"
@@ -415,7 +386,7 @@ export default function NearbyArtists({
             </div>
             <div className="max-h-[60vh] overflow-y-auto px-4 py-3">
               {sortedDisplayArtists.length === 0 ? (
-                <p className="py-6 text-center text-sm text-gray-500">{getSafeText('noArtists', NEARBY_ARTISTS_FALLBACKS.noArtists)}</p>
+                <p className="py-6 text-center text-sm text-gray-500">{getSafeT('noArtists', 'No artists found nearby.')}</p>
               ) : (
                 <ul className="space-y-1">
                   {sortedDisplayArtists.map((artist) => renderArtistRow(artist, true))}
