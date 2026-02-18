@@ -42,6 +42,7 @@ export default function LocationPlacesAutocomplete({
     googleMapsApiKey: apiKey,
     libraries: LIBRARIES,
     language: language ?? 'en',
+    preventGoogleFontsLoading: true,
   })
 
   const onPlaceSelect = useCallback(() => {
@@ -72,15 +73,22 @@ export default function LocationPlacesAutocomplete({
 
   useEffect(() => {
     if (!isLoaded || loadError || !inputRef.current) return
-    const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
+    const input = inputRef.current
+    const autocomplete = new google.maps.places.Autocomplete(input, {
       types: ['establishment', 'geocode'],
       fields: ['formatted_address', 'geometry', 'name', 'address_components'],
     })
     autocomplete.addListener('place_changed', onPlaceSelect)
     autocompleteRef.current = autocomplete
     return () => {
-      google.maps.event.clearInstanceListeners(autocomplete)
-      autocompleteRef.current = null
+      if (autocompleteRef.current === autocomplete) {
+        try {
+          google.maps.event.clearInstanceListeners(autocomplete)
+        } catch (_) {
+          // ignore if already cleared or API unloaded
+        }
+        autocompleteRef.current = null
+      }
     }
   }, [isLoaded, loadError, onPlaceSelect])
 

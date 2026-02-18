@@ -196,8 +196,8 @@
     "city_placeholder": "Seoul, Tokyo, New York 등",
     "location_search_label": "주소 검색 (선택 시 좌표 저장)",
     "city_hint": "주로 활동하시는 도시나 지역을 입력해 주세요. (추후 '내 주변 작가' 추천에 활용됩니다.)",
-    "photos_label": "대표 작품 (최대 3장)",
-    "photos_hint": "대표 작품 사진을 최대 3장 업로드해 주세요. (필수)",
+    "photos_label": "대표 작품 (최소 3장, 최대 10장)",
+    "photos_hint": "대표 작품 사진을 최소 3장 이상, 최대 10장까지 업로드해 주세요. (필수)",
     "agreement_title": "검토 및 자격 동의",
     "agreement_text": "모든 신청서는 PUMWI 팀에서 신중하게 검토합니다. 제 작품이 어느 시점에서든 PUMWI의 작가 기준에 부합하지 않는다고 판단될 경우, 내부 팀 또는 사용자 커뮤니티의 검토를 통해 재평가될 수 있음을 이해합니다. 검토 결과에 따라 작가 자격이 취소될 수 있으며, 필요할 경우 다시 신청해야 할 수 있음을 확인합니다.",
     "submit": "신청서 제출하기",
@@ -205,6 +205,26 @@
     "cancel": "취소",
     "submit_loading": "제출 중...",
     "agreement_required": "위 내용을 읽었으며 동의합니다 (필수)"
+  },
+  "artist_application": {
+    "error": {
+      "min_images": "대표 작품을 최소 3장 업로드해주세요.",
+      "max_images": "대표 작품은 최대 10장까지입니다.",
+      "agree_terms": "위 약관에 동의해 주세요.",
+      "fill_questions": "5개 문항을 모두 입력해 주세요.",
+      "select_location": "활동 지역을 검색하여 선택해 주세요.",
+      "enter_country": "국가명을 입력해 주세요.",
+      "complete_all": "필수 항목을 모두 채워 주세요.",
+      "upload_failed": "이미지 업로드에 실패했습니다.",
+      "send_failed": "제출에 실패했습니다.",
+      "signin_required": "로그인이 필요합니다."
+    },
+    "label": {
+      "location_placeholder": "활동 지역을 검색하세요"
+    },
+    "success": {
+      "submit": "작가 지원이 완료되었습니다."
+    }
   },
   "auth": {
     "google_button": "구글로 계속하기",

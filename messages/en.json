@@ -196,8 +196,8 @@
     "city_placeholder": "e.g. Seoul, Tokyo, New York",
     "location_search_label": "Search address (saves coordinates)",
     "city_hint": "Enter the city or region where you mainly work. (Used for 'Artists Near Me' recommendations.)",
-    "photos_label": "Representative Artworks (Max 3)",
-    "photos_hint": "Upload exactly 3 photos of your work. Required.",
+    "photos_label": "Representative Artworks (Min 3, Max 10)",
+    "photos_hint": "Upload at least 3 and up to 10 photos of your work. Required.",
     "agreement_title": "Review & Qualification Agreement",
     "agreement_text": "All applications are carefully reviewed by the PUMWI team. I understand that if my work is found not to meet PUMWI's artist standards, it may be subject to re-evaluation. My Artist status may be revoked based on the review results.",
     "submit": "Submit Application",
@@ -205,6 +205,26 @@
     "cancel": "Cancel",
     "submit_loading": "Submitting Application...",
     "agreement_required": "I have read and agree to the terms above (Required)"
+  },
+  "artist_application": {
+    "error": {
+      "min_images": "Please upload at least 3 representative artwork photos.",
+      "max_images": "You can upload up to 10 representative artwork photos.",
+      "agree_terms": "Please agree to the terms above to submit.",
+      "fill_questions": "Please fill in all five application questions.",
+      "select_location": "Please search and select your activity location.",
+      "enter_country": "Please enter your country name.",
+      "complete_all": "Please complete all required fields.",
+      "upload_failed": "Image upload failed.",
+      "send_failed": "Submission failed.",
+      "signin_required": "Sign in required."
+    },
+    "label": {
+      "location_placeholder": "Search for your activity location"
+    },
+    "success": {
+      "submit": "Artist application submitted successfully."
+    }
   },
   "auth": {
     "google_button": "Continue with Google",

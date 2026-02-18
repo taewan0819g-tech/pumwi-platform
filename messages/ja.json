@@ -196,8 +196,8 @@
     "city_placeholder": "例: Seoul, Tokyo, New York",
     "location_search_label": "住所を検索（座標を保存）",
     "city_hint": "主に活動されている都市や地域を入力してください。（「近くの作家」推薦に利用されます。）",
-    "photos_label": "代表作品（最大3点）",
-    "photos_hint": "代表作品の写真を最大3点アップロードしてください。（必須）",
+    "photos_label": "代表作品（最低3枚、最大10枚）",
+    "photos_hint": "代表作品の写真を最低3枚以上、最大10枚までアップロードしてください。（必須）",
     "agreement_title": "審査および資格同意",
     "agreement_text": "すべての応募はPUMWIチームにより慎重に審査されます。作品が基準を満たさないと判断された場合、再審査が行われることがあります。審査結果により作家資格が取り消される場合があり、再応募が必要になる可能性があります。",
     "submit": "応募を提出する",
@@ -205,6 +205,26 @@
     "cancel": "キャンセル",
     "submit_loading": "送信中...",
     "agreement_required": "内容を読み、同意します（必須）"
+  },
+  "artist_application": {
+    "error": {
+      "min_images": "代表作品を最低3枚アップロードしてください。",
+      "max_images": "代表作品は最大10枚までです。",
+      "agree_terms": "上記の規約に同意してください。",
+      "fill_questions": "5つの質問にすべてご記入ください。",
+      "select_location": "活動地域を検索して選択してください。",
+      "enter_country": "国名を入力してください。",
+      "complete_all": "必須項目をすべて入力してください。",
+      "upload_failed": "画像のアップロードに失敗しました。",
+      "send_failed": "送信に失敗しました。",
+      "signin_required": "ログインが必要です。"
+    },
+    "label": {
+      "location_placeholder": "活動地域を検索"
+    },
+    "success": {
+      "submit": "作家申請が完了しました。"
+    }
   },
   "auth": {
     "google_button": "Googleで続ける",

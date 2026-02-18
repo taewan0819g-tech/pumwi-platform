@@ -1,13 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
 import { Check, X } from 'lucide-react'
+import toast from 'react-hot-toast'
+import LocationPlacesAutocomplete, { type LocationPlaceResult } from '@/components/profile/LocationPlacesAutocomplete'
 
-const PORTFOLIO_MAX = 3
+const PORTFOLIO_MIN = 3
+const PORTFOLIO_MAX = 10
 const STORAGE_BUCKET_APPLICATIONS = 'applications'
 
 /** Field keys and i18n keys for application_details (labels/placeholders from apply.*). Export for admin. */
@@ -27,6 +30,8 @@ export type ApplicationDetailsPayload = {
   studio_log_commitment: string
   country: string
   city: string
+  lat: number | null
+  lng: number | null
 }
 
 interface ArtistApplyModalProps {
@@ -44,6 +49,8 @@ const initialValues: ApplicationDetailsPayload = {
   studio_log_commitment: '',
   country: '',
   city: '',
+  lat: null,
+  lng: null,
 }
 
 const COUNTRY_OPTIONS = [
@@ -56,6 +63,20 @@ const COUNTRY_OPTIONS = [
   { value: 'other', labelKey: 'country_other' as const },
 ]
 
+/** Map Google Places country short_name to our dropdown value */
+function mapCountryCode(code: string): string {
+  const upper = code.toUpperCase()
+  const map: Record<string, string> = {
+    KR: 'kr',
+    JP: 'jp',
+    US: 'usa',
+    FR: 'france',
+    GB: 'uk',
+    DE: 'germany',
+  }
+  return map[upper] ?? 'other'
+}
+
 export default function ArtistApplyModal({
   open,
   onClose,
@@ -63,6 +84,8 @@ export default function ArtistApplyModal({
   onSuccess,
 }: ArtistApplyModalProps) {
   const t = useTranslations('apply')
+  const tApp = useTranslations('artist_application')
+  const locale = useLocale()
   const [details, setDetails] = useState<ApplicationDetailsPayload>(initialValues)
   const [customCountry, setCustomCountry] = useState('')
   const [portfolioFiles, setPortfolioFiles] = useState<File[]>([])
@@ -70,6 +93,20 @@ export default function ArtistApplyModal({
   const [submitting, setSubmitting] = useState(false)
   const [isAgreed, setIsAgreed] = useState(false)
   const supabase = createClient()
+  const mapLanguage = locale === 'ja' ? 'ja' : locale === 'ko' ? 'ko' : 'en'
+
+  const handleLocationSelect = (result: LocationPlaceResult) => {
+    const mapped = mapCountryCode(result.country)
+    setDetails((prev) => ({
+      ...prev,
+      city: result.city,
+      country: mapped,
+      lat: result.lat,
+      lng: result.lng,
+    }))
+    if (mapped === 'other') setCustomCountry(result.country)
+    else setCustomCountry('')
+  }
 
   const isOtherCountry = details.country === 'other'
 
@@ -91,13 +128,32 @@ export default function ArtistApplyModal({
   const handlePortfolioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files?.length) return
-    const list = Array.from(files).filter((f) => f.type.startsWith('image/')).slice(0, PORTFOLIO_MAX)
+    const list = Array.from(files).filter((f) => f.type.startsWith('image/'))
     setPortfolioFiles((prev) => [...prev, ...list].slice(0, PORTFOLIO_MAX))
     e.target.value = ''
   }
 
   const removePortfolioImage = (index: number) => {
     setPortfolioFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const getValidationErrors = (): Record<string, unknown> => {
+    const countryForDb = isOtherCountry ? customCountry.trim() : details.country.trim()
+    const errors: Record<string, unknown> = {}
+    if (
+      !details.primary_craft_style.trim() ||
+      !details.handmade_process.trim() ||
+      !details.production_scale.trim() ||
+      !details.monthly_output.trim() ||
+      !details.studio_log_commitment.trim()
+    ) {
+      errors.textFields = true
+    }
+    if (!countryForDb || !details.city.trim()) errors.location = true
+    if (isOtherCountry && !customCountry.trim()) errors.otherCountry = true
+    if (portfolioFiles.length < PORTFOLIO_MIN) errors.minImages = true
+    if (portfolioFiles.length > PORTFOLIO_MAX) errors.maxImages = true
+    return errors
   }
 
   const handleSubmit = async () => {
@@ -110,27 +166,34 @@ export default function ArtistApplyModal({
       studio_log_commitment: details.studio_log_commitment.trim(),
       country: countryForDb,
       city: details.city.trim(),
+      lat: details.lat,
+      lng: details.lng,
     }
-    if (
-      !a.primary_craft_style ||
-      !a.handmade_process ||
-      !a.production_scale ||
-      !a.monthly_output ||
-      !a.studio_log_commitment
-    ) {
-      alert('Please answer all five questions.')
-      return
-    }
-    if (!a.country || !a.city) {
-      alert('Please select country and enter city/region.')
-      return
-    }
-    if (isOtherCountry && !customCountry.trim()) {
-      alert('Please enter your country name.')
-      return
-    }
-    if (portfolioFiles.length !== PORTFOLIO_MAX) {
-      alert(`Please upload exactly ${PORTFOLIO_MAX} representative artwork photos.`)
+
+    const errors = getValidationErrors()
+    if (Object.keys(errors).length > 0) {
+      console.log('[ArtistApply] Validation errors', errors)
+      if (errors.minImages) {
+        toast.error(tApp('error.min_images'))
+        return
+      }
+      if (errors.maxImages) {
+        toast.error(tApp('error.max_images'))
+        return
+      }
+      if (errors.textFields) {
+        toast.error(tApp('error.fill_questions'))
+        return
+      }
+      if (errors.location) {
+        toast.error(tApp('error.select_location'))
+        return
+      }
+      if (errors.otherCountry) {
+        toast.error(tApp('error.enter_country'))
+        return
+      }
+      toast.error(tApp('error.complete_all'))
       return
     }
 
@@ -139,7 +202,7 @@ export default function ArtistApplyModal({
     const { data: { user } } = await supabase.auth.getUser()
     if (!user?.id) {
       setSubmitting(false)
-      alert('Sign in required.')
+      toast.error(tApp('error.signin_required'))
       return
     }
 
@@ -161,7 +224,8 @@ export default function ArtistApplyModal({
       }
     } catch (err) {
       setSubmitting(false)
-      alert('Upload failed: ' + (err instanceof Error ? err.message : 'Unknown error'))
+      console.log('[ArtistApply] Upload error', err)
+      toast.error(tApp('error.upload_failed') + (err instanceof Error ? ': ' + err.message : ''))
       return
     }
 
@@ -177,20 +241,40 @@ export default function ArtistApplyModal({
       .insert({
         user_id: user.id,
         status: 'pending',
-        answers: { content, country: a.country, city: a.city },
+        answers: {
+          content,
+          country: a.country,
+          city: a.city,
+          ...(a.lat != null && a.lng != null ? { lat: a.lat, lng: a.lng } : {}),
+        },
         portfolio_images: uploadedUrls,
       })
 
     if (insertError) {
       setSubmitting(false)
-      alert('Send failed: ' + insertError.message)
+      console.log('[ArtistApply] Insert error', insertError)
+      toast.error(tApp('error.send_failed') + ': ' + insertError.message)
       return
     }
 
-    await supabase
+    const profileUpdate: { is_artist_pending: boolean; city?: string; country?: string; lat?: number; lng?: number } = {
+      is_artist_pending: true,
+    }
+    if (a.city) profileUpdate.city = a.city
+    if (a.country) profileUpdate.country = a.country
+    if (a.lat != null && a.lng != null) {
+      profileUpdate.lat = a.lat
+      profileUpdate.lng = a.lng
+    }
+
+    const { error: profileUpdateError } = await supabase
       .from('profiles')
-      .update({ is_artist_pending: true })
+      .update(profileUpdate)
       .eq('id', user.id)
+
+    if (profileUpdateError) {
+      console.log('[ArtistApply] Profile update error (non-blocking)', profileUpdateError)
+    }
 
     setSubmitting(false)
     setDetails(initialValues)
@@ -198,8 +282,22 @@ export default function ArtistApplyModal({
     setPortfolioFiles([])
     onSuccess()
     onClose()
-    alert('Application submitted. Under review.')
+    toast.success(tApp('success.submit'))
   }
+
+  const isValid =
+    isAgreed &&
+    !submitting &&
+    details.primary_craft_style.trim() &&
+    details.handmade_process.trim() &&
+    details.production_scale.trim() &&
+    details.monthly_output.trim() &&
+    details.studio_log_commitment.trim() &&
+    details.country &&
+    details.city.trim() &&
+    (!(details.country === 'other') || customCountry.trim()) &&
+    portfolioFiles.length >= PORTFOLIO_MIN &&
+    portfolioFiles.length <= PORTFOLIO_MAX
 
   return (
     <Dialog open={open} onClose={onClose} title={t('title')} className="max-w-lg">
@@ -271,23 +369,22 @@ export default function ArtistApplyModal({
             )}
           </div>
           <div className="space-y-2">
-            <label htmlFor="city" className="block text-sm font-medium text-slate-800">
-              {t('city_label')} <span className="text-red-500">*</span>
+            <label htmlFor="location-search" className="block text-sm font-medium text-slate-800">
+              {t('city_label')} / {t('location_search_label')} <span className="text-red-500">*</span>
             </label>
-            <input
-              id="city"
-              type="text"
-              value={details.city}
-              onChange={(e) => handleChange('city', e.target.value)}
-              placeholder={t('city_placeholder')}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+            <LocationPlacesAutocomplete
+              value={details.city ? [details.city, details.country || customCountry].filter(Boolean).join(', ') : ''}
+              onChange={handleLocationSelect}
+              placeholder={tApp('label.location_placeholder')}
+              label=""
+              inputClassName="w-full px-4 py-3 border border-gray-300 rounded-xl text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none bg-white"
+              language={mapLanguage}
             />
             <p className="text-xs text-gray-500">{t('city_hint')}</p>
           </div>
         </div>
 
-        {/* Representative Artwork Photos (Required, Max 3) */}
+        {/* Representative Artwork Photos (Min 3, Max 10) */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-800">
             {t('photos_label')} <span className="text-red-500">*</span>
@@ -361,12 +458,44 @@ export default function ArtistApplyModal({
           </Button>
           <button
             type="button"
-            onClick={handleSubmit}
-            disabled={!isAgreed || portfolioFiles.length !== PORTFOLIO_MAX || submitting}
+            onClick={() => {
+              const errors = getValidationErrors()
+              if (Object.keys(errors).length === 0 && isValid) {
+                handleSubmit()
+                return
+              }
+              console.log('[ArtistApply] Submit blocked, errors:', errors)
+              if (!isAgreed) {
+                toast.error(tApp('error.agree_terms'))
+                return
+              }
+              if (errors.minImages) {
+                toast.error(tApp('error.min_images'))
+                return
+              }
+              if (errors.maxImages) {
+                toast.error(tApp('error.max_images'))
+                return
+              }
+              if (errors.textFields) {
+                toast.error(tApp('error.fill_questions'))
+                return
+              }
+              if (errors.location) {
+                toast.error(tApp('error.select_location'))
+                return
+              }
+              if (errors.otherCountry) {
+                toast.error(tApp('error.enter_country'))
+                return
+              }
+              toast.error(tApp('error.complete_all'))
+            }}
+            disabled={submitting}
             className={`w-full sm:w-auto min-w-[140px] py-3.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-sm ${
-              isAgreed && !submitting
+              isValid
                 ? 'bg-[#2F5D50] text-white hover:bg-[#2F5D50]/90 hover:shadow-md transform hover:-translate-y-0.5'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-100 text-gray-400 cursor-pointer'
             }`}
           >
             {submitting ? t('submit_loading') : t('submit')}
