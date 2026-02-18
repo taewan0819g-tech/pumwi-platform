@@ -71,6 +71,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
   }
 
+  // OAuth callback: locale prefix 없이 그대로 통과 (next-intl 리다이렉트 방지 → 404 해결)
+  if (pathname === '/auth/callback') {
+    return NextResponse.next()
+  }
+
   // 2. Run next-intl (redirects / to /en, rewrites, sets locale cookie)
   const intlResponse = intlMiddleware(request)
 
