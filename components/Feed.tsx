@@ -13,6 +13,7 @@ import {
 import { Link } from '@/i18n/navigation'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
+import VoiceWriteButton from '@/components/VoiceWriteButton'
 import toast from 'react-hot-toast'
 import { PostLikeComment, POST_ENGAGEMENT_CHANGED } from '@/components/post/PostLikeComment'
 import type { CommentRow as EngagementCommentRow } from '@/components/post/PostLikeComment'
@@ -738,12 +739,30 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
       >
         {editingPost && (
           <div className="p-4 space-y-3">
-            <input
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              placeholder="Title"
-              className="w-full px-3 py-2 border border-gray-200 rounded-md text-slate-900"
-            />
+            <div className="relative">
+              <input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="Title"
+                className="w-full px-3 py-2 pr-11 border border-gray-200 rounded-md text-slate-900"
+              />
+              <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                <VoiceWriteButton
+                  tab={
+                    editingPost.type === 'sales'
+                      ? 'product'
+                      : editingPost.type === 'exhibition'
+                        ? 'exhibition'
+                        : 'journal'
+                  }
+                  onSuccess={(t, c) => {
+                    setEditTitle(t)
+                    setEditContent(c)
+                  }}
+                  compact
+                />
+              </div>
+            </div>
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}

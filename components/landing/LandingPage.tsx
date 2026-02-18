@@ -34,8 +34,10 @@ export default function LandingPage() {
   const sectionGlobalConnection = useFadeInUp()
   const sectionB = useFadeInUp()
   const sectionC = useFadeInUp()
+  const sectionVoice = useFadeInUp()
   const sectionD = useFadeInUp()
   const featureImageSrc = `/landing_feature_${locale === 'ko' ? 'ko' : locale === 'ja' ? 'ja' : 'en'}.png`
+  const voiceImageSrc = `/landing-voice${locale === 'ko' ? '-ko' : locale === 'ja' ? '-ja' : ''}.png`
 
   const fadeClass = (visible: boolean) =>
     `transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`
@@ -132,7 +134,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section C: Trust — dark background, centered */}
+      {/* Section C: Rigorous Verification (Trust) — dark background, centered */}
       <section
         ref={sectionC.ref}
         className={`py-12 lg:py-16 rounded-2xl ${fadeClass(sectionC.visible)}`}
@@ -149,26 +151,54 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Section D: Artist OS — text top center, images below */}
-      <section
-        ref={sectionD.ref}
-        className={`py-12 lg:py-16 ${fadeClass(sectionD.visible)}`}
-      >
-        <div className="space-y-8">
-          <div className="text-center max-w-2xl mx-auto space-y-4">
-            <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t('sectionD_title')}</h2>
-            <p className="text-gray-600 leading-relaxed">{t('sectionD_desc')}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="relative aspect-[4/3] md:aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-              <Image src="/landing-menu.png" alt="Menu" fill className="object-contain" sizes="(max-width: 768px) 100vw, 50vw" />
+      {/* [Order: 3] Voice Description (말하기) — between Rigorous Verification and All-in-One; zig-zag with Section D */}
+      <div className="bg-gray-50/80 border-y border-gray-100">
+        <section
+          ref={sectionVoice.ref}
+          className={`py-12 lg:py-16 px-4 ${fadeClass(sectionVoice.visible)}`}
+        >
+          <div className="max-w-5xl mx-auto flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
+            <div className="order-2 lg:order-1 lg:w-1/2 space-y-4">
+              <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">
+                {t('voice_description_title')}
+              </h2>
+              <p className="text-gray-600 leading-relaxed">
+                {t('voice_description_body')}
+              </p>
             </div>
-            <div className="relative aspect-[4/3] md:aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-              <Image src="/landing-features.png" alt="Features" fill className="object-contain" sizes="(max-width: 768px) 100vw, 50vw" />
+            <div className="order-1 lg:order-2 lg:w-1/2 relative aspect-video lg:aspect-[4/3] rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+              <Image
+                src={voiceImageSrc}
+                alt="Voice Description"
+                fill
+                className="object-contain"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* [Order: 4] All-in-One Studio OS — zig-zag (image left / text right); mobile: image → text */}
+        <section
+          ref={sectionD.ref}
+          className={`py-12 lg:py-16 px-4 pb-16 ${fadeClass(sectionD.visible)}`}
+        >
+          <div className="max-w-5xl mx-auto flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-12">
+            <div className="order-1 lg:w-1/2 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="relative aspect-[4/3] md:aspect-video rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+                <Image src="/landing-menu.png" alt="Menu" fill className="object-contain" sizes="(max-width: 768px) 100vw, 50vw" />
+              </div>
+              <div className="relative aspect-[4/3] md:aspect-video rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm">
+                <Image src="/landing-features.png" alt="Features" fill className="object-contain" sizes="(max-width: 768px) 100vw, 50vw" />
+              </div>
+            </div>
+            <div className="order-2 lg:w-1/2 space-y-4">
+              <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{t('sectionD_title')}</h2>
+              <p className="text-gray-600 leading-relaxed">{t('sectionD_desc')}</p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

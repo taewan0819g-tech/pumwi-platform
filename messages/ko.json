@@ -53,7 +53,12 @@
       "btn_add_image": "사진 추가",
       "btn_cancel": "취소",
       "btn_post": "게시",
-      "publishing": "게시 중..."
+      "publishing": "게시 중...",
+      "writeByVoice": "🎙️ 말하기로 작성",
+      "recording": "녹음 중...",
+      "listening": "듣고 있어요...",
+      "refiningText": "글 정리 중...",
+      "processing": "처리 중..."
     }
   },
   "playbook": {
@@ -120,8 +125,14 @@
       "follow": "팔로우",
       "unfollow": "팔로우 취소",
       "chat_opening": "연결 중...",
-      "follow_processing": "처리 중..."
-    }
+      "follow_processing": "처리 중...",
+      "myQrCode": "내 프로필 QR",
+      "qrCodeLabel": "QR 코드",
+      "qrCodeShort": "QR",
+      "downloadImage": "이미지 저장"
+    },
+    "shareMyProfile": "내 프로필 공유하기",
+    "shareProfile": "프로필 공유"
   },
   "signup": {
     "marketing_consent": "혜택 및 이벤트 정보 수신 동의 (선택)",
@@ -248,9 +259,16 @@
     "sectionC_title": "가까운 곳에서 발견하고,<br/>더 넓게 연결됩니다",
     "sectionC_desc": "소비자는 가까운 곳의 작가를 발견하고 특별한 작품을 만날 수 있으며, 작가들은 자신의 지역에서 더 많은 사람들에게 작품을 알리고 가시성을 높이며, 나아가 전 세계의 관객과도 연결됩니다.",
     "trust_title": "철저한 검증과 신뢰",
-    "trust_desc": "엄격한 심사, 가짜 예술 활동 무관용 원칙.",
+    "trust_desc": "엄격한 심사로 검증된 작가만 참여할 수 있으며, 허위·형식적인 활동은 허용되지 않습니다.",
     "location_title": "내 곁의 아티스트 (Location Service)",
     "location_desc": "PUMWI만의 위치 기술로 소비자는 가까운 장인을 발견하고, 장인은 주변 동료와 연결되어 영감을 나눕니다.",
+    "voice_title": "작품 설명, 이제 말로 남기세요.",
+    "voice_desc": "작품에 대한 설명을 편하게 말씀하세요. 지능형 시스템이 내용을 체계적으로 정제하여 작가님이 오직 작품의 본질에만 집중하도록 돕습니다.",
+    "voice_section_title": "작품 설명, 이제 말로 남기세요.",
+    "voice_section_desc": "작품 설명 작성이 더 이상 창작의 걸림돌이 되지 않도록. 떠오르는 생각을 편하게 말씀하시면, 지능형 시스템이 내용을 체계적으로 정제하고 정리하여 기록을 완성합니다. 작가님이 작품의 본질에만 집중하실 수 있도록 돕습니다.",
+    "voice_flow": "사진 촬영 → 말하기 → 시스템이 자동 정리",
+    "voice_description_title": "작품 설명, 이제 말로 남기세요.",
+    "voice_description_body": "글쓰기에 대한 부담은 저희에게 맡겨두세요. 생각나는 대로 말하기만 하면 기록과 업로드가 완료됩니다. 작가님은 끊김 없이 창작의 흐름을 이어가세요.",
     "os_title": "올인원 스튜디오 OS",
     "os_desc": "창작은 작가님이, 운영은 저희가 맡습니다.",
     "philosophy_title": "철학으로 연결되다",
@@ -296,6 +314,6 @@
     "section3_desc": "5단계 심사를 통과한 작가만 입점합니다. 커뮤니티와 팀이 함께 품질을 지킵니다.",
     "section3_strong": "가짜 작가는 즉시 퇴출됩니다.",
     "section4_title": "올인원 스튜디오 OS",
-    "section4_desc": "재고, AI 마케팅, CS 마스터. 비즈니스는 저희가, 창작은 당신이."
+    "section4_desc": "재고, 시스템 마케팅, CS 마스터. 비즈니스는 저희가, 창작은 당신이."
   }
 }

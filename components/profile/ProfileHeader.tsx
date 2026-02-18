@@ -2,9 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { Camera, User, Pencil, MapPin, Send, MessageCircle, Check, X } from 'lucide-react'
+import { Camera, User, Pencil, MapPin, Send, MessageCircle, Check, X, QrCode } from 'lucide-react'
+import { QRCodeCanvas } from 'qrcode.react'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/Card'
 import toast from 'react-hot-toast'
@@ -67,8 +69,11 @@ export default function ProfileHeader({
   const [followLoading, setFollowLoading] = useState(false)
   const [requestModalOpen, setRequestModalOpen] = useState(false)
   const [chatLoading, setChatLoading] = useState(false)
+  const [qrModalOpen, setQrModalOpen] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const backgroundInputRef = useRef<HTMLInputElement>(null)
+  const qrCodeContainerRef = useRef<HTMLDivElement>(null)
+  const locale = useLocale()
 
   useEffect(() => {
     setFullName(profile?.full_name ?? '')
@@ -730,6 +735,20 @@ export default function ProfileHeader({
                     </>
                   )}
                 </div>
+                {/* QR Code: visible on all profiles, bottom-right */}
+                <div className="mt-3 flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setQrModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-[#8E86F5] focus:ring-offset-1"
+                    title={t('myQrCode')}
+                    aria-label={t('qrCodeLabel')}
+                  >
+                    <QrCode className="h-4 w-4 shrink-0" />
+                    <span className="sm:hidden">{t('qrCodeShort')}</span>
+                    <span className="hidden sm:inline">{t('qrCodeLabel')}</span>
+                  </button>
+                </div>
               </>
             )}
           </div>
@@ -742,6 +761,76 @@ export default function ProfileHeader({
           artistId={profile.id}
           requesterId={currentUserId}
         />
+      )}
+
+      {/* Share Profile QR modal (available on all profiles) */}
+      {qrModalOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-50 bg-black/50"
+            aria-hidden
+            onClick={() => setQrModalOpen(false)}
+          />
+          <div
+            className="fixed left-1/2 top-1/2 z-50 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="qr-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 id="qr-modal-title" className="text-lg font-semibold text-slate-900">
+                {tProfile('shareProfile')}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setQrModalOpen(false)}
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#8E86F5]"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex flex-col items-center gap-4">
+              {typeof window !== 'undefined' && profile?.id && (
+                <>
+                  <div className="flex flex-col items-center gap-3">
+                    <Image
+                      src="/logo.png"
+                      alt="PUMWI"
+                      width={48}
+                      height={48}
+                      className="object-contain"
+                    />
+                    <div ref={qrCodeContainerRef} className="rounded-lg bg-white p-3 shadow-inner">
+                      <QRCodeCanvas
+                        value={`${window.location.origin}/${locale}/profile/${profile.id}`}
+                        size={220}
+                        level="M"
+                        includeMargin
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      const canvas = qrCodeContainerRef.current?.querySelector('canvas')
+                      if (!canvas) return
+                      const dataUrl = canvas.toDataURL('image/png')
+                      const name = (displayName || 'profile').replace(/[^a-zA-Z0-9가-힣_\-\s]/g, '').replace(/\s+/g, '-').slice(0, 40) || 'profile'
+                      const a = document.createElement('a')
+                      a.href = dataUrl
+                      a.download = `pumwi-profile-${name}.png`
+                      a.click()
+                    }}
+                    className="w-full sm:w-auto"
+                  >
+                    {t('downloadImage')}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </Card>
   )

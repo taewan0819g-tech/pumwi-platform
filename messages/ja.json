@@ -53,7 +53,12 @@
       "btn_add_image": "写真を追加",
       "btn_cancel": "キャンセル",
       "btn_post": "投稿",
-      "publishing": "投稿中..."
+      "publishing": "投稿中...",
+      "writeByVoice": "🎙️ 声で入力",
+      "recording": "録音中...",
+      "listening": "聞いています...",
+      "refiningText": "文章を整えています...",
+      "processing": "処理中..."
     }
   },
   "playbook": {
@@ -120,8 +125,14 @@
       "follow": "フォロー",
       "unfollow": "フォロー解除",
       "chat_opening": "接続中...",
-      "follow_processing": "処理中..."
-    }
+      "follow_processing": "処理中...",
+      "myQrCode": "マイQRコード",
+      "qrCodeLabel": "QRコード",
+      "qrCodeShort": "QR",
+      "downloadImage": "画像をダウンロード"
+    },
+    "shareMyProfile": "プロフィールを共有",
+    "shareProfile": "プロフィール共有"
   },
   "signup": {
     "marketing_consent": "特典・イベント情報の受信に同意する（任意）",
@@ -250,9 +261,16 @@
     "philosophy_title": "哲学でつながる",
     "philosophy_desc": "すべての作品には物語があります。スペックではなく、作家の哲学を大切にします。",
     "trust_title": "厳格な検証と信頼",
-    "trust_desc": "厳格な審査、不正な芸術活動は一切許容しません。",
+    "trust_desc": "厳格な審査を通過した作家のみが参加でき、虚偽や形式的な活動は認められていません。",
     "location_title": "近くのアーティスト (Location Service)",
     "location_desc": "PUMWIの位置技術で、消費者は近くの作家を発見し、作家は周囲の仲間とつながりインスピレーションを共有します。",
+    "voice_title": "作品の説明は、言葉で残しましょう。",
+    "voice_desc": "作品についての説明を言葉にするだけ。システムが内容を体系的に整え、創作の流れを妨げない記録を完成させます。作家は作品の本質にだけ集中できます。",
+    "voice_section_title": "作品の説明を、言葉で残しましょう",
+    "voice_section_desc": "作品説明の作成が、創作の妨げにならないように。思いついたことを気軽に話していただければ、インテリジェントなシステムが内容を整理し、体系的にまとめて記録を完成させます。作家が作品の本質に集中できるようサポートします。",
+    "voice_flow": "写真を撮る → 話す → システムが自動で整理",
+    "voice_description_title": "作品の説明は、言葉で残しましょう。",
+    "voice_description_body": "執筆の手間は私たちにお任せください。話すだけで記録と整理は完了。あなたは創作のフローを止めることなく、作品づくりに没頭できます。",
     "os_title": "オールインワン Studio OS",
     "os_desc": "創作は作家が、運営は私たちが担います。",
     "sectionD_title": "グローバルなつながり：身近な場所から始まるアート",
@@ -296,6 +314,6 @@
     "section3_desc": "5段階の審査を通過した作家のみが参加できます。コミュニティとチームで品質を守ります。",
     "section3_strong": "偽の作家は即座に退場となります。",
     "section4_title": "オールインワン スタジオOS",
-    "section4_desc": "在庫、AIマーケティング、CSマスター。運営は私たちが、創作はあなたが。"
+    "section4_desc": "在庫、システムマーケティング、CSマスター。運営は私たちが、創作はあなたが。"
   }
 }

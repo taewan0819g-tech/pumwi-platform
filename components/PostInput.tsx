@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { PenLine, X, Pencil, Tag, Image as ImageIcon, Globe } from 'lucide-react'
+import VoiceWriteButton from '@/components/VoiceWriteButton'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 
@@ -90,6 +91,13 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
     setExhibitionExternalLink('')
     setImageFiles([])
   }
+
+  const voiceWriteTab =
+    postType === 'work'
+      ? ('product' as const)
+      : postType === 'exhibition' || postType === 'pumwi_exhibition'
+        ? ('exhibition' as const)
+        : ('journal' as const)
 
   const handleSubmit = async () => {
     const titleTrim = title.trim()
@@ -309,6 +317,16 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
           {postType === 'pumwi_exhibition' && (
             <p className="text-xs text-gray-500">Global offline event: title, location, country, dates, and image required.</p>
           )}
+          {/* Write by Voice: prominent button above Title */}
+          <div className="flex flex-wrap items-center gap-2">
+            <VoiceWriteButton
+              tab={voiceWriteTab}
+              onSuccess={(t, c) => {
+                setTitle(t)
+                setContent(c)
+              }}
+            />
+          </div>
           {/* Common: Title */}
           {postType === 'pumwi_exhibition' ? (
             <div className="space-y-2">
@@ -330,13 +348,13 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
               />
             </div>
           ) : (
-<input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={tCreate('input_title')}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
-          />
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder={tCreate('input_title')}
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none text-slate-900"
+            />
           )}
           {/* Common: Content (multi-line for PUMWI Exhibition) */}
           {postType === 'pumwi_exhibition' ? (

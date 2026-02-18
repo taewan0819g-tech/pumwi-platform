@@ -44,7 +44,20 @@ export default function ValuePropositionSection() {
           </div>
         </div>
 
-        {/* 3. 올인원 스튜디오 OS */}
+        {/* 3. 말하기로 작성 (Write by Voice) */}
+        <div className="flex gap-4 p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-transparent hover:border-gray-100">
+          <div className="w-12 h-12 rounded-full bg-[#FCE4EC] flex items-center justify-center flex-shrink-0 text-2xl">
+            🎙️
+          </div>
+          <div>
+            <h3 className="font-bold text-gray-900 mb-1">{t('voice_title')}</h3>
+            <p className="text-sm text-gray-600 leading-relaxed">
+              {t('voice_desc')}
+            </p>
+          </div>
+        </div>
+
+        {/* 4. 올인원 스튜디오 OS */}
         <div className="flex gap-4 p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-transparent hover:border-gray-100">
           <div className="w-12 h-12 rounded-full bg-[#E3F2FD] flex items-center justify-center flex-shrink-0 text-2xl">
             ⚙️
@@ -57,7 +70,7 @@ export default function ValuePropositionSection() {
           </div>
         </div>
 
-        {/* 4. 철학으로 연결되다 */}
+        {/* 5. 철학으로 연결되다 */}
         <div className="flex gap-4 p-4 rounded-xl hover:bg-white hover:shadow-md transition-all duration-300 border border-transparent hover:border-gray-100">
           <div className="w-12 h-12 rounded-full bg-[#FFF3E0] flex items-center justify-center flex-shrink-0 text-2xl">
             💜

@@ -47,6 +47,7 @@ export default function LoginPage() {
   const imgProfile = `/landing-profile${suffix}.png`
   const imgBio = `/landing-bio${suffix}.png`
   const imgApply = `/landing-apply${suffix}.png`
+  const imgVoice = `/landing-voice${suffix}.png`
   const imgMenu = `/landing-menu${suffix}.png`
   const imgFeatures = `/landing-features${suffix}.png`
   const imgLocation = `/landing-location${suffix}.png`
@@ -263,27 +264,60 @@ export default function LoginPage() {
         </div>
       </section>
 
-      {/* SECTION 5: OS */}
-      <section className="py-24 px-6 lg:px-20 bg-white">
-        <div className="max-w-6xl mx-auto space-y-16">
-          <div className="text-center space-y-6">
-            <h2 className="text-3xl lg:text-5xl font-extrabold text-gray-900">
-              {tLanding('os_title')}
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              {tLanding('os_desc')}
-            </p>
-          </div>
-          <div className="flex flex-col md:flex-row items-start justify-center gap-8">
-            <div className="w-full md:w-1/3 rounded-2xl overflow-hidden shadow-xl border border-gray-100 bg-gray-50">
-              <Image src={imgMenu} alt="Artist Menu" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-            </div>
-            <div className="w-full md:w-2/3 rounded-2xl overflow-hidden shadow-xl border border-gray-100 bg-gray-50">
-              <Image src={imgFeatures} alt="Artist Features" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-            </div>
+      {/* Artist Success Suite: Voice Description + All-in-One Studio OS */}
+      <div className="bg-[#F9F8FF] border-y border-[#E8E6F5]/80">
+        {/* Section label */}
+        <div className="pt-16 pb-2 px-6 lg:px-20">
+          <div className="max-w-7xl mx-auto flex items-center gap-4">
+            <span className="text-[10px] lg:text-xs font-semibold tracking-[0.2em] uppercase text-[#8E86F5]/80">
+              Tools for Artists
+            </span>
+            <span className="flex-1 h-px bg-[#8E86F5]/20" aria-hidden />
           </div>
         </div>
-      </section>
+
+        {/* Voice Description (말하기) */}
+        <section className="py-16 lg:py-20 px-6 lg:px-20">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+            <div className="lg:w-1/2 space-y-8">
+              <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
+                {tLanding('voice_section_title')}
+              </h2>
+              <div className="w-16 h-1 bg-[#8E86F5] rounded-full" />
+              <p className="text-xl text-gray-600 leading-relaxed">
+                {tLanding('voice_section_desc')}
+              </p>
+            </div>
+            <div className="lg:w-1/2 w-full">
+              <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-white bg-white/80">
+                <Image src={imgVoice} alt="Voice Description" width={0} height={0} sizes="100vw" className="w-full h-auto" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* All-in-One Studio OS */}
+        <section className="py-12 lg:py-16 pb-24 px-6 lg:px-20">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl lg:text-5xl font-extrabold text-gray-900">
+                {tLanding('os_title')}
+              </h2>
+              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                {tLanding('os_desc')}
+              </p>
+            </div>
+            <div className="flex flex-col md:flex-row items-start justify-center gap-8">
+              <div className="w-full md:w-1/3 rounded-2xl overflow-hidden shadow-xl border border-white/90 bg-white/70 backdrop-blur-sm">
+                <Image src={imgMenu} alt="Artist Menu" width={0} height={0} sizes="100vw" className="w-full h-auto" />
+              </div>
+              <div className="w-full md:w-2/3 rounded-2xl overflow-hidden shadow-xl border border-white/90 bg-white/70 backdrop-blur-sm">
+                <Image src={imgFeatures} alt="Artist Features" width={0} height={0} sizes="100vw" className="w-full h-auto" />
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <footer className="py-12 bg-gray-50 text-center text-gray-400 text-sm border-t border-gray-200">
         <p>© 2026 PUMWI Inc. All rights reserved.</p>
