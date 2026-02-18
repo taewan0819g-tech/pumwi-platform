@@ -31,7 +31,13 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) onClose()
+      const target = e.target as Node
+      if (!ref.current) return
+      if (ref.current.contains(target)) return
+      // Google Places Autocomplete dropdown is rendered in body; do not close when clicking it
+      const el = e.target as HTMLElement
+      if (el.closest?.('.pac-container')) return
+      onClose()
     }
     if (open) document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)

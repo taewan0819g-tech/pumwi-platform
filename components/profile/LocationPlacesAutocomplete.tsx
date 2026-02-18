@@ -45,6 +45,13 @@ export default function LocationPlacesAutocomplete({
     preventGoogleFontsLoading: true,
   })
 
+  const deliverResult = useCallback((result: LocationPlaceResult) => {
+    onChangeRef.current(result)
+    requestAnimationFrame(() => {
+      inputRef.current?.blur()
+    })
+  }, [])
+
   const onPlaceSelect = useCallback(() => {
     const autocomplete = autocompleteRef.current
     if (!autocomplete) return
@@ -68,8 +75,9 @@ export default function LocationPlacesAutocomplete({
     if (locality) city = [locality, admin1].filter(Boolean).join(', ')
     else if (!city) city = place.name ?? ''
 
-    onChangeRef.current({ city: city.trim() || (place.formatted_address ?? ''), country, lat, lng })
-  }, [])
+    const result: LocationPlaceResult = { city: city.trim() || (place.formatted_address ?? ''), country, lat, lng }
+    deliverResult(result)
+  }, [deliverResult])
 
   useEffect(() => {
     if (!isLoaded || loadError || !inputRef.current) return
@@ -84,13 +92,16 @@ export default function LocationPlacesAutocomplete({
       if (autocompleteRef.current === autocomplete) {
         try {
           google.maps.event.clearInstanceListeners(autocomplete)
-        } catch (_) {
-          // ignore if already cleared or API unloaded
-        }
+        } catch (_) {}
         autocompleteRef.current = null
       }
     }
   }, [isLoaded, loadError, onPlaceSelect])
+
+  const stopPropagation = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    e.preventDefault()
+  }, [])
 
   if (!apiKey) {
     return (
@@ -127,7 +138,12 @@ export default function LocationPlacesAutocomplete({
   }
 
   return (
-    <div className={className}>
+    <div
+      className={className}
+      onMouseDown={stopPropagation}
+      onClick={stopPropagation}
+      role="presentation"
+    >
       {label && <label className="block text-xs font-medium text-gray-600 mb-1">{label}</label>}
       <input
         ref={inputRef}
@@ -136,6 +152,8 @@ export default function LocationPlacesAutocomplete({
         placeholder={placeholder}
         className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none bg-white ${inputClassName}`}
         aria-label={label ?? placeholder}
+        onMouseDown={stopPropagation}
+        onClick={stopPropagation}
       />
     </div>
   )
