@@ -50,11 +50,11 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
       <div
         ref={ref}
         className={cn(
-          'bg-white rounded-lg shadow-xl max-h-[90vh] overflow-auto w-full max-w-md',
+          'bg-white rounded-lg shadow-xl w-full max-w-md flex flex-col max-h-[90vh] overflow-hidden',
           className
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="flex-shrink-0 flex items-center justify-between p-4 border-b border-gray-200">
           {title != null ? (
             <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
           ) : (
@@ -68,7 +68,9 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
             <X className="h-5 w-5" />
           </button>
         </div>
-        {children}
+        <div className="flex-1 min-h-0 flex flex-col overflow-auto">
+          {children}
+        </div>
       </div>
     </div>
   )
