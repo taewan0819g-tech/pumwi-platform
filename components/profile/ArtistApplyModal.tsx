@@ -300,8 +300,9 @@ export default function ArtistApplyModal({
     portfolioFiles.length <= PORTFOLIO_MAX
 
   return (
-    <Dialog open={open} onClose={onClose} title={t('title')} className="max-w-lg">
-      <div className="p-5 sm:p-6 space-y-8">
+    <Dialog open={open} onClose={onClose} title={t('title')} className="max-w-lg flex flex-col overflow-hidden max-h-[90vh]">
+      <div className="flex flex-col flex-1 min-h-0">
+        <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-8">
         {APPLICATION_FIELD_CONFIG.map((field) => (
           <div key={field.key} className="space-y-2">
             <label
@@ -452,7 +453,12 @@ export default function ArtistApplyModal({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-2">
+        </div>
+
+        <div
+          className="flex-shrink-0 flex justify-end gap-3 p-4 border-t border-gray-100 bg-white/80 backdrop-blur-md"
+          style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+        >
           <Button variant="outline" onClick={onClose}>
             {t('cancel')}
           </Button>
