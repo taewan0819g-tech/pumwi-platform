@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Dialog } from '@/components/ui/Dialog'
-import { Button } from '@/components/ui/button'
 import { Check, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import LocationPlacesAutocomplete, { type LocationPlaceResult } from '@/components/profile/LocationPlacesAutocomplete'
@@ -299,10 +298,57 @@ export default function ArtistApplyModal({
     portfolioFiles.length >= PORTFOLIO_MIN &&
     portfolioFiles.length <= PORTFOLIO_MAX
 
+  const handleSubmitClick = () => {
+    const errors = getValidationErrors()
+    if (Object.keys(errors).length === 0 && isValid) {
+      handleSubmit()
+      return
+    }
+    if (!isAgreed) {
+      toast.error(tApp('error.agree_terms'))
+      return
+    }
+    if (errors.minImages) {
+      toast.error(tApp('error.min_images'))
+      return
+    }
+    if (errors.maxImages) {
+      toast.error(tApp('error.max_images'))
+      return
+    }
+    if (errors.textFields) {
+      toast.error(tApp('error.fill_questions'))
+      return
+    }
+    if (errors.location) {
+      toast.error(tApp('error.select_location'))
+      return
+    }
+    if (errors.otherCountry) {
+      toast.error(tApp('error.enter_country'))
+      return
+    }
+    toast.error(tApp('error.complete_all'))
+  }
+
   return (
-    <Dialog open={open} onClose={onClose} title={t('title')} className="max-w-lg">
-      <div className="flex flex-col flex-1 min-h-0 max-h-[85vh]">
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-8">
+    <Dialog open={open} onClose={onClose} className="max-w-lg">
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md flex justify-between items-center p-4 border-b border-gray-200">
+        <h2 className="text-lg font-semibold text-slate-900">{t('title')}</h2>
+        <button
+          type="button"
+          onClick={handleSubmitClick}
+          disabled={submitting}
+          className={`px-4 py-2 text-sm rounded-full font-medium transition-all ${
+            isValid
+              ? 'bg-[#2F5D50] text-white hover:bg-[#2F5D50]/90'
+              : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+          }`}
+        >
+          {submitting ? t('submit_loading') : t('submit')}
+        </button>
+      </div>
+      <div className="overflow-y-auto p-5 sm:p-6 space-y-8 pb-8">
         {APPLICATION_FIELD_CONFIG.map((field) => (
           <div key={field.key} className="space-y-2">
             <label
@@ -451,58 +497,6 @@ export default function ArtistApplyModal({
               </span>
             </label>
           </div>
-        </div>
-
-        </div>
-
-        <div className="flex-shrink-0 flex justify-end gap-3 p-4 sm:p-6 border-t border-gray-200 bg-white/90 backdrop-blur-md pb-[env(safe-area-inset-bottom,24px)]">
-          <Button variant="outline" onClick={onClose}>
-            {t('cancel')}
-          </Button>
-          <button
-            type="button"
-            onClick={() => {
-              const errors = getValidationErrors()
-              if (Object.keys(errors).length === 0 && isValid) {
-                handleSubmit()
-                return
-              }
-              console.log('[ArtistApply] Submit blocked, errors:', errors)
-              if (!isAgreed) {
-                toast.error(tApp('error.agree_terms'))
-                return
-              }
-              if (errors.minImages) {
-                toast.error(tApp('error.min_images'))
-                return
-              }
-              if (errors.maxImages) {
-                toast.error(tApp('error.max_images'))
-                return
-              }
-              if (errors.textFields) {
-                toast.error(tApp('error.fill_questions'))
-                return
-              }
-              if (errors.location) {
-                toast.error(tApp('error.select_location'))
-                return
-              }
-              if (errors.otherCountry) {
-                toast.error(tApp('error.enter_country'))
-                return
-              }
-              toast.error(tApp('error.complete_all'))
-            }}
-            disabled={submitting}
-            className={`w-full sm:w-auto min-w-[140px] py-3.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-sm ${
-              isValid
-                ? 'bg-[#2F5D50] text-white hover:bg-[#2F5D50]/90 hover:shadow-md transform hover:-translate-y-0.5'
-                : 'bg-gray-100 text-gray-400 cursor-pointer'
-            }`}
-          >
-            {submitting ? t('submit_loading') : t('submit')}
-          </button>
         </div>
       </div>
     </Dialog>
