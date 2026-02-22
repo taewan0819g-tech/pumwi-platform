@@ -3,8 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 
-/** public/logo.png — 경로는 반드시 앞에 슬래시 포함, 파일명 소문자 logo.png */
-const LOGO_SRC = '/logo.png'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { Link, useRouter, usePathname } from '@/i18n/navigation'
@@ -71,6 +69,7 @@ export default function Navbar({ user }: NavbarProps) {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const langDropdownRef = useRef<HTMLDivElement>(null)
   const isMessagesActive = pathname === '/messages'
+  const isLoginPage = pathname?.endsWith('/login') ?? false
   const tMore = useTranslations('more')
 
   useEffect(() => {
@@ -141,33 +140,32 @@ export default function Navbar({ user }: NavbarProps) {
 
   return (
     <>
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+    <nav className={`sticky top-0 z-50 border-b transition-colors ${isLoginPage ? 'bg-[#0A0A0B] border-white/10' : 'bg-white border-gray-200 shadow-sm'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12 gap-4">
           {/* Hamburger: mobile only, left of Logo */}
           <button
             type="button"
             onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden flex-shrink-0 p-2 rounded-md text-gray-600 hover:bg-slate-100 transition-colors"
+            className={`lg:hidden flex-shrink-0 p-2 rounded-md transition-colors ${isLoginPage ? 'text-off-white hover:bg-white/10' : 'text-gray-600 hover:bg-slate-100'}`}
             aria-label="Open menu"
           >
             <Menu className="h-6 w-6" />
           </button>
           <Link
             href="/"
-            className="flex-shrink-0 flex items-center justify-center rounded-md py-1 px-0.5 min-h-[44px] hover:bg-slate-100 transition-colors"
+            className={`flex-shrink-0 flex items-center justify-center rounded-md py-1 px-0.5 min-h-[44px] transition-colors ${isLoginPage ? 'hover:bg-white/10' : 'hover:bg-slate-100'}`}
             title="PUMWI Home"
+            aria-label="PUMWI"
           >
             <Image
-              src={LOGO_SRC}
-              alt="PUMWI"
-              width={88}
-              height={26}
-              className="h-[26px] w-auto object-contain mix-blend-multiply"
-              style={{ width: 'auto', height: '26px' }}
-              sizes="88px"
+              src={isLoginPage ? '/logo.png' : '/logo2.png'}
+              alt="PUMWI Logo"
+              width={96}
+              height={32}
+              className="h-5 sm:h-6 w-auto object-contain"
+              sizes="96px"
               priority
-              unoptimized={false}
             />
           </Link>
 
@@ -175,18 +173,24 @@ export default function Navbar({ user }: NavbarProps) {
             onSubmit={handleSearch}
             className="flex-1 max-w-md mx-2 sm:mx-4 relative"
           >
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none ${isLoginPage ? 'text-[#F3F4F6]/60' : 'text-gray-500'}`} />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('searchPlaceholder')}
-              className="w-full h-8 pl-9 pr-9 bg-slate-100 border-0 rounded-md text-sm placeholder:text-gray-500 focus:ring-2 focus:ring-[#8E86F5] focus:bg-white outline-none transition"
+              className={`w-full h-8 pl-9 pr-9 border-0 rounded-md text-sm outline-none transition ${
+                isLoginPage
+                  ? 'bg-white/5 placeholder:text-white/40 text-[#F3F4F6] focus:ring-2 focus:ring-white/20'
+                  : 'bg-slate-100 placeholder:text-gray-500 focus:ring-2 focus:ring-[#8E86F5] focus:bg-white'
+              }`}
             />
             <button
               type="submit"
               disabled={!searchQuery.trim()}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md text-gray-500 hover:text-[#8E86F5] hover:bg-slate-200/80 transition-colors disabled:opacity-40 disabled:pointer-events-none"
+              className={`absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md transition-colors disabled:opacity-40 disabled:pointer-events-none ${
+                isLoginPage ? 'text-[#F3F4F6]/70 hover:text-[#F3F4F6] hover:bg-white/10' : 'text-gray-500 hover:text-[#8E86F5] hover:bg-slate-200/80'
+              }`}
               title={t('search')}
             >
               <Search className="h-4 w-4" />
@@ -198,15 +202,19 @@ export default function Navbar({ user }: NavbarProps) {
             <button
               type="button"
               onClick={() => setLangDropdownOpen((v) => !v)}
-              className="flex items-center justify-center w-9 h-9 rounded-md border border-slate-200 text-slate-600 hover:bg-slate-100 transition-colors"
+              className={`flex items-center justify-center w-9 h-9 rounded-md border transition-colors ${
+                isLoginPage ? 'border-white/20 text-[#F3F4F6]/80 hover:bg-white/10' : 'border-slate-200 text-slate-600 hover:bg-slate-100'
+              }`}
               title="Language"
               aria-label="Select language"
             >
               <Globe className="h-4 w-4" />
             </button>
             {langDropdownOpen && (
-              <div className="absolute right-0 top-full mt-1 min-w-[100px] py-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50">
-                <div className="px-3 py-1.5 text-xs text-slate-400 border-b border-gray-100">
+              <div className={`absolute right-0 top-full mt-1 min-w-[100px] py-1 rounded-lg shadow-lg z-50 ${
+                isLoginPage ? 'bg-[#0A0A0B] border border-white/10' : 'bg-white border border-gray-200'
+              }`}>
+                <div className={`px-3 py-1.5 text-xs border-b ${isLoginPage ? 'text-white/40 border-white/10' : 'text-slate-400 border-gray-100'}`}>
                   {locale === 'ko' ? '한국어' : locale === 'ja' ? '日本語' : 'English'}
                 </div>
                 {(['ko', 'en', 'ja'] as const).map((loc) => (
@@ -216,7 +224,9 @@ export default function Navbar({ user }: NavbarProps) {
                     locale={loc}
                     onClick={() => setLangDropdownOpen(false)}
                     className={`flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors ${
-                      locale === loc ? 'bg-[#8E86F5]/10 text-[#8E86F5] font-medium' : 'text-gray-700 hover:bg-slate-50'
+                      locale === loc
+                        ? isLoginPage ? 'bg-white/10 text-[#F3F4F6] font-medium' : 'bg-[#8E86F5]/10 text-[#8E86F5] font-medium'
+                        : isLoginPage ? 'text-[#F3F4F6]/80 hover:bg-white/5' : 'text-gray-700 hover:bg-slate-50'
                     }`}
                   >
                     {loc.toUpperCase()}
@@ -316,14 +326,18 @@ export default function Navbar({ user }: NavbarProps) {
             <div className="hidden md:flex items-center gap-2">
               <Link
                 href="/login"
-                className="px-3 py-1.5 text-sm text-gray-700 hover:bg-slate-100 rounded-md transition-colors"
+                className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                  isLoginPage ? 'text-[#F3F4F6]/90 hover:bg-white/10' : 'text-gray-700 hover:bg-slate-100'
+                }`}
               >
                 {t('signIn')}
               </Link>
               <Link
                 href="/signup"
-                className="px-3 py-1.5 text-sm text-white rounded-md transition-opacity hover:opacity-90"
-                style={{ backgroundColor: '#8E86F5' }}
+                className={`px-3 py-1.5 text-sm rounded-md transition-opacity ${
+                  isLoginPage ? 'text-[#0A0A0B] bg-[#F3F4F6] hover:opacity-90' : 'text-white hover:opacity-90'
+                }`}
+                style={isLoginPage ? undefined : { backgroundColor: '#8E86F5' }}
               >
                 {t('join')}
               </Link>

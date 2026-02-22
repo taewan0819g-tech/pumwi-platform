@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { User } from 'lucide-react'
@@ -24,6 +25,8 @@ interface UserFollowingSectionProps {
  * follows 테이블을 조회하여 follower_id = userId 인 following_id 목록의 프로필 카드를 표시합니다.
  */
 export default function UserFollowingSection({ userId }: UserFollowingSectionProps) {
+  const tMore = useTranslations('more')
+  const tProfile = useTranslations('profile')
   const [profiles, setProfiles] = useState<FollowedProfile[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
@@ -60,7 +63,7 @@ export default function UserFollowingSection({ userId }: UserFollowingSectionPro
   return (
     <Card>
       <CardHeader>
-        <h3 className="font-semibold text-slate-900">Following</h3>
+        <h3 className="font-semibold text-slate-900">{tMore('following')}</h3>
       </CardHeader>
       <CardContent>
         {loading ? (
@@ -71,7 +74,7 @@ export default function UserFollowingSection({ userId }: UserFollowingSectionPro
           </div>
         ) : profiles.length === 0 ? (
           <div className="py-8 text-center text-sm text-gray-500">
-            No artists in your following list yet.
+            {tMore('following_empty')}
           </div>
         ) : (
           <ul className="space-y-2">
@@ -96,8 +99,8 @@ export default function UserFollowingSection({ userId }: UserFollowingSectionPro
                     <p className="font-medium text-slate-900 truncate">
                       {p.full_name ?? 'Unknown'}
                     </p>
-                    {p.role && (
-                      <p className="text-xs text-[#8E86F5] mt-0.5">{p.role}</p>
+                    {p.role === 'artist' && (
+                      <p className="text-xs text-[#8E86F5] mt-0.5">{tProfile('role_master')}</p>
                     )}
                     {p.bio && (
                       <p className="text-sm text-gray-500 truncate mt-0.5">{p.bio}</p>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardHeader, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/button'
@@ -107,6 +108,7 @@ export default function PostsSection({
   isOwn,
   tab,
 }: PostsSectionProps) {
+  const t = useTranslations('profile')
   const router = useRouter()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
@@ -370,19 +372,19 @@ export default function PostsSection({
       <Card>
         <CardHeader action={isOwn && (
           <Button variant="ghost" size="sm" onClick={openAdd}>
-            <Plus className="h-4 w-4 mr-1" />New post
+            <Plus className="h-4 w-4 mr-1" />{t('new_post_btn')}
           </Button>
         )}>
           <h3 className="font-semibold text-slate-900">
-            {tab === 'studio_log' ? 'Craft Diary' : tab === 'exhibition' ? 'Exhibitions' : 'Works for Sale'}
+            {tab === 'studio_log' ? t('tabs.craft_diary') : tab === 'exhibition' ? t('tabs.exhibitions') : t('tabs.shop')}
           </h3>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-sm text-gray-500">Loading...</div>
+            <div className="text-sm text-gray-500">{t('loading')}</div>
           ) : !posts.length ? (
             <div className="py-8 text-center text-sm text-gray-500">
-              {isOwn ? 'Share your first post!' : 'No posts yet.'}
+              {isOwn ? t('share_first_post') : t('no_posts_yet')}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -391,11 +393,11 @@ export default function PostsSection({
                      className="border rounded-lg p-4 hover:border-[#8E86F5] cursor-pointer transition-colors">
                   {post.type === 'sales' && (
                     <div className="mb-2 flex items-center gap-1.5">
-                      <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
-                        For Sale
+                      <span className="border border-slate-200/80 bg-white/50 text-[11px] font-light tracking-widest text-slate-600 rounded-sm px-2 py-0.5">
+                        {t('for_sale_badge')}
                       </span>
                       {post.edition_number != null && post.edition_total != null && (
-                        <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                        <span className="border border-slate-200/80 bg-white/50 text-[11px] font-light tracking-widest text-slate-600 rounded-sm px-2 py-0.5">
                           Edition {post.edition_number}/{post.edition_total}
                         </span>
                       )}
@@ -423,7 +425,7 @@ export default function PostsSection({
       </Card>
 
       {/* 글쓰기 모달 */}
-      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title={tab === 'exhibition' ? 'New exhibition' : 'New post'}>
+      <Dialog open={modalOpen} onClose={() => setModalOpen(false)} title={tab === 'exhibition' ? t('modal_new_gallery') : t('modal_new_post')}>
         <div className="p-4 space-y-3">
           <input 
             value={title} onChange={e => setTitle(e.target.value)} 

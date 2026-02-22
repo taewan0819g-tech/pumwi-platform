@@ -1,13 +1,13 @@
 {
   "nav_nearby": "Nearby",
   "nav": {
-    "home": "Home",
-    "exhibitions": "Exhibitions",
-    "craft_diary": "Craft Diary",
-    "shop": "Shop",
-    "exhibition": "Exhibition",
-    "craftDiary": "Craft Diary",
-    "following": "Following",
+    "home": "Narrative",
+    "exhibitions": "Gallery",
+    "craft_diary": "Master's Log",
+    "shop": "Collect",
+    "exhibition": "Gallery",
+    "craftDiary": "Master's Log",
+    "following": "My Collector's List",
     "nearby": "Nearby",
     "messages": "Messages",
     "me": "Me",
@@ -19,11 +19,13 @@
     "searchPlaceholder": "Search..."
   },
   "more": {
-    "exhibitions": "Exhibitions",
+    "exhibitions": "Gallery",
     "recommended": "Recommended Artists",
-    "following": "Following",
+    "following": "My Collector's List",
     "view_all": "View All",
-    "following_empty": "No one in your following list yet."
+    "following_empty": "No masters in your collector's list yet.",
+    "following_hint": "Add masters to your list from their profiles.",
+    "collection": "Collection"
   },
   "sidebar": {
     "title": "Artist Operations",
@@ -47,16 +49,16 @@
   },
   "feed": {
     "tabs": {
-      "all": "All",
-      "exhibitions": "Exhibitions",
-      "craft_diary": "Craft Diary",
-      "for_sale": "For Sale"
+      "all": "Narrative",
+      "exhibitions": "Gallery",
+      "craft_diary": "Master's Log",
+      "for_sale": "Collect"
     },
     "create_post": {
-      "placeholder_collapsed": "Share a Craft Diary, work for sale, or exhibition.",
-      "type_craft_diary": "Craft Diary",
-      "type_work_for_sale": "Work For Sale",
-      "type_exhibition": "Exhibition",
+      "placeholder_collapsed": "Share Master's Log, work for collect, or gallery.",
+      "type_craft_diary": "Master's Log",
+      "type_work_for_sale": "Collect",
+      "type_exhibition": "Gallery",
       "input_title": "Title",
       "input_placeholder": "What's on your mind?",
       "btn_add_image": "Add images",
@@ -115,11 +117,11 @@
   },
   "profile": {
     "tabs": {
-      "home": "Home",
-      "exhibitions": "Exhibitions",
-      "craft_diary": "Craft Diary",
-      "craftDiary": "Craft Diary",
-      "shop": "Shop"
+      "home": "Narrative",
+      "exhibitions": "Gallery",
+      "craft_diary": "Master's Log",
+      "craftDiary": "Master's Log",
+      "shop": "Collect"
     },
     "sections": {
       "values": "Values & Philosophy",
@@ -130,10 +132,10 @@
     },
     "location_empty": "No location",
     "actions": {
-      "commission": "Commission",
-      "chat": "Chat",
-      "follow": "Follow",
-      "unfollow": "Unfollow",
+      "commission": "Private Order",
+      "chat": "Contact Concierge",
+      "follow": "Join Collector's List",
+      "unfollow": "Listed as Collector",
       "chat_opening": "Opening...",
       "follow_processing": "Processing...",
       "myQrCode": "My QR Code",
@@ -142,7 +144,19 @@
       "downloadImage": "Download Image"
     },
     "shareMyProfile": "Share My Profile",
-    "shareProfile": "Share Profile"
+    "shareProfile": "Share Profile",
+    "modal_new_post": "New post",
+    "modal_new_gallery": "New gallery entry",
+    "new_post_btn": "New post",
+    "for_sale_badge": "Collect",
+    "loading": "Loading...",
+    "no_posts_yet": "No posts yet.",
+    "share_first_post": "Share your first post.",
+    "role_master": "Master",
+    "role_admin": "Admin",
+    "role_user": "User",
+    "toast_added_to_list": "Added to your collector's list.",
+    "toast_removed_from_list": "Removed from list."
   },
   "signup": {
     "marketing_consent": "Agree to receive marketing updates (Optional)",
@@ -272,7 +286,7 @@
     "termsShort": "Terms"
   },
   "home": {
-    "sharePlaceholder": "Share a Craft Diary, work for sale, or exhibition."
+    "sharePlaceholder": "Share Master's Log, work for collect, or gallery."
   },
   "landing": {
     "main_description": "A platform for artists who create with their best effort and consumers who understand that true value.",

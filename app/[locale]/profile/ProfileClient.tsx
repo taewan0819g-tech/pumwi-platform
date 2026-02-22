@@ -17,11 +17,6 @@ import UserFollowingSection from '@/components/profile/user/UserFollowingSection
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import type { Profile } from '@/types/profile'
 
-const USER_TABS = [
-  { value: 'collection', label: 'Collection' },
-  { value: 'following', label: 'Following' },
-]
-
 function defaultProfile(uid: string): Profile {
   return {
     id: uid,
@@ -45,11 +40,16 @@ interface ProfileClientProps {
 
 export default function ProfileClient({ serverUser, initialProfile }: ProfileClientProps) {
   const t = useTranslations('profile')
+  const tMore = useTranslations('more')
   const user = serverUser
   const [profile, setProfile] = useState<Profile | null>(initialProfile ?? null)
   const [loading, setLoading] = useState(!initialProfile)
   const [activeTab, setActiveTab] = useState('home')
 
+  const USER_TABS = [
+    { value: 'collection', label: tMore('collection') },
+    { value: 'following', label: tMore('following') },
+  ]
   const ARTIST_TABS = [
     { value: 'home', label: t('tabs.home') },
     { value: 'exhibitions', label: t('tabs.exhibitions') },

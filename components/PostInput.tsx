@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { PenLine, X, Pencil, Tag, Image as ImageIcon, Globe } from 'lucide-react'
+import { PenLine, X } from 'lucide-react'
 import VoiceWriteButton from '@/components/VoiceWriteButton'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
@@ -252,45 +252,42 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
       </div>
       {expanded && (
         <div className="mt-4 pt-4 border-t border-gray-100 space-y-4">
-          {/* Tab Switcher: Craft Diary | Work For Sale | Exhibition */}
+          {/* Tab Switcher: 마스터의 시간 | 소장하기 | 갤러리 (i18n) */}
           <div className="flex p-1 bg-gray-100/80 rounded-lg flex-wrap gap-1">
             <button
               type="button"
               onClick={() => setPostType('log')}
               className={cn(
-                'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                'flex-1 min-w-[100px] flex items-center justify-center py-2 rounded-sm text-sm font-light tracking-wide transition-colors',
                 postType === 'log'
                   ? 'bg-white text-[#2F5D50] shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               )}
             >
-              <Pencil className="h-4 w-4" />
               {tCreate('type_craft_diary')}
             </button>
             <button
               type="button"
               onClick={() => setPostType('work')}
               className={cn(
-                'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                'flex-1 min-w-[100px] flex items-center justify-center py-2 rounded-sm text-sm font-light tracking-wide transition-colors',
                 postType === 'work'
                   ? 'bg-white text-[#2F5D50] shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               )}
             >
-              <Tag className="h-4 w-4" />
               {tCreate('type_work_for_sale')}
             </button>
             <button
               type="button"
               onClick={() => setPostType('exhibition')}
               className={cn(
-                'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                'flex-1 min-w-[100px] flex items-center justify-center py-2 rounded-sm text-sm font-light tracking-wide transition-colors',
                 postType === 'exhibition'
                   ? 'bg-white text-[#2F5D50] shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
               )}
             >
-              <ImageIcon className="h-4 w-4" />
               {tCreate('type_exhibition')}
             </button>
             {isAdmin && (
@@ -298,13 +295,12 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
                 type="button"
                 onClick={() => setPostType('pumwi_exhibition')}
                 className={cn(
-                  'flex-1 min-w-[100px] flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-colors',
+                  'flex-1 min-w-[100px] flex items-center justify-center py-2 rounded-sm text-sm font-light tracking-wide transition-colors',
                   postType === 'pumwi_exhibition'
                     ? 'bg-white text-[#2F5D50] shadow-sm'
                     : 'text-gray-600 hover:text-gray-900'
                 )}
               >
-                <Globe className="h-4 w-4" />
                 PUMWI Exhibition
               </button>
             )}
@@ -364,7 +360,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Write the detailed exhibition introduction, curator's note, etc. here..."
+                  placeholder="Gallery introduction, curator's note, etc. (optional)"
                   rows={8}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-y min-h-[160px] text-slate-900"
                 />
@@ -374,7 +370,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
                 <textarea
                   value={contentKo}
                   onChange={(e) => setContentKo(e.target.value)}
-                  placeholder="전시 소개, 큐레이터 노트 등 (한국어, 선택)"
+                  placeholder="갤러리 소개, 큐레이터 노트 등 (한국어, 선택)"
                   rows={6}
                   className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm placeholder:text-gray-400 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none resize-y min-h-[120px] text-slate-900"
                 />

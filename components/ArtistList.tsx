@@ -18,6 +18,7 @@ const DISPLAY_LIMIT = 7
 
 export default function ArtistList() {
   const t = useTranslations('sidebar')
+  const tProfile = useTranslations('profile')
   const router = useRouter()
   const [artists, setArtists] = useState<ArtistProfile[]>([])
   const [loading, setLoading] = useState(true)
@@ -86,13 +87,13 @@ export default function ArtistList() {
           .eq('follower_id', currentUserId)
           .eq('following_id', artistId)
         if (error) throw error
-        toast.success('Unfollowed.')
+        toast.success(tProfile('toast_removed_from_list'))
       } else {
         const { error } = await supabase
           .from('follows')
           .insert({ follower_id: currentUserId, following_id: artistId })
         if (error) throw error
-        toast.success('Added to following.')
+        toast.success(tProfile('toast_added_to_list'))
       }
     } catch (err) {
       setFollowing((prev) => {
@@ -189,10 +190,10 @@ export default function ArtistList() {
                     }`}
                   >
                     {togglingId === artist.id
-                      ? 'Processing...'
+                      ? tProfile('actions.follow_processing')
                       : following.has(artist.id)
-                        ? 'Unfollow'
-                        : 'Follow'}
+                        ? tProfile('actions.unfollow')
+                        : tProfile('actions.follow')}
                   </button>
                 </li>
               ))}

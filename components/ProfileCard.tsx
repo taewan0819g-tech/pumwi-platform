@@ -20,6 +20,7 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile, userEmail, applicationStatus }: ProfileCardProps) {
   const router = useRouter()
   const t = useTranslations('sidebar')
+  const tProfile = useTranslations('profile')
   const [applyModalOpen, setApplyModalOpen] = useState(false)
   // Show "Under Review" immediately after submit, before router.refresh() completes
   const [justSubmittedPending, setJustSubmittedPending] = useState(false)
@@ -96,7 +97,7 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
               <span
                 className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full text-[#8E86F5] bg-[#8E86F5]/10"
               >
-                Artist
+                {tProfile('role_master')}
               </span>
             ) : (
               <p className="text-xs text-gray-500 mt-1">User</p>

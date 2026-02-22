@@ -1,13 +1,13 @@
 {
   "nav_nearby": "내 주변",
   "nav": {
-    "home": "홈",
-    "exhibitions": "전시",
-    "craft_diary": "작업일지",
-    "shop": "판매",
-    "exhibition": "전시",
-    "craftDiary": "작업일지",
-    "following": "팔로잉",
+    "home": "서사",
+    "exhibitions": "갤러리",
+    "craft_diary": "마스터의 시간",
+    "shop": "소장하기",
+    "exhibition": "갤러리",
+    "craftDiary": "마스터의 시간",
+    "following": "나의 마스터 리스트",
     "nearby": "내 주변",
     "messages": "메시지",
     "me": "마이",
@@ -19,11 +19,13 @@
     "searchPlaceholder": "검색..."
   },
   "more": {
-    "exhibitions": "전시",
+    "exhibitions": "갤러리",
     "recommended": "추천 아티스트",
-    "following": "팔로잉",
+    "following": "나의 마스터 리스트",
     "view_all": "더보기",
-    "following_empty": "아직 팔로잉한 작가가 없어요."
+    "following_empty": "아직 등록한 마스터가 없습니다.",
+    "following_hint": "프로필에서 마스터를 리스트에 추가하세요.",
+    "collection": "컬렉션"
   },
   "sidebar": {
     "title": "작가 운영 시스템",
@@ -47,16 +49,16 @@
   },
   "feed": {
     "tabs": {
-      "all": "전체",
-      "exhibitions": "전시",
-      "craft_diary": "작업일지",
-      "for_sale": "판매"
+      "all": "서사",
+      "exhibitions": "갤러리",
+      "craft_diary": "마스터의 시간",
+      "for_sale": "소장하기"
     },
     "create_post": {
-      "placeholder_collapsed": "작업일지, 판매 작품, 전시를 공유해 보세요.",
-      "type_craft_diary": "작업일지",
-      "type_work_for_sale": "판매 작품",
-      "type_exhibition": "전시",
+      "placeholder_collapsed": "마스터의 시간, 소장 작품, 갤러리를 공유해 보세요.",
+      "type_craft_diary": "마스터의 시간",
+      "type_work_for_sale": "소장 작품",
+      "type_exhibition": "갤러리",
       "input_title": "제목",
       "input_placeholder": "어떤 이야기를 나누고 싶으신가요?",
       "btn_add_image": "사진 추가",
@@ -115,11 +117,11 @@
   },
   "profile": {
     "tabs": {
-      "home": "홈",
-      "exhibitions": "전시",
-      "craft_diary": "작업일지",
-      "craftDiary": "작업일지",
-      "shop": "판매"
+      "home": "서사",
+      "exhibitions": "갤러리",
+      "craft_diary": "마스터의 시간",
+      "craftDiary": "마스터의 시간",
+      "shop": "소장하기"
     },
     "sections": {
       "values": "가치와 철학",
@@ -130,10 +132,10 @@
     },
     "location_empty": "위치 정보 없음",
     "actions": {
-      "commission": "맞춤제작",
-      "chat": "채팅",
-      "follow": "팔로우",
-      "unfollow": "팔로우 취소",
+      "commission": "프라이빗 오더 (Private Order)",
+      "chat": "컨시어지 문의 (Contact Concierge)",
+      "follow": "컬렉터 등록 (Join Collector's List)",
+      "unfollow": "컬렉터 등록됨 (Listed as Collector)",
       "chat_opening": "연결 중...",
       "follow_processing": "처리 중...",
       "myQrCode": "내 프로필 QR",
@@ -142,7 +144,19 @@
       "downloadImage": "이미지 저장"
     },
     "shareMyProfile": "내 프로필 공유하기",
-    "shareProfile": "프로필 공유"
+    "shareProfile": "프로필 공유",
+    "modal_new_post": "새 게시",
+    "modal_new_gallery": "갤러리 추가",
+    "new_post_btn": "새 게시",
+    "for_sale_badge": "소장하기",
+    "loading": "불러오는 중...",
+    "no_posts_yet": "아직 게시가 없어요.",
+    "share_first_post": "첫 게시를 공유해 보세요.",
+    "role_master": "장인",
+    "role_admin": "관리자",
+    "role_user": "유저",
+    "toast_added_to_list": "마스터 리스트에 추가되었습니다.",
+    "toast_removed_from_list": "등록 해제되었습니다."
   },
   "signup": {
     "marketing_consent": "혜택 및 이벤트 정보 수신 동의 (선택)",
@@ -272,7 +286,7 @@
     "termsShort": "이용약관"
   },
   "home": {
-    "sharePlaceholder": "크래프트 다이어리, 판매 작품, 전시를 공유해 보세요."
+    "sharePlaceholder": "마스터의 시간, 소장 작품, 갤러리를 공유해 보세요."
   },
   "landing": {
     "main_description": "최선을 다해 창작하는 작가와 그 진정한 가치를 알아보는 소비자를 위한 플랫폼.",

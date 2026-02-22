@@ -590,16 +590,16 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                         {authorName(post)}
                       </Link>
                       {post.type === 'sales' ? (
-                        <span className="bg-[#6B8E6B] text-white text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
-                          🏷️ For Sale
+                        <span className="ml-2 inline-block border border-slate-200/80 bg-white/50 text-[10px] font-light tracking-widest text-slate-600 rounded-sm px-2 py-0.5 align-middle">
+                          {tTabs('for_sale')}
                         </span>
                       ) : post.type === 'exhibition' ? (
-                        <span className="bg-[#2F5D50]/15 text-[#2F5D50] text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
-                          🖼️ Exhibition
+                        <span className="ml-2 inline-block border border-slate-200/80 bg-white/50 text-[10px] font-light tracking-widest text-slate-600 rounded-sm px-2 py-0.5 align-middle">
+                          {tTabs('exhibitions')}
                         </span>
                       ) : (
-                        <span className="bg-gray-100 text-gray-600 text-[10px] px-2 py-0.5 rounded-full font-medium ml-2 align-middle">
-                          ✍️ Craft Diary
+                        <span className="ml-2 inline-block border border-slate-200/80 bg-white/50 text-[10px] font-light tracking-widest text-slate-600 rounded-sm px-2 py-0.5 align-middle">
+                          {tTabs('craft_diary')}
                         </span>
                       )}
                     </div>
@@ -647,11 +647,11 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
               </div>
               {post.type === 'sales' && (
                 <div className="px-4 pb-2 flex items-center gap-2">
-                  <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
-                    For Sale
+                  <span className="border border-slate-200/80 bg-white/50 text-[11px] font-light tracking-widest text-slate-600 rounded-sm px-2 py-0.5">
+                    {tTabs('for_sale')}
                   </span>
                   {post.edition_number != null && post.edition_total != null && (
-                    <span className="bg-slate-800 text-white text-[11px] font-medium px-2.5 py-1 rounded-lg">
+                    <span className="border border-slate-200/80 bg-white/50 text-[11px] font-light tracking-widest text-slate-600 rounded-sm px-2 py-0.5">
                       Edition {post.edition_number}/{post.edition_total}
                     </span>
                   )}

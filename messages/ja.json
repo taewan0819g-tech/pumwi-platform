@@ -1,13 +1,13 @@
 {
   "nav_nearby": "近く",
   "nav": {
-    "home": "ホーム",
-    "exhibitions": "展示",
-    "craft_diary": "制作日誌",
-    "shop": "販売",
-    "exhibition": "展示",
-    "craftDiary": "制作日誌",
-    "following": "フォロー中",
+    "home": "物語",
+    "exhibitions": "ギャラリー",
+    "craft_diary": "匠の時間",
+    "shop": "迎える",
+    "exhibition": "ギャラリー",
+    "craftDiary": "匠の時間",
+    "following": "マイ・マスターリスト",
     "nearby": "近く",
     "messages": "メッセージ",
     "me": "マイページ",
@@ -19,11 +19,13 @@
     "searchPlaceholder": "検索..."
   },
   "more": {
-    "exhibitions": "展示",
+    "exhibitions": "ギャラリー",
     "recommended": "おすすめアーティスト",
-    "following": "フォロー中",
+    "following": "マイ・マスターリスト",
     "view_all": "すべて見る",
-    "following_empty": "フォロー中の作家はいません。"
+    "following_empty": "まだリストに登録した匠はいません。",
+    "following_hint": "プロフィールから匠をリストに追加してください。",
+    "collection": "コレクション"
   },
   "sidebar": {
     "title": "作家運営システム",
@@ -47,16 +49,16 @@
   },
   "feed": {
     "tabs": {
-      "all": "すべて",
-      "exhibitions": "展示",
-      "craft_diary": "制作日誌",
-      "for_sale": "販売作品"
+      "all": "物語",
+      "exhibitions": "ギャラリー",
+      "craft_diary": "匠の時間",
+      "for_sale": "迎える"
     },
     "create_post": {
-      "placeholder_collapsed": "制作日誌、販売作品、展示を共有してみましょう。",
-      "type_craft_diary": "制作日誌",
-      "type_work_for_sale": "販売作品",
-      "type_exhibition": "展示",
+      "placeholder_collapsed": "匠の時間、迎える作品、ギャラリーを共有しましょう。",
+      "type_craft_diary": "匠の時間",
+      "type_work_for_sale": "迎える作品",
+      "type_exhibition": "ギャラリー",
       "input_title": "タイトル",
       "input_placeholder": "どんなことを共有しますか？",
       "btn_add_image": "写真を追加",
@@ -115,11 +117,11 @@
   },
   "profile": {
     "tabs": {
-      "home": "ホーム",
-      "exhibitions": "展示",
-      "craft_diary": "制作日誌",
-      "craftDiary": "制作日誌",
-      "shop": "販売"
+      "home": "物語",
+      "exhibitions": "ギャラリー",
+      "craft_diary": "匠の時間",
+      "craftDiary": "匠の時間",
+      "shop": "迎える"
     },
     "sections": {
       "values": "価値と哲学",
@@ -130,10 +132,10 @@
     },
     "location_empty": "位置情報なし",
     "actions": {
-      "commission": "オーダーメイド",
-      "chat": "チャット",
-      "follow": "フォロー",
-      "unfollow": "フォロー解除",
+      "commission": "プライベートオーダー",
+      "chat": "コンシェルジュに問い合わせ",
+      "follow": "コレクターリストに登録",
+      "unfollow": "コレクター登録済み",
       "chat_opening": "接続中...",
       "follow_processing": "処理中...",
       "myQrCode": "マイQRコード",
@@ -142,7 +144,19 @@
       "downloadImage": "画像をダウンロード"
     },
     "shareMyProfile": "プロフィールを共有",
-    "shareProfile": "プロフィール共有"
+    "shareProfile": "プロフィール共有",
+    "modal_new_post": "新規投稿",
+    "modal_new_gallery": "ギャラリー追加",
+    "new_post_btn": "新規投稿",
+    "for_sale_badge": "迎える",
+    "loading": "読み込み中...",
+    "no_posts_yet": "まだ投稿がありません。",
+    "share_first_post": "最初の投稿を共有しましょう。",
+    "role_master": "匠",
+    "role_admin": "管理者",
+    "role_user": "ユーザー",
+    "toast_added_to_list": "マスターリストに追加しました。",
+    "toast_removed_from_list": "登録を解除しました。"
   },
   "signup": {
     "marketing_consent": "特典・イベント情報の受信に同意する（任意）",
@@ -272,7 +286,7 @@
     "termsShort": "利用規約"
   },
   "home": {
-    "sharePlaceholder": "制作日誌、販売作品、展示を共有してみましょう。"
+    "sharePlaceholder": "匠の時間、迎える作品、ギャラリーを共有しましょう。"
   },
   "landing": {
     "main_description": "心を込めて創作するアーティストと、その本当の価値を理解する人をつなぐプラットフォーム。",

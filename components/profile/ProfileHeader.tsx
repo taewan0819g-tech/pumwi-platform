@@ -372,14 +372,14 @@ export default function ProfileHeader({
           .eq('following_id', profile.id)
         if (error) throw error
         setIsFollowing(false)
-        toast.success('Unfollowed.')
+        toast.success(t('toast_removed_from_list'))
       } else {
         const { error } = await supabase
           .from('follows')
           .insert({ follower_id: currentUserId, following_id: profile.id })
         if (error) throw error
         setIsFollowing(true)
-        toast.success('Added to following.')
+        toast.success(t('toast_added_to_list'))
       }
     } catch (err) {
       console.error('[follow toggle]', err)
@@ -423,7 +423,7 @@ export default function ProfileHeader({
     }
   }
 
-  const roleLabel = profile?.role === 'artist' ? 'Artist' : profile?.role === 'admin' ? 'Admin' : 'User'
+  const roleLabel = profile?.role === 'artist' ? t('role_master') : profile?.role === 'admin' ? t('role_admin') : t('role_user')
 
   return (
     <Card className="overflow-hidden">

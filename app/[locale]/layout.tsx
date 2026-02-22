@@ -2,7 +2,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, setRequestLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/Navbar'
-import Footer from '@/components/layout/Footer'
+import FooterGate from '@/components/layout/FooterGate'
 import { routing } from '@/i18n/routing'
 
 export function generateStaticParams() {
@@ -26,7 +26,7 @@ export default async function LocaleLayout({
     <NextIntlClientProvider locale={locale} messages={messages}>
       <Navbar user={user} />
       <div className="flex-1 pb-16 lg:pb-0">{children}</div>
-      <Footer />
+      <FooterGate />
     </NextIntlClientProvider>
   )
 }

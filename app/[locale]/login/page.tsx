@@ -1,26 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useRef } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import ValuePropositionSection from '@/components/auth/ValuePropositionSection'
+import { motion, useInView } from 'framer-motion'
+import { Playfair_Display, Noto_Serif_KR } from 'next/font/google'
 
-/** 로고는 언어 무관 */
-const LOGO_SRC = '/logo.png'
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair', display: 'swap' })
+const notoSerifKR = Noto_Serif_KR({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-noto-serif-kr', display: 'swap' })
 
-/** locale에 따른 랜딩 이미지 접미사: ko → -ko, ja → -ja, 그 외(en) → '' */
-function getLandingImageSuffix(locale: string): string {
-  if (locale === 'ko') return '-ko'
-  if (locale === 'ja') return '-ja'
-  return ''
-}
+const RICH_BLACK = '#0A0A0B'
+const BRAND_PURPLE = '#8B5CF6'
+const DEEP_GREEN = '#2D5A27'
+const OFF_WHITE = '#F3F4F6'
 
-/* 구글 아이콘 */
 function GoogleIcon({ className }: { className?: string }) {
   return (
-    <svg className={className} width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" aria-hidden>
       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
       <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -32,27 +30,20 @@ function GoogleIcon({ className }: { className?: string }) {
 export default function LoginPage() {
   const t = useTranslations('auth.form')
   const tAuth = useTranslations('auth')
-  const tLanding = useTranslations('landing')
   const locale = useLocale()
   const router = useRouter()
+  const pathname = usePathname()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [authChecked, setAuthChecked] = useState(false)
 
-  // locale 기반 랜딩 이미지 경로 (ko: -ko, ja: -ja, en 등: 접미사 없음)
-  const suffix = getLandingImageSuffix(locale)
-  const imgFeed = `/landing-feed${suffix}.png`
-  const imgProfile = `/landing-profile${suffix}.png`
-  const imgBio = `/landing-bio${suffix}.png`
-  const imgApply = `/landing-apply${suffix}.png`
-  const imgVoice = `/landing-voice${suffix}.png`
-  const imgMenu = `/landing-menu${suffix}.png`
-  const imgFeatures = `/landing-features${suffix}.png`
-  const imgLocation = `/landing-location${suffix}.png`
+  const quotaRef = useRef(null)
+  const founderRef = useRef(null)
+  const isQuotaInView = useInView(quotaRef, { once: true, margin: '-100px' })
+  const isFounderInView = useInView(founderRef, { once: true, margin: '-100px' })
 
-  // 로그인 상태 체크
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -80,10 +71,7 @@ export default function LoginPage() {
     setError(null)
     try {
       const supabase = createClient()
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
       if (signInError) {
         setError(signInError.message)
         setLoading(false)
@@ -91,244 +79,176 @@ export default function LoginPage() {
       }
       await new Promise((r) => setTimeout(r, 600))
       window.location.href = `/${locale}`
-    } catch (err) {
+    } catch {
       setError('Sign-in failed. Please try again.')
       setLoading(false)
     }
   }
 
+  const signupHref = pathname?.replace(/\/login\/?$/, '/signup') || `/${locale}/signup`
+
   if (!authChecked) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-        <div className="w-8 h-8 border-2 border-[#8E86F5] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(circle at 50% 0%, #1a1a1d 0%, #0A0A0B 100%)' }}>
+        <div className="w-8 h-8 border border-[#F3F4F6]/30 border-t-[#F3F4F6] rounded-full animate-spin" />
       </div>
     )
   }
 
   return (
-    <main className="flex flex-col min-h-screen bg-white w-full font-sans">
-
-      {/* SECTION 1: HERO & LOGIN FORM */}
-      <section className="relative w-full flex flex-col lg:flex-row items-start justify-center lg:gap-20 px-4 pt-32 pb-24 bg-gray-50/50 border-b border-gray-200">
-        <div className="order-2 lg:order-1 lg:max-w-lg w-full mt-12 lg:mt-0">
-          <ValuePropositionSection />
+    <main
+      style={{
+        fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif',
+        background: 'radial-gradient(circle at 50% 0%, #1a1a1d 0%, #0A0A0B 50%, #0A0A0B 100%)',
+        position: 'relative',
+      }}
+      className={`${playfair.variable} ${notoSerifKR.variable} min-h-screen antialiased font-serif overflow-x-hidden`}
+    >
+      {/* Subtle noise overlay for texture */}
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        }}
+        aria-hidden
+      />
+      {/* 1. Hero & The Gate */}
+      <section className="relative z-10 min-h-screen flex flex-col lg:flex-row border-b border-white/5">
+        <div className="flex-[1.2] flex flex-col justify-center px-8 lg:px-24 py-20">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1 }}
+            className="text-3xl md:text-5xl lg:text-6xl leading-[1.2] font-normal tracking-tighter text-white/90"
+            style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
+          >
+            이 나라이기에 가능한,
+            <br />
+            이 지역만이 가진 유일한 장인정신.
+          </motion.h1>
         </div>
-        <div className="order-1 lg:order-2 w-full max-w-md flex flex-col gap-6">
-          <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100">
-            <div className="text-center mb-8">
-              <div className="relative h-16 w-[180px] mx-auto">
-                <Image src={LOGO_SRC} alt="PUMWI" fill className="object-contain" sizes="200px" priority />
-              </div>
-              <p className="text-gray-500 mt-2 text-sm font-medium tracking-wide">Where Art Meets Value</p>
-            </div>
-            <form onSubmit={handleLogin} className="space-y-5">
-              {error && <div className="bg-red-50 text-red-600 p-3 rounded text-sm">{error}</div>}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('email_label')}</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8E86F5] outline-none transition-all"
-                  placeholder={t('email_placeholder')} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('password_label')}</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#8E86F5] outline-none transition-all"
-                  placeholder="••••••••" />
-              </div>
-              <button type="submit" disabled={loading} className="w-full bg-[#8E86F5] text-white font-bold py-3.5 rounded-xl hover:opacity-90 transition shadow-md disabled:opacity-50">
-                {loading ? t('signing_in') : t('signin_button')}
-              </button>
-              <div className="relative py-3">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200" /></div>
-                <div className="relative flex justify-center text-sm"><span className="bg-white px-3 text-gray-500">{tAuth('or')}</span></div>
-              </div>
-              <button type="button" onClick={handleGoogleSignIn} className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl border border-gray-300 bg-white hover:bg-gray-50 transition font-medium text-gray-700">
-                <GoogleIcon /> {tAuth('google_button')}
-              </button>
-            </form>
-            <div className="mt-6 text-center text-sm text-gray-600">
-              {t('no_account')} <a href="/signup" className="font-bold text-[#8E86F5] hover:underline ml-1">{t('join_link')}</a>
-            </div>
-          </div>
-          <div className="bg-gradient-to-br from-[#F4F3FF] to-white p-6 rounded-2xl border border-[#8E86F5]/20 shadow-lg">
-             <div className="flex items-center gap-2 mb-4">
-                <span className="text-2xl">🎨</span>
-                <h3 className="text-lg font-bold text-gray-900">{tLanding('process_title')}</h3>
-             </div>
-             <ul className="space-y-4">
-               <li className="flex items-start gap-3">
-                 <span className="bg-white text-gray-400 font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-sm flex-shrink-0 mt-0.5 border border-gray-200">1</span>
-                 <div>
-                    <strong className="block text-gray-900 text-sm mb-0.5">{tLanding('step1_title')}</strong>
-                    <p className="text-sm text-gray-500 leading-snug">{tLanding('step1_desc')}</p>
-                 </div>
-               </li>
-               <li className="flex items-start gap-3">
-                 <span className="bg-[#8E86F5] text-white font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-md flex-shrink-0 mt-0.5 animate-pulse">2</span>
-                 <div>
-                    <strong className="block text-[#8E86F5] text-sm mb-0.5">{tLanding('step2_title')}</strong>
-                    <p className="text-sm text-gray-800 font-medium leading-snug">{tLanding('step2_desc')}</p>
-                 </div>
-               </li>
-               <li className="flex items-start gap-3">
-                 <span className="bg-white text-gray-400 font-bold rounded-full w-6 h-6 flex items-center justify-center text-xs shadow-sm flex-shrink-0 mt-0.5 border border-gray-200">3</span>
-                 <div>
-                    <strong className="block text-gray-900 text-sm mb-0.5">{tLanding('step3_title')}</strong>
-                    <p className="text-sm text-gray-500 leading-snug">{tLanding('step3_desc')}</p>
-                 </div>
-               </li>
-             </ul>
-          </div>
-        </div>
-      </section>
 
-      {/* SECTION 2: DISCOVERY */}
-      <section className="py-24 px-6 lg:px-20 bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-          <div className="lg:w-1/2 space-y-8">
-            <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-              {tLanding('discovery_title')}
-            </h2>
-            <div className="w-16 h-1 bg-[#8E86F5] rounded-full"></div>
-            <p className="text-xl text-gray-600 leading-relaxed">
-              {tLanding('discovery_desc')}
-            </p>
-          </div>
-          <div className="lg:w-1/2 w-full">
-             <div className="w-full rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
-               <Image src={imgFeed} alt="Global Discovery" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 2.5: GLOBAL CONNECTION (Location) — between Exhibitions and Philosophy */}
-      <section className="py-24 px-6 lg:px-20 bg-gray-50/50 border-b border-gray-100">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-16">
-          <div className="lg:w-1/2 space-y-8">
-            <h2
-              className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight"
-              dangerouslySetInnerHTML={{ __html: tLanding('sectionC_title') }}
-            />
-            <div className="w-16 h-1 bg-[#8E86F5] rounded-full"></div>
-            <p className="text-xl text-gray-600 leading-relaxed">
-              {tLanding('sectionC_desc')}
-            </p>
-          </div>
-          <div className="lg:w-1/3 w-full max-w-md">
-            <div className="w-full rounded-2xl overflow-hidden shadow-2xl border border-gray-100 max-h-[450px]">
-              <Image
-                src={imgLocation}
-                alt="Global Connection"
-                width={0}
-                height={0}
-                sizes="(max-width: 1024px) 100vw, 33vw"
-                className="w-full h-auto object-contain max-h-[450px]"
+        <div className="flex-1 flex flex-col justify-center px-8 lg:px-20 py-20 bg-white/[0.02] backdrop-blur-sm">
+          <div className="max-w-sm w-full mx-auto pt-10">
+            <form onSubmit={handleLogin} className="space-y-6">
+              {error && (
+                <div className="text-red-400/90 text-sm py-2 px-3 border border-red-400/20 rounded-sm">
+                  {error}
+                </div>
+              )}
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder={t('email_placeholder')}
+                className="w-full bg-transparent border-b border-white/10 py-3 text-white/90 placeholder:text-white/50 focus:outline-none transition-all focus:border-[#8B5CF6]/70"
               />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+                className="w-full bg-transparent border-b border-white/10 py-3 text-white/90 placeholder:text-white/50 focus:outline-none transition-all focus:border-[#8B5CF6]/70"
+              />
+              <motion.button
+                type="submit"
+                disabled={loading}
+                className="w-full py-4 text-white font-normal transition-all rounded-sm disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-95"
+                style={{ backgroundColor: '#2D5A27' }}
+                whileHover={loading ? undefined : { backgroundColor: '#3d6b35', boxShadow: '0 0 20px rgba(45, 90, 39, 0.2)' }}
+                whileTap={loading ? undefined : { scale: 0.99 }}
+              >
+                {loading ? t('signing_in') : 'Unlock Heritage'}
+              </motion.button>
+            </form>
+
+            <div className="mt-8 flex flex-col items-center gap-4">
+              <div className="relative w-full py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/10" />
+                </div>
+                <div className="relative flex justify-center text-[11px]">
+                  <span className="bg-[#0A0A0B] px-3 text-white/40">{tAuth('or')}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                className="w-full flex items-center justify-center gap-3 py-3 border border-white/10 hover:bg-white/5 transition-all text-sm font-normal text-white/80"
+              >
+                <GoogleIcon className="flex-shrink-0" /> {tAuth('google_button')}
+              </button>
+              <Link href={signupHref} className="text-xs text-white/50 hover:text-white/90 transition-all underline underline-offset-4">
+                {t('join_link')}
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION 3: PHILOSOPHY */}
-      <section className="py-24 px-6 lg:px-20 bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row-reverse items-start gap-16">
-          <div className="lg:w-1/2 space-y-8 sticky top-32">
-            <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-              {tLanding('philosophy_title')}
+      {/* 2. Strict Quota */}
+      <section ref={quotaRef} className="relative z-10 min-h-[60vh] flex items-center justify-center px-8">
+        <motion.p
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: isQuotaInView ? 1 : 0, y: isQuotaInView ? 0 : 30 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          className="text-lg md:text-2xl text-white/70 font-light text-center max-w-2xl leading-relaxed"
+          style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
+        >
+          엄격한 쿼터제. 한 지역에서 오직 소수만이
+          <br /> PUMWI의 장인이 됩니다.
+        </motion.p>
+      </section>
+
+      {/* 3. Founder's Curation */}
+      <section ref={founderRef} className="relative z-10 py-32 lg:py-48 px-8 border-t border-white/5">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: isFounderInView ? 1 : 0, x: isFounderInView ? 0 : -30 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="aspect-[4/5] max-h-[560px] bg-white/5 border border-white/10 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-1000"
+          >
+            <span className="text-[10px] text-white/25 tracking-[0.25em] uppercase">Image</span>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: isFounderInView ? 1 : 0, x: isFounderInView ? 0 : 30 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
+            style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
+          >
+            <h2 className="text-2xl md:text-4xl leading-tight mb-8 text-white/90 font-normal">
+              발로 뛴 기록, 손으로 확인한 진심.
+              <br />
+              설립자가 직접 영입한 장인 리스트.
             </h2>
-            <div className="w-16 h-1 bg-[#8E86F5] rounded-full"></div>
-            <p className="text-xl text-gray-600 leading-relaxed">
-              {tLanding('philosophy_desc')}
+            <p className="text-white/60 leading-relaxed text-sm md:text-base">
+              PUMWI는 데이터나 알고리즘에 의존하지 않습니다. 설립자가 직접 현장을 방문하여 장인의 철학과 작업 과정을 철저히 검증하고, 엄격한 기준을 통과한 지역의 진짜 거장들만을 선별하여 소개합니다.
             </p>
-          </div>
-          <div className="lg:w-1/2 w-full flex flex-col gap-12">
-             <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-white">
-               <Image src={imgProfile} alt="Artist Profile" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-             </div>
-             <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-gray-200 bg-white">
-               <Image src={imgBio} alt="Artist Bio" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* SECTION 4: TRUST */}
-      <section className="py-32 px-6 bg-[#1a1b2e] text-white text-center">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <h2 className="text-3xl lg:text-5xl font-bold">
-            {tLanding('trust_title')}
-          </h2>
-          <p className="text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
-            {tLanding('trust_desc')}
-          </p>
-          <div className="relative w-full max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-gray-700 bg-gray-800 max-h-[450px]">
-             <Image src={imgApply} alt="Rigorous Screening" width={0} height={0} sizes="100vw" className="w-full h-auto object-cover object-top" />
-             <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#1a1b2e] via-[#1a1b2e]/80 to-transparent"></div>
-          </div>
+      {/* 4. Footer */}
+      <footer className="relative z-10 py-20 border-t border-white/5 text-center">
+        <h2 className="text-2xl tracking-[0.5em] font-light mb-6 text-[#8B5CF6]" style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}>
+          P U M W I
+        </h2>
+        <p
+          className="text-[10px] uppercase tracking-widest mb-10 text-green-700/80 animate-pulse"
+          style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
+        >
+          Currently discovering in Korea and Japan.
+        </p>
+        <div className="space-y-2 text-[11px] text-white/60" style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}>
+          <p>© 2026 PUMWI. All rights reserved.</p>
+          <a href="mailto:concierge@pumwi.com" className="block text-luxury-gold-muted hover:text-luxury-gold transition-all">
+            concierge@pumwi.com
+          </a>
         </div>
-      </section>
-
-      {/* Artist Success Suite: Voice Description + All-in-One Studio OS */}
-      <div className="bg-[#F9F8FF] border-y border-[#E8E6F5]/80">
-        {/* Section label */}
-        <div className="pt-16 pb-2 px-6 lg:px-20">
-          <div className="max-w-7xl mx-auto flex items-center gap-4">
-            <span className="text-[10px] lg:text-xs font-semibold tracking-[0.2em] uppercase text-[#8E86F5]/80">
-              Tools for Artists
-            </span>
-            <span className="flex-1 h-px bg-[#8E86F5]/20" aria-hidden />
-          </div>
-        </div>
-
-        {/* Voice Description (말하기) */}
-        <section className="py-16 lg:py-20 px-6 lg:px-20">
-          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-            <div className="lg:w-1/2 space-y-8">
-              <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight">
-                {tLanding('voice_section_title')}
-              </h2>
-              <div className="w-16 h-1 bg-[#8E86F5] rounded-full" />
-              <p className="text-xl text-gray-600 leading-relaxed">
-                {tLanding('voice_section_desc')}
-              </p>
-            </div>
-            <div className="lg:w-1/2 w-full">
-              <div className="w-full rounded-2xl overflow-hidden shadow-xl border border-white bg-white/80">
-                <Image src={imgVoice} alt="Voice Description" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* All-in-One Studio OS */}
-        <section className="py-12 lg:py-16 pb-24 px-6 lg:px-20">
-          <div className="max-w-6xl mx-auto space-y-12">
-            <div className="text-center space-y-6">
-              <h2 className="text-3xl lg:text-5xl font-extrabold text-gray-900">
-                {tLanding('os_title')}
-              </h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                {tLanding('os_desc')}
-              </p>
-            </div>
-            <div className="flex flex-col md:flex-row items-start justify-center gap-8">
-              <div className="w-full md:w-1/3 rounded-2xl overflow-hidden shadow-xl border border-white/90 bg-white/70 backdrop-blur-sm">
-                <Image src={imgMenu} alt="Artist Menu" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-              </div>
-              <div className="w-full md:w-2/3 rounded-2xl overflow-hidden shadow-xl border border-white/90 bg-white/70 backdrop-blur-sm">
-                <Image src={imgFeatures} alt="Artist Features" width={0} height={0} sizes="100vw" className="w-full h-auto" />
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <footer className="py-12 bg-gray-50 text-center text-gray-400 text-sm border-t border-gray-200">
-        <p>© 2026 PUMWI Inc. All rights reserved.</p>
-        <p className="mt-2 text-xs">South Korea · Global Art Platform</p>
       </footer>
-
     </main>
   )
 }
