@@ -2,6 +2,17 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import {
+  isRecord,
+  normalizePostEmbed,
+  str,
+  num,
+  strOrNull,
+  boolOrNull,
+  strArrayOrNull,
+  hasSellerId,
+  type PostEmbed,
+} from '@/lib/orderRowMappers'
 
 export type ShipmentOrderRow = {
   id: string
@@ -15,41 +26,40 @@ export type ShipmentOrderRow = {
   receiver_name: string | null
   shipping_address: string | null
   created_at: string
-  posts: { title: string; image_url: string | null; image_urls: string[] | null } | null
+  posts: PostEmbed | null
 }
 
-/** Supabase 쿼리 결과 한 행을 ShipmentOrderRow로 정규화 (posts가 배열이면 첫 요소 사용) */
+/** Supabase 쿼리 결과 한 행을 ShipmentOrderRow로 변환. 타입 가드와 정규화만 사용. */
 function mapShipmentRow(raw: unknown): ShipmentOrderRow {
-  const r = raw as Record<string, unknown>
-  const postsRaw = r?.posts
-  const post =
-    Array.isArray(postsRaw) && postsRaw.length > 0
-      ? postsRaw[0]
-      : postsRaw && typeof postsRaw === 'object' && !Array.isArray(postsRaw)
-        ? postsRaw
-        : null
-  const postObj = post as Record<string, unknown> | null
-  const postsMapped = postObj
-    ? {
-        title: typeof postObj.title === 'string' ? postObj.title : '',
-        image_url: typeof postObj.image_url === 'string' ? postObj.image_url : null,
-        image_urls: Array.isArray(postObj.image_urls) ? (postObj.image_urls as string[]) : null,
-      }
-    : null
-
+  if (!isRecord(raw)) {
+    return {
+      id: '',
+      order_id: '',
+      post_id: '',
+      amount: 0,
+      delivery_status: null,
+      packaging_photos: null,
+      packaging_confirmed: null,
+      tracking_number: null,
+      receiver_name: null,
+      shipping_address: null,
+      created_at: '',
+      posts: null,
+    }
+  }
   return {
-    id: String(r?.id ?? ''),
-    order_id: String(r?.order_id ?? ''),
-    post_id: String(r?.post_id ?? ''),
-    amount: Number(r?.amount ?? 0),
-    delivery_status: r?.delivery_status != null ? String(r.delivery_status) : null,
-    packaging_photos: Array.isArray(r?.packaging_photos) ? (r.packaging_photos as string[]) : null,
-    packaging_confirmed: typeof r?.packaging_confirmed === 'boolean' ? r.packaging_confirmed : null,
-    tracking_number: r?.tracking_number != null ? String(r.tracking_number) : null,
-    receiver_name: r?.receiver_name != null ? String(r.receiver_name) : null,
-    shipping_address: r?.shipping_address != null ? String(r.shipping_address) : null,
-    created_at: String(r?.created_at ?? ''),
-    posts: postsMapped,
+    id: str(raw, 'id'),
+    order_id: str(raw, 'order_id'),
+    post_id: str(raw, 'post_id'),
+    amount: num(raw, 'amount'),
+    delivery_status: strOrNull(raw, 'delivery_status'),
+    packaging_photos: strArrayOrNull(raw, 'packaging_photos'),
+    packaging_confirmed: boolOrNull(raw, 'packaging_confirmed'),
+    tracking_number: strOrNull(raw, 'tracking_number'),
+    receiver_name: strOrNull(raw, 'receiver_name'),
+    shipping_address: strOrNull(raw, 'shipping_address'),
+    created_at: str(raw, 'created_at'),
+    posts: normalizePostEmbed(raw.posts),
   }
 }
 
@@ -76,7 +86,7 @@ export async function getOrdersToShip(sellerId: string): Promise<ShipmentOrderRo
     .or('delivery_status.eq.배송준비중,delivery_status.is.null')
     .order('created_at', { ascending: false })
   if (error) return []
-  const rows = (data ?? []) as unknown[]
+  const rows = data ?? []
   return rows.map(mapShipmentRow)
 }
 
@@ -96,7 +106,7 @@ export async function updateOrderShipment(
     .select('id, seller_id')
     .eq('order_id', orderId)
     .single()
-  if (!order || (order as { seller_id: string }).seller_id !== sellerId) {
+  if (!order || !hasSellerId(order) || order.seller_id !== sellerId) {
     throw new Error('Order not found or unauthorized')
   }
   const { error } = await supabase

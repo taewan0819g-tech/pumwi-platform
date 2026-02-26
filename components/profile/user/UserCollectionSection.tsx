@@ -7,6 +7,8 @@ import { Bookmark } from 'lucide-react'
 import { Card, CardHeader, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { isRecord, normalizeCollectionPostEmbed, str, num, strOrNull } from '@/lib/orderRowMappers'
+import type { CollectionPostEmbed } from '@/lib/orderRowMappers'
 
 export interface CollectionOrderRow {
   id: string
@@ -15,14 +17,7 @@ export interface CollectionOrderRow {
   created_at: string
   post_id: string
   delivery_status?: string | null
-  posts: {
-    id: string
-    title: string
-    image_url: string | null
-    image_urls: string[] | null
-    price: number | null
-    user_id: string
-  } | null
+  posts: CollectionPostEmbed | null
 }
 
 interface UserCollectionSectionProps {
@@ -36,6 +31,30 @@ function getPostImageUrl(post: CollectionOrderRow['posts']): string | null {
   if (!post) return null
   if (post.image_urls?.length) return post.image_urls[0]
   return post.image_url
+}
+
+/** Supabase 쿼리 결과 한 행을 CollectionOrderRow로 변환. 타입 가드와 정규화만 사용. */
+function mapCollectionOrderRow(raw: unknown): CollectionOrderRow {
+  if (!isRecord(raw)) {
+    return {
+      id: '',
+      order_id: '',
+      amount: 0,
+      created_at: '',
+      post_id: '',
+      delivery_status: null,
+      posts: null,
+    }
+  }
+  return {
+    id: str(raw, 'id'),
+    order_id: str(raw, 'order_id'),
+    amount: num(raw, 'amount'),
+    created_at: str(raw, 'created_at'),
+    post_id: str(raw, 'post_id'),
+    delivery_status: strOrNull(raw, 'delivery_status'),
+    posts: normalizeCollectionPostEmbed(raw.posts),
+  }
 }
 
 export default function UserCollectionSection({
@@ -85,7 +104,7 @@ export default function UserCollectionSection({
           setOrders([])
           return
         }
-        let rows = (data ?? []) as CollectionOrderRow[]
+        let rows: CollectionOrderRow[] = (data ?? []).map(mapCollectionOrderRow)
         const missingPostIds = rows.filter((r) => r.post_id && r.posts == null).map((r) => r.post_id)
         if (missingPostIds.length > 0) {
           console.warn('[UserCollectionSection] Join으로 posts 미포함. post_id로 별도 조회 시도:', missingPostIds)
@@ -93,10 +112,13 @@ export default function UserCollectionSection({
             .from('posts')
             .select('id, title, image_url, image_urls, price, user_id')
             .in('id', [...new Set(missingPostIds)])
-          const postsMap = new Map((postsData ?? []).map((p: Record<string, unknown>) => [p.id as string, p]))
+          const postsList = postsData ?? []
+          const postsMap = new Map<string, unknown>(
+            postsList.filter(isRecord).map((p) => [str(p, 'id'), p])
+          )
           rows = rows.map((r) => ({
             ...r,
-            posts: r.posts ?? (postsMap.get(r.post_id) as CollectionOrderRow['posts']) ?? null,
+            posts: r.posts ?? normalizeCollectionPostEmbed(postsMap.get(r.post_id)) ?? null,
           }))
         }
         if (rows.length === 0) {
