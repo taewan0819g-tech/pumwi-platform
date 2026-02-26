@@ -127,7 +127,7 @@ export function OrdersManagement({
       formData.set("sold_count", String(editForm.sold_count));
       formData.set("service_tier", editForm.service_tier);
       formData.set("commission_rate", String(editForm.commission_rate));
-      if (editForm.price != null && editForm.price !== '') formData.set("price", String(editForm.price));
+      if (editForm.price != null) formData.set("price", String(editForm.price));
       await updateProduct(editingId, formData);
       setProductsState((prev) =>
         prev.map((p) =>
@@ -167,7 +167,7 @@ export function OrdersManagement({
       formData.set("stock_count", String(addForm.stock_count));
       formData.set("service_tier", addForm.service_tier);
       formData.set("commission_rate", String(addForm.commission_rate));
-      if (addForm.price != null && addForm.price !== '') formData.set("price", String(addForm.price));
+      if (addForm.price != null) formData.set("price", String(addForm.price));
       await createProduct(formData);
       setProductModal(null);
       setAddForm({ product_name: "", unique_id: "", stock_count: 0, service_tier: "standard", commission_rate: 0.4, previewPrice: 100000, price: null });
