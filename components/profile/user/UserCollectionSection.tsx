@@ -111,7 +111,7 @@ export default function UserCollectionSection({
           const { data: postsData } = await supabase
             .from('posts')
             .select('id, title, image_url, image_urls, price, user_id')
-            .in('id', [...new Set(missingPostIds)])
+            .in('id', Array.from(new Set(missingPostIds)))
           const postsList = postsData ?? []
           const postsMap = new Map<string, unknown>(
             postsList.filter(isRecord).map((p) => [str(p, 'id'), p])
