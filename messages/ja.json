@@ -31,6 +31,7 @@
     "title": "作家運営システム",
     "command_center": "ダッシュボード",
     "orders_stock": "注文・在庫管理",
+    "shipments": "発送管理",
     "operations_log": "運営記録",
     "commissions": "オーダーメイド",
     "marketing": "マーケティング",
@@ -45,7 +46,8 @@
     "admin": "管理者",
     "newsManagement": "ニュース管理",
     "signInToViewProfile": "ログインしてプロフィールを確認してください",
-    "apply_button": "作家応募"
+    "apply_button": "作家応募",
+    "apply_collector_button": "コレクター資格申請"
   },
   "feed": {
     "tabs": {
@@ -71,7 +73,22 @@
       "refiningText": "文章を整えています...",
       "doneSpeaking": "話し終わりました",
       "processing": "処理中..."
-    }
+    },
+    "collect_btn": "迎える",
+    "collect_btn_ying": "迎える(迎藏)",
+    "collector_gate_message": "コレクター資格認証後に迎えられます。",
+    "apply_collector_btn": "コレクター資格申請",
+    "service_tier_standard": "この商品はPUMWI Standardサービスで販売されています。",
+    "service_tier_care": "この商品はPUMWI Careの梱包・取扱いサポートが含まれます。",
+    "service_tier_global": "この商品はPUMWI Global配送保険が適用され、破損時は100%保証されます。"
+  },
+  "payment": {
+    "processing": "決済処理中...",
+    "success_title": "決済が完了しました",
+    "success_message": "記録されました。",
+    "error_title": "決済を完了できませんでした",
+    "fail_title": "決済に失敗しました",
+    "back_to_feed": "フィードに戻る"
   },
   "playbook": {
     "header": {
@@ -116,6 +133,10 @@
     }
   },
   "profile": {
+    "locationAutocomplete": {
+      "noResults": "検索結果がありません。",
+      "useTypedAddress": "入力した住所をそのまま使う: \"{address}\""
+    },
     "tabs": {
       "home": "物語",
       "exhibitions": "ギャラリー",
@@ -141,7 +162,10 @@
       "myQrCode": "マイQRコード",
       "qrCodeLabel": "QRコード",
       "qrCodeShort": "QR",
-      "downloadImage": "画像をダウンロード"
+      "downloadImage": "画像をダウンロード",
+      "role_master": "匠",
+      "role_admin": "管理者",
+      "role_user": "ユーザー"
     },
     "shareMyProfile": "プロフィールを共有",
     "shareProfile": "プロフィール共有",
@@ -238,6 +262,28 @@
     },
     "success": {
       "submit": "作家申請が完了しました。"
+    }
+  },
+  "collector_application": {
+    "title": "コレクター資格申請",
+    "step1_title": "本人確認・住所",
+    "step1_hint": "住所をご確認いただき、アカウント検証に利用します。",
+    "address_label": "住所",
+    "address_placeholder": "住所を検索",
+    "step2_title": "コレクタープロフィール",
+    "collector_bio_label": "コレクターとしてのあなた",
+    "collector_bio_placeholder": "例：どのようなアートを収集されますか？",
+    "step3_title": "コミュニティガイド",
+    "guide_agree_text": "PUMWIで作品と作家を尊重します。コレクションは手作りの価値と哲学へのコミットメントであることを理解しています。",
+    "guide_agree_label": "コミュニティガイドに同意します（必須）",
+    "submit": "申請する",
+    "submit_loading": "送信中...",
+    "success_pending": "申請を受け付けました。承認次第お知らせします。",
+    "error": {
+      "address_required": "住所を入力・選択してください。",
+      "bio_required": "コレクタープロフィールを記入してください。",
+      "agree_required": "コミュニティガイドに同意してください。",
+      "submit_failed": "送信に失敗しました。"
     }
   },
   "auth": {

@@ -206,7 +206,12 @@ export default function ProfileClient({ serverUser, initialProfile }: ProfileCli
               </>
             ) : (
               <>
-                {activeTab === 'collection' && <UserCollectionSection />}
+                {activeTab === 'collection' && (
+                  <UserCollectionSection
+                    profileUserId={profileToUse.id}
+                    currentUserId={user.id}
+                  />
+                )}
                 {activeTab === 'following' && (
                   <UserFollowingSection userId={profileToUse.id} />
                 )}

@@ -31,6 +31,7 @@
     "title": "Artist Operations",
     "command_center": "Dashboard",
     "orders_stock": "Orders & Stock",
+    "shipments": "Shipments",
     "operations_log": "Operations Log",
     "commissions": "Commissions",
     "marketing": "Marketing",
@@ -45,7 +46,8 @@
     "admin": "Admin",
     "newsManagement": "News Management",
     "signInToViewProfile": "Sign in to view your profile",
-    "apply_button": "Apply as Artist"
+    "apply_button": "Apply as Artist",
+    "apply_collector_button": "Apply for Collector"
   },
   "feed": {
     "tabs": {
@@ -71,7 +73,22 @@
       "refiningText": "Refining text...",
       "doneSpeaking": "I'm done",
       "processing": "Processing..."
-    }
+    },
+    "collect_btn": "Collect",
+    "collect_btn_ying": "Collect (迎藏)",
+    "collector_gate_message": "Verify collector status to collect this work.",
+    "apply_collector_btn": "Apply for Collector Status",
+    "service_tier_standard": "This item is sold with PUMWI Standard service.",
+    "service_tier_care": "This item includes PUMWI Care packaging and handling support.",
+    "service_tier_global": "This item is covered by PUMWI Global shipping protection — 100% guarantee against damage in transit."
+  },
+  "payment": {
+    "processing": "Processing payment...",
+    "success_title": "Payment complete",
+    "success_message": "Thank you. Your collection has been recorded.",
+    "error_title": "Payment could not be completed",
+    "fail_title": "Payment failed",
+    "back_to_feed": "Back to feed"
   },
   "playbook": {
     "header": {
@@ -116,6 +133,10 @@
     }
   },
   "profile": {
+    "locationAutocomplete": {
+      "noResults": "No search results.",
+      "useTypedAddress": "Use this address as-is: \"{address}\""
+    },
     "tabs": {
       "home": "Narrative",
       "exhibitions": "Gallery",
@@ -141,7 +162,10 @@
       "myQrCode": "My QR Code",
       "qrCodeLabel": "QR Code",
       "qrCodeShort": "QR",
-      "downloadImage": "Download Image"
+      "downloadImage": "Download Image",
+      "role_master": "Master",
+      "role_admin": "Admin",
+      "role_user": "User"
     },
     "shareMyProfile": "Share My Profile",
     "shareProfile": "Share Profile",
@@ -238,6 +262,28 @@
     },
     "success": {
       "submit": "Artist application submitted successfully."
+    }
+  },
+  "collector_application": {
+    "title": "Apply for Collector",
+    "step1_title": "Identity & Address",
+    "step1_hint": "Confirm your address so we can verify your account.",
+    "address_label": "Address",
+    "address_placeholder": "Search address",
+    "step2_title": "Collector Profile",
+    "collector_bio_label": "About you as a collector",
+    "collector_bio_placeholder": "e.g., What kind of art do you collect? What values matter to you?",
+    "step3_title": "Community Guide",
+    "guide_agree_text": "I agree to respect artworks and artists on PUMWI. I understand that collecting is a commitment to the value of handmade art and the philosophy behind each piece.",
+    "guide_agree_label": "I have read and agree to the community guide (Required)",
+    "submit": "Submit Application",
+    "submit_loading": "Submitting...",
+    "success_pending": "Your application has been submitted. You will be notified once approved.",
+    "error": {
+      "address_required": "Please enter and select your address.",
+      "bio_required": "Please write a short collector profile.",
+      "agree_required": "Please agree to the community guide.",
+      "submit_failed": "Submission failed. Please try again."
     }
   },
   "auth": {

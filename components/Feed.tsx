@@ -10,7 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-import { Link } from '@/i18n/navigation'
+import { Link, useRouter } from '@/i18n/navigation'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
 import VoiceWriteButton from '@/components/VoiceWriteButton'
@@ -19,6 +19,9 @@ import { PostLikeComment, POST_ENGAGEMENT_CHANGED } from '@/components/post/Post
 import type { CommentRow as EngagementCommentRow } from '@/components/post/PostLikeComment'
 import { useContentLanguage } from '@/hooks/useContentLanguage'
 import { useTranslations } from 'next-intl'
+import type { ProfileRole } from '@/types/profile'
+import CollectorApplyModal from '@/components/profile/CollectorApplyModal'
+import { PostCard } from '@/components/PostCard'
 
 const BUCKET_POSTS = 'posts'
 
@@ -130,6 +133,7 @@ interface PostRow {
   image_url: string | null
   image_urls?: string[] | null
   price: number | null
+  service_tier?: string | null
   edition_number?: number | null
   edition_total?: number | null
   created_at: string
@@ -150,10 +154,13 @@ interface CommentRow {
   profiles?: CommentProfile | null
 }
 
-export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
+export default function Feed({ refreshTrigger, currentUserRole = null }: { refreshTrigger?: number; currentUserRole?: ProfileRole | null }) {
+  const router = useRouter()
   const tTabs = useTranslations('feed.tabs')
+  const tFeed = useTranslations('feed')
   const getContent = useContentLanguage()
   const [activeTab, setActiveTab] = useState<FeedTab>('all')
+  const [collectorModalOpen, setCollectorModalOpen] = useState(false)
   const tabs = TAB_IDS.map(({ id, labelKey }) => ({ id, label: tTabs(labelKey) }))
   const [posts, setPosts] = useState<PostRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -206,13 +213,13 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
   }, [editImageFile])
 
   const fetchPosts = useCallback(async () => {
-    // Exclude pumwi_exhibition: sidebar-only, never in main feed
     const { data, error } = await supabase
       .from('posts')
       .select('*, profiles(id, full_name, avatar_url, role)')
       .in('type', ['work_log', 'studio_log', 'sales', 'exhibition'])
       .order('created_at', { ascending: false })
     if (error) {
+      console.error('Fetch posts error:', error.message, error.details)
       setPosts([])
       setLoading(false)
       return
@@ -678,22 +685,23 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                 }
                 return <PostImagesCarousel urls={urls} />
               })()}
-              <div className="px-4 py-3">
-                {(() => {
-                  const resolved = getContent(post as any)
-                  return (
-                    <>
-                      <p className="text-sm font-medium text-slate-900">{resolved.title}</p>
-                      {resolved.content && (
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap mt-1">
-                          {resolved.content}
-                        </p>
-                      )}
-                    </>
-                  )
-                })()}
-              </div>
-              <div className="px-4 pb-4 pt-2 bg-gray-50 border-t border-gray-100">
+              <PostCard
+                post={post as import('@/components/PostCard').PostCardPost}
+                title={getContent(post as any).title}
+                content={getContent(post as any).content}
+                salesBlock={
+                  post.type === 'sales'
+                    ? {
+                        payingPostId: null,
+                        currentUserRole: currentUserRole ?? null,
+                        currentUserId: currentUserId ?? null,
+                        onCollectClick: (p) => router.push(`/checkout/${p.id}`),
+                        onOpenCollectorModal: () => setCollectorModalOpen(true),
+                      }
+                    : null
+                }
+                variant="feed"
+              >
                 <PostLikeComment
                   variant="inline"
                   postId={post.id}
@@ -722,7 +730,7 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
                   onAddComment={() => handleAddComment(post.id)}
                   onDeleteComment={(commentId) => handleDeleteComment(post.id, commentId)}
                 />
-              </div>
+              </PostCard>
             </article>
           ))}
         </div>
@@ -829,6 +837,12 @@ export default function Feed({ refreshTrigger }: { refreshTrigger?: number }) {
           </div>
         )}
       </Dialog>
+
+      <CollectorApplyModal
+        open={collectorModalOpen}
+        onClose={() => setCollectorModalOpen(false)}
+        onSuccess={() => router.refresh()}
+      />
     </div>
   )
 }

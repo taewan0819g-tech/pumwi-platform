@@ -7,7 +7,7 @@ import { User } from 'lucide-react'
 import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
-import { approveApplication, rejectApplication } from './actions'
+import { approveApplication, rejectApplication, approveCollector, rejectCollector } from './actions'
 import { APPLICATION_FIELD_CONFIG } from '@/components/profile/ArtistApplyModal'
 
 interface ApplicationRow {
@@ -21,15 +21,26 @@ interface ApplicationRow {
   profiles: { full_name: string | null; avatar_url: string | null } | null
 }
 
+interface CollectorApplicantRow {
+  id: string
+  full_name: string | null
+  avatar_url: string | null
+  collector_bio: string | null
+  updated_at: string
+}
+
 export default function AdminApplicationsClient({
   applications,
+  collectorApplicants = [],
 }: {
   applications: ApplicationRow[]
+  collectorApplicants?: CollectorApplicantRow[]
 }) {
   const router = useRouter()
   const t = useTranslations('apply')
   const [detailId, setDetailId] = useState<string | null>(null)
   const [loadingId, setLoadingId] = useState<string | null>(null)
+  const [collectorLoadingId, setCollectorLoadingId] = useState<string | null>(null)
   const detail = applications.find((a) => a.id === detailId)
 
   const formatDate = (dateStr: string) => {
@@ -77,47 +88,172 @@ export default function AdminApplicationsClient({
     }
   }
 
+  const handleApproveCollector = async (userId: string) => {
+    setCollectorLoadingId(userId)
+    try {
+      const result = await approveCollector(userId)
+      if (result.error) {
+        toast.error(result.error)
+        return
+      }
+      toast.success('Approved as collector.')
+      router.refresh()
+    } finally {
+      setCollectorLoadingId(null)
+    }
+  }
+
+  const handleRejectCollector = async (userId: string) => {
+    if (!confirm('Reject this collector application?')) return
+    setCollectorLoadingId(userId)
+    try {
+      const result = await rejectCollector(userId)
+      if (result.error) {
+        toast.error(result.error)
+        return
+      }
+      toast.success('Rejected.')
+      router.refresh()
+    } finally {
+      setCollectorLoadingId(null)
+    }
+  }
+
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-      <h1 className="text-xl font-bold text-slate-900 mb-6">Artist applications</h1>
-      {applications.length === 0 ? (
-        <p className="text-gray-500 font-medium py-8">No pending applications.</p>
-      ) : (
-        <ul className="space-y-2">
-          {applications.map((app) => (
-            <li key={app.id}>
-              <div className="w-full flex items-center gap-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm hover:border-[#8E86F5]/30 transition-colors">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
-                  {app.profiles?.avatar_url ? (
-                    <img
-                      src={app.profiles.avatar_url}
-                      alt=""
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <User className="h-6 w-6 text-gray-400" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-slate-900 truncate">
-                    {app.profiles?.full_name ?? 'Unknown'}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    Applied: {formatDate(app.created_at)}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => setDetailId(app.id)}
-                  className="flex-shrink-0 bg-[#8E86F5] hover:opacity-90 text-white"
-                >
-                  Review
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <h1 className="text-2xl font-bold text-slate-900 mb-8">신청서 관리 (Applications)</h1>
+
+      {/* Artist applicants */}
+      <section className="mb-12">
+        <h2 className="text-lg font-semibold text-slate-800 mb-4">아티스트 신청자</h2>
+        {applications.length === 0 ? (
+          <p className="text-gray-500 font-medium py-6 bg-white rounded-lg border border-gray-200 px-4">No pending artist applications.</p>
+        ) : (
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50/80">
+                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Applied</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {applications.map((app) => (
+                  <tr key={app.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                          {app.profiles?.avatar_url ? (
+                            <img src={app.profiles.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                        <span className="font-medium text-slate-900">{app.profiles?.full_name ?? 'Unknown'}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-500">{formatDate(app.created_at)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => setDetailId(app.id)}
+                          className="bg-[#8E86F5] hover:opacity-90 text-white"
+                        >
+                          Review
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleApprove(app.id)}
+                          disabled={loadingId === app.id}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        >
+                          {loadingId === app.id ? '...' : 'Approve'}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleReject(app.id)}
+                          disabled={loadingId === app.id}
+                          className="text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* Collector applicants */}
+      <section>
+        <h2 className="text-lg font-semibold text-slate-800 mb-4">컬렉터 신청자</h2>
+        {collectorApplicants.length === 0 ? (
+          <p className="text-gray-500 font-medium py-6 bg-white rounded-lg border border-gray-200 px-4">No pending collector applications.</p>
+        ) : (
+          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-gray-200 bg-gray-50/80">
+                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                  <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Bio</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {collectorApplicants.map((c) => (
+                  <tr key={c.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50/50">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 overflow-hidden flex items-center justify-center">
+                          {c.avatar_url ? (
+                            <img src={c.avatar_url} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <User className="h-5 w-5 text-gray-400" />
+                          )}
+                        </div>
+                        <span className="font-medium text-slate-900">{c.full_name ?? 'Unknown'}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{c.collector_bio ?? '—'}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => handleApproveCollector(c.id)}
+                          disabled={collectorLoadingId === c.id}
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        >
+                          {collectorLoadingId === c.id ? '...' : 'Approve'}
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRejectCollector(c.id)}
+                          disabled={collectorLoadingId === c.id}
+                          className="text-red-600 border-red-200 hover:bg-red-50"
+                        >
+                          Reject
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <Dialog open={!!detail} onClose={() => setDetailId(null)} title="Application details">
         {detail && (

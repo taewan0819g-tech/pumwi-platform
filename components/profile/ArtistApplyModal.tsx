@@ -256,8 +256,9 @@ export default function ArtistApplyModal({
       return
     }
 
-    const profileUpdate: { is_artist_pending: boolean; city?: string; country?: string; lat?: number; lng?: number } = {
+    const profileUpdate: { is_artist_pending: boolean; role: 'pending_artist'; city?: string; country?: string; lat?: number; lng?: number } = {
       is_artist_pending: true,
+      role: 'pending_artist',
     }
     if (a.city) profileUpdate.city = a.city
     if (a.country) profileUpdate.country = a.country

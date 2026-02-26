@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { User } from 'lucide-react'
 import type { Profile } from '@/types/profile'
 import ArtistApplyModal from '@/components/profile/ArtistApplyModal'
+import CollectorApplyModal from '@/components/profile/CollectorApplyModal'
 import { Link } from '@/i18n/navigation'
 
 type ApplicationStatus = 'pending' | 'approved' | 'rejected' | null
@@ -22,8 +23,10 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
   const t = useTranslations('sidebar')
   const tProfile = useTranslations('profile')
   const [applyModalOpen, setApplyModalOpen] = useState(false)
+  const [collectorModalOpen, setCollectorModalOpen] = useState(false)
   // Show "Under Review" immediately after submit, before router.refresh() completes
   const [justSubmittedPending, setJustSubmittedPending] = useState(false)
+  const [justSubmittedCollectorPending, setJustSubmittedCollectorPending] = useState(false)
 
   // Clear optimistic state when server says rejected or already artist
   useEffect(() => {
@@ -32,12 +35,22 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
     }
   }, [applicationStatus, profile?.role])
 
+  // Clear collector optimistic state when role is no longer pending_collector
+  useEffect(() => {
+    if (profile?.role !== 'pending_collector') {
+      setJustSubmittedCollectorPending(false)
+    }
+  }, [profile?.role])
+
   const effectiveRole = profile?.role ?? 'user'
   const effectivePending =
     justSubmittedPending ||
     (applicationStatus !== undefined
       ? applicationStatus === 'pending'
-      : (profile?.is_artist_pending ?? false))
+      : (profile?.is_artist_pending ?? false)) ||
+    profile?.role === 'pending_artist'
+  const isCollectorPending =
+    profile?.role === 'pending_collector' || justSubmittedCollectorPending
   const displayName =
     profile?.full_name ||
     (profile?.bio && profile.bio.split('\n')[0]?.slice(0, 20)) ||
@@ -99,6 +112,10 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
               >
                 {tProfile('role_master')}
               </span>
+            ) : effectiveRole === 'collector' ? (
+              <span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full text-slate-600 bg-slate-100">
+                Collector
+              </span>
             ) : (
               <p className="text-xs text-gray-500 mt-1">User</p>
             )}
@@ -107,49 +124,90 @@ export default function ProfileCard({ profile, userEmail, applicationStatus }: P
                 {profile.bio}
               </p>
             )}
-            {effectiveRole === 'user' && (
-              <div className="mt-2">
-                {effectivePending ? (
-                  <p className="text-sm text-amber-600 font-medium">
-                    Under Review
+            {(effectiveRole === 'user' || effectiveRole === 'pending_collector') && (
+              <div className="mt-2 space-y-2">
+                {effectiveRole === 'user' && (
+                  <>
+                    {effectivePending ? (
+                      <p className="text-sm text-amber-600 font-medium flex items-center gap-2">
+                        <span className="inline-block w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" aria-hidden />
+                        검토 중 (Under Review)
+                      </p>
+                    ) : (
+                      <span
+                        role="button"
+                        tabIndex={0}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          profile?.id && setApplyModalOpen(true)
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            profile?.id && setApplyModalOpen(true)
+                          }
+                        }}
+                        className="block w-full py-2 px-4 text-sm font-medium text-white rounded-md transition-opacity hover:opacity-90 text-center"
+                        style={{ backgroundColor: '#8E86F5' }}
+                      >
+                        {t('apply_button')}
+                      </span>
+                    )}
+                  </>
+                )}
+                {isCollectorPending ? (
+                  <p className="text-sm text-amber-600 font-medium flex items-center gap-2">
+                    <span className="inline-block w-4 h-4 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" aria-hidden />
+                    검토 중 (Under Review)
                   </p>
-                ) : (
+                ) : effectiveRole === 'user' ? (
                   <span
                     role="button"
                     tabIndex={0}
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()
-                      profile?.id && setApplyModalOpen(true)
+                      setCollectorModalOpen(true)
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault()
                         e.stopPropagation()
-                        profile?.id && setApplyModalOpen(true)
+                        setCollectorModalOpen(true)
                       }
                     }}
-                    className="block w-full py-2 px-4 text-sm font-medium text-white rounded-md transition-opacity hover:opacity-90 text-center"
-                    style={{ backgroundColor: '#8E86F5' }}
+                    className="block w-full py-2 px-4 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 text-center border border-slate-200"
                   >
-                    {t('apply_button')}
+                    {t('apply_collector_button')}
                   </span>
-                )}
+                ) : null}
               </div>
             )}
           </div>
         </div>
       </Link>
       {profile?.id && (
-        <ArtistApplyModal
-          open={applyModalOpen}
-          onClose={() => setApplyModalOpen(false)}
-          userId={profile.id}
-          onSuccess={() => {
-            setJustSubmittedPending(true)
-            router.refresh()
-          }}
-        />
+        <>
+          <ArtistApplyModal
+            open={applyModalOpen}
+            onClose={() => setApplyModalOpen(false)}
+            userId={profile.id}
+            onSuccess={() => {
+              setJustSubmittedPending(true)
+              router.refresh()
+            }}
+          />
+          <CollectorApplyModal
+            open={collectorModalOpen}
+            onClose={() => setCollectorModalOpen(false)}
+            onSuccess={() => {
+              setJustSubmittedCollectorPending(true)
+              router.refresh()
+            }}
+          />
+        </>
       )}
     </div>
   )

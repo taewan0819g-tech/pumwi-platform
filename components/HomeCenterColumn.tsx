@@ -34,7 +34,7 @@ export default function HomeCenterColumn({ userId, profile }: HomeCenterColumnPr
           onPostCreated={handlePostCreated}
         />
       )}
-      <Feed refreshTrigger={refreshTrigger} />
+      <Feed refreshTrigger={refreshTrigger} currentUserRole={profile?.role ?? null} />
     </div>
   )
 }

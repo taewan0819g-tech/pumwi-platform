@@ -9,8 +9,16 @@ import VoiceWriteButton from '@/components/VoiceWriteButton'
 import toast from 'react-hot-toast'
 import { cn } from '@/lib/utils'
 
+/** Collect tab only: partnership tier rates (Standard 20%, Care 30%, Global 40%) */
+const COLLECT_TIER_RATES: Record<ServiceTierValue, number> = {
+  standard: 0.2,
+  care: 0.3,
+  global: 0.4,
+}
+
 const BUCKET_POSTS = 'posts'
 
+type ServiceTierValue = 'standard' | 'care' | 'global'
 type PostTypeTab = 'log' | 'work' | 'exhibition' | 'pumwi_exhibition'
 
 interface PostInputProps {
@@ -51,6 +59,9 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
   const [posting, setPosting] = useState(false)
   const [imageFiles, setImageFiles] = useState<File[]>([])
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  // Work (sales): price & tier for pricing preview
+  const [workPrice, setWorkPrice] = useState('')
+  const [serviceTier, setServiceTier] = useState<ServiceTierValue>('global')
 
   useEffect(() => {
     if (imageFiles.length === 0) {
@@ -90,6 +101,8 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
     setExhibitionStatus('upcoming')
     setExhibitionExternalLink('')
     setImageFiles([])
+    setWorkPrice('')
+    setServiceTier('global')
   }
 
   const voiceWriteTab =
@@ -135,6 +148,11 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
       const editionTotalNum = et ? parseInt(et, 10) : NaN
       if (!et || Number.isNaN(editionTotalNum) || editionTotalNum < 1) {
         toast.error('Edition Total must be a number greater than 0.')
+        return
+      }
+      const priceNum = workPrice.trim() ? parseInt(workPrice.trim(), 10) : NaN
+      if (!Number.isFinite(priceNum) || priceNum < 100) {
+        toast.error('Price (KRW) must be at least 100.')
         return
       }
     }
@@ -194,13 +212,14 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
         type: dbType,
         title: titleTrim || 'Untitled',
         content: contentPayload,
-        price: null,
+        price: isWork && workPrice.trim() ? Math.round(Number(workPrice)) : null,
         image_url: mainImage,
         image_urls: allImages,
       }
       if (dbType === 'sales') {
         payload.edition_number = edition_number
         payload.edition_total = edition_total
+        if (serviceTier) payload.service_tier = serviceTier
       }
       if (dbType === 'pumwi_exhibition') {
         if (titleKo.trim()) payload.title_ko = titleKo.trim()
@@ -234,7 +253,10 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
           (postType !== 'work' ||
             (editionTotal.trim() &&
               !Number.isNaN(parseInt(editionTotal.trim(), 10)) &&
-              parseInt(editionTotal.trim(), 10) > 0)))
+              parseInt(editionTotal.trim(), 10) > 0 &&
+              workPrice.trim() &&
+              Number.isFinite(parseInt(workPrice.trim(), 10)) &&
+              parseInt(workPrice.trim(), 10) >= 100)))
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
@@ -481,29 +503,90 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
             </div>
           )}
 
-          {/* Work For Sale only: Edition */}
+          {/* Collect (for_sale) only: Edition, then Price + Tier + Payout preview */}
           {postType === 'work' && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600 shrink-0">Edition</span>
-              <input
-                type="number"
-                min={1}
-                value={editionCurrent}
-                onChange={(e) => setEditionCurrent(e.target.value)}
-                placeholder="1"
-                className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-gray-400">/</span>
-              <input
-                type="number"
-                min={1}
-                value={editionTotal}
-                onChange={(e) => setEditionTotal(e.target.value)}
-                placeholder="5"
-                className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <span className="text-xs text-gray-500">(Edition Total &gt; 0)</span>
-            </div>
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600 shrink-0">Edition</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={editionCurrent}
+                  onChange={(e) => setEditionCurrent(e.target.value)}
+                  placeholder="1"
+                  className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="text-gray-400">/</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={editionTotal}
+                  onChange={(e) => setEditionTotal(e.target.value)}
+                  placeholder="5"
+                  className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span className="text-xs text-gray-500">(Edition Total &gt; 0)</span>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Price (KRW)</label>
+                <input
+                  type="number"
+                  min={100}
+                  value={workPrice}
+                  onChange={(e) => setWorkPrice(e.target.value)}
+                  placeholder="예: 1000000"
+                  className="w-full max-w-[200px] px-3 py-2.5 border border-gray-200 rounded-lg text-sm text-slate-900 focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+              </div>
+              <div>
+                <span className="block text-sm font-medium text-gray-700 mb-2">PUMWI Partnership Tier</span>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {[
+                    { value: 'standard' as const, label: 'Standard (20%)', desc: '기본 노출 및 결제' },
+                    { value: 'care' as const, label: 'PUMWI Care (30%)', desc: '특수 포장 및 국내 보안 배송' },
+                    { value: 'global' as const, label: 'PUMWI Global (40%)', desc: '해외 VVIP 마케팅 및 통관/국제 배송', recommended: true },
+                  ].map(({ value, label, desc, recommended }) => (
+                    <label
+                      key={value}
+                      className={cn(
+                        'flex flex-col p-3 rounded-lg border cursor-pointer transition-colors',
+                        serviceTier === value
+                          ? 'border-[#8E86F5] bg-[#8E86F5]/5 ring-1 ring-[#8E86F5]'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="service_tier"
+                        value={value}
+                        checked={serviceTier === value}
+                        onChange={() => setServiceTier(value)}
+                        className="sr-only"
+                      />
+                      <span className="font-medium text-slate-900 text-sm">{label}</span>
+                      <span className="text-xs text-gray-600 mt-0.5">{desc}</span>
+                      {recommended && (
+                        <span className="mt-1.5 inline-block text-[10px] font-medium text-[#8E86F5]">추천</span>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              {(() => {
+                const priceNum = workPrice.trim() ? parseInt(workPrice.trim(), 10) : NaN
+                const valid = Number.isFinite(priceNum) && priceNum >= 100
+                const rate = COLLECT_TIER_RATES[serviceTier]
+                const payoutKrwt = valid ? Math.round(priceNum * (1 - rate)) : 0
+                return valid ? (
+                  <div className="p-3 bg-[#F3F2EF] rounded-lg border border-[#8E86F5]/20">
+                    <p className="text-sm text-slate-700">
+                      최종 정산 예정액 (Estimated Payout):{' '}
+                      <span className="font-semibold text-[#2F5D50]">{payoutKrwt.toLocaleString()}원</span>
+                    </p>
+                  </div>
+                ) : null
+              })()}
+            </>
           )}
 
           {/* Common: Image upload */}

@@ -2,13 +2,14 @@
 
 import { useTranslations } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
-import { Home, Package, ClipboardList, Sparkles, MessageSquare, MessageSquareText, BookOpen, LineChart, Newspaper } from 'lucide-react'
+import { Home, Package, Truck, ClipboardList, Sparkles, MessageSquare, MessageSquareText, BookOpen, LineChart, Newspaper } from 'lucide-react'
 import type { Profile } from '@/types/profile'
 import ProfileCard from '@/components/ProfileCard'
 
 const ARTISAN_OS_MENU = [
   { labelKey: 'command_center', href: '/artisan-os', icon: Home },
   { labelKey: 'orders_stock', href: '/artisan-os/orders', icon: Package },
+  { labelKey: 'shipments', href: '/artisan-os/shipments', icon: Truck },
   { labelKey: 'operations_log', href: '/artisan-os/logs', icon: ClipboardList },
   { labelKey: 'commissions', href: '/artisan-os/commissions', icon: MessageSquareText },
   { labelKey: 'marketing', href: '/artisan-os/marketing', icon: Sparkles },

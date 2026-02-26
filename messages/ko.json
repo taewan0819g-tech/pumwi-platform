@@ -31,6 +31,7 @@
     "title": "작가 운영 시스템",
     "command_center": "대시보드",
     "orders_stock": "주문 및 재고",
+    "shipments": "발송 관리",
     "operations_log": "운영 기록",
     "commissions": "맞춤 주문",
     "marketing": "마케팅",
@@ -45,7 +46,8 @@
     "admin": "관리자",
     "newsManagement": "뉴스 관리",
     "signInToViewProfile": "로그인하여 프로필을 확인하세요",
-    "apply_button": "작가 지원하기"
+    "apply_button": "작가 지원하기",
+    "apply_collector_button": "컬렉터 자격 신청"
   },
   "feed": {
     "tabs": {
@@ -71,7 +73,22 @@
       "refiningText": "글 정리 중...",
       "doneSpeaking": "다 말했어요",
       "processing": "처리 중..."
-    }
+    },
+    "collect_btn": "소장하기",
+    "collect_btn_ying": "소장하기(迎藏)",
+    "collector_gate_message": "컬렉터 자격 인증 후 소장할 수 있습니다.",
+    "apply_collector_btn": "컬렉터 자격 신청",
+    "service_tier_standard": "이 상품은 PUMWI Standard 서비스로 판매됩니다.",
+    "service_tier_care": "이 상품은 PUMWI Care 패키징 및 취급 지원이 포함됩니다.",
+    "service_tier_global": "이 상품은 PUMWI Global 배송 보험이 적용되어 파손 시 100% 보장됩니다."
+  },
+  "payment": {
+    "processing": "결제 처리 중...",
+    "success_title": "결제가 완료되었습니다",
+    "success_message": "소장이 기록되었습니다.",
+    "error_title": "결제를 완료할 수 없습니다",
+    "fail_title": "결제 실패",
+    "back_to_feed": "피드로 돌아가기"
   },
   "playbook": {
     "header": {
@@ -116,6 +133,10 @@
     }
   },
   "profile": {
+    "locationAutocomplete": {
+      "noResults": "검색 결과가 없습니다.",
+      "useTypedAddress": "입력한 주소 그대로 사용하기: \"{address}\""
+    },
     "tabs": {
       "home": "서사",
       "exhibitions": "갤러리",
@@ -141,7 +162,10 @@
       "myQrCode": "내 프로필 QR",
       "qrCodeLabel": "QR 코드",
       "qrCodeShort": "QR",
-      "downloadImage": "이미지 저장"
+      "downloadImage": "이미지 저장",
+      "role_master": "장인",
+      "role_admin": "관리자",
+      "role_user": "유저"
     },
     "shareMyProfile": "내 프로필 공유하기",
     "shareProfile": "프로필 공유",
@@ -238,6 +262,28 @@
     },
     "success": {
       "submit": "작가 지원이 완료되었습니다."
+    }
+  },
+  "collector_application": {
+    "title": "컬렉터 자격 신청",
+    "step1_title": "본인 인증 및 주소 확인",
+    "step1_hint": "주소를 확인해 주시면 계정 검증에 활용됩니다.",
+    "address_label": "주소",
+    "address_placeholder": "주소 검색",
+    "step2_title": "컬렉터 상세 프로필",
+    "collector_bio_label": "컬렉터로서의 나",
+    "collector_bio_placeholder": "예: 어떤 예술을 수집하시나요? 어떤 가치를 중요하게 여기시나요?",
+    "step3_title": "커뮤니티 가이드",
+    "guide_agree_text": "PUMWI에서 작품과 작가를 존중합니다. 소장은 수공 예술의 가치와 각 작품의 철학에 대한 약속임을 이해합니다.",
+    "guide_agree_label": "커뮤니티 가이드를 읽었으며 동의합니다 (필수)",
+    "submit": "신청하기",
+    "submit_loading": "제출 중...",
+    "success_pending": "신청이 접수되었습니다. 승인 시 알려드립니다.",
+    "error": {
+      "address_required": "주소를 입력·선택해 주세요.",
+      "bio_required": "컬렉터 프로필을 간단히 작성해 주세요.",
+      "agree_required": "커뮤니티 가이드에 동의해 주세요.",
+      "submit_failed": "제출에 실패했습니다. 다시 시도해 주세요."
     }
   },
   "auth": {

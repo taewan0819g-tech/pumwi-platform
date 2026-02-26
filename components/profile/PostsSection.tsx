@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardHeader, CardContent } from '@/components/ui/Card'
@@ -11,6 +11,17 @@ import { Plus, Trash2, Pencil, Image as ImageIcon, ChevronLeft, ChevronRight, X 
 import toast from 'react-hot-toast'
 import type { Post } from '@/types/profile'
 import { PostLikeComment } from '@/components/post/PostLikeComment'
+import CollectorApplyModal from '@/components/profile/CollectorApplyModal'
+import { PostCard } from '@/components/PostCard'
+import { cn } from '@/lib/utils'
+
+type ServiceTierValue = 'standard' | 'care' | 'global'
+
+const COLLECT_TIER_RATES: Record<ServiceTierValue, number> = {
+  standard: 0.2,
+  care: 0.3,
+  global: 0.4,
+}
 
 function getPostImageUrls(post: Post): string[] {
   if (post.image_urls?.length) return post.image_urls
@@ -115,6 +126,8 @@ export default function PostsSection({
   const [modalOpen, setModalOpen] = useState(false)
   const [viewPost, setViewPost] = useState<Post | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null)
+  const [collectorModalOpen, setCollectorModalOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editContent, setEditContent] = useState('')
@@ -131,6 +144,8 @@ export default function PostsSection({
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [saving, setSaving] = useState(false)
   const fileInputId = 'posts-section-image-input'
+  const [workPrice, setWorkPrice] = useState('')
+  const [serviceTier, setServiceTier] = useState<ServiceTierValue>('global')
 
   const supabase = createClient()
 
@@ -188,12 +203,28 @@ export default function PostsSection({
     })
   }, [])
 
+  useEffect(() => {
+    if (!currentUserId) {
+      setCurrentUserRole(null)
+      return
+    }
+    supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', currentUserId)
+      .single()
+      .then(({ data }) => setCurrentUserRole((data as { role?: string } | null)?.role ?? null))
+      .then(undefined, () => setCurrentUserRole(null))
+  }, [currentUserId])
+
   const openAdd = () => {
     setTitle('')
     setContent('')
     setEditionCurrent('')
     setEditionTotal('')
     setImageFiles([])
+    setWorkPrice('')
+    setServiceTier('global')
     setModalOpen(true)
   }
 
@@ -219,6 +250,13 @@ export default function PostsSection({
     if (tab === 'exhibition' && imageFiles.length === 0) {
       toast.error('Image is required for exhibitions.')
       return
+    }
+    if (tab === 'sales') {
+      const priceNum = workPrice.trim() ? parseInt(workPrice.trim(), 10) : NaN
+      if (!Number.isFinite(priceNum) || priceNum < 100) {
+        toast.error('Price (KRW) must be at least 100.')
+        return
+      }
     }
     setSaving(true)
 
@@ -266,7 +304,7 @@ export default function PostsSection({
         type: dbType,
         title: title.trim(),
         content: content.trim() || null,
-        price: null,
+        price: tab === 'sales' && workPrice.trim() ? Math.round(Number(workPrice)) : null,
         image_url: mainImage,
         image_urls: allImages,
       }
@@ -275,6 +313,7 @@ export default function PostsSection({
         const et = editionTotal.trim() ? Number(editionTotal) : null
         if (ec != null) payload.edition_number = ec
         if (et != null) payload.edition_total = et
+        if (serviceTier) payload.service_tier = serviceTier
       }
 
       const { error } = await supabase.from('posts').insert(payload)
@@ -438,26 +477,66 @@ export default function PostsSection({
             className="w-full border p-2 rounded h-32 resize-none" 
           />
           {tab === 'sales' && (
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600 shrink-0">Edition</label>
-              <input
-                type="number"
-                min={1}
-                value={editionCurrent}
-                onChange={(e) => setEditionCurrent(e.target.value)}
-                placeholder="1"
-                className="w-16 px-2 py-2 border border-gray-200 rounded text-slate-900 text-sm text-center"
-              />
-              <span className="text-gray-400">/</span>
-              <input
-                type="number"
-                min={1}
-                value={editionTotal}
-                onChange={(e) => setEditionTotal(e.target.value)}
-                placeholder="5"
-                className="w-16 px-2 py-2 border border-gray-200 rounded text-slate-900 text-sm text-center"
-              />
-            </div>
+            <>
+              <div className="flex flex-wrap items-center gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price (KRW)</label>
+                  <input
+                    type="number"
+                    min={100}
+                    value={workPrice}
+                    onChange={(e) => setWorkPrice(e.target.value)}
+                    placeholder="100"
+                    className="w-32 px-3 py-2 border border-gray-200 rounded text-slate-900 text-sm focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Service tier</label>
+                  <select
+                    value={serviceTier}
+                    onChange={(e) => setServiceTier(e.target.value as ServiceTierValue)}
+                    className="px-3 py-2 border border-gray-200 rounded text-slate-900 text-sm focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none"
+                  >
+                    <option value="standard">Standard</option>
+                    <option value="care">PUMWI Care</option>
+                    <option value="global">PUMWI Global</option>
+                  </select>
+                </div>
+              </div>
+              {(() => {
+                const priceNum = workPrice.trim() ? parseInt(workPrice.trim(), 10) : NaN
+                const valid = Number.isFinite(priceNum) && priceNum >= 100
+                const rate = COLLECT_TIER_RATES[serviceTier]
+                const payoutKrwt = valid ? Math.round(priceNum * (1 - rate)) : 0
+                return valid ? (
+                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-100 text-sm">
+                    <p className="text-gray-600">
+                      최종 정산 예정액 (Estimated Payout): <span className="font-medium text-[#2F5D50]">{payoutKrwt.toLocaleString()}원</span>
+                    </p>
+                  </div>
+                ) : null
+              })()}
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600 shrink-0">Edition</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={editionCurrent}
+                  onChange={(e) => setEditionCurrent(e.target.value)}
+                  placeholder="1"
+                  className="w-16 px-2 py-2 border border-gray-200 rounded text-slate-900 text-sm text-center"
+                />
+                <span className="text-gray-400">/</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={editionTotal}
+                  onChange={(e) => setEditionTotal(e.target.value)}
+                  placeholder="5"
+                  className="w-16 px-2 py-2 border border-gray-200 rounded text-slate-900 text-sm text-center"
+                />
+              </div>
+            </>
           )}
           <div>
             <input
@@ -504,7 +583,8 @@ export default function PostsSection({
               disabled={
                 saving ||
                 !title.trim() ||
-                (tab === 'exhibition' && (!content.trim() || imageFiles.length === 0))
+                (tab === 'exhibition' && (!content.trim() || imageFiles.length === 0)) ||
+                (tab === 'sales' && (!workPrice.trim() || !Number.isFinite(parseInt(workPrice.trim(), 10)) || parseInt(workPrice.trim(), 10) < 100))
               }
             >
               {saving ? 'Saving...' : 'Post'}
@@ -591,25 +671,35 @@ export default function PostsSection({
                     </div>
                   </>
                 ) : (
-                  <>
-                    <p className="whitespace-pre-wrap text-gray-700 text-sm">{viewPost.content || '—'}</p>
-                    {viewPost.edition_number != null &&
-                      viewPost.edition_total != null && (
-                        <p className="text-sm text-slate-500 mt-1">
-                          Edition {viewPost.edition_number}/{viewPost.edition_total}
-                        </p>
-                      )}
-                    {isOwn && (
-                      <div className="flex gap-2">
-                        <Button variant="outline" className="flex-1" onClick={startEditing}>
-                          <Pencil className="w-4 h-4 mr-2" /> Edit
-                        </Button>
-                        <Button variant="outline" className="flex-1 text-red-500 hover:bg-red-50" onClick={() => handleDelete(viewPost.id)}>
-                          <Trash2 className="w-4 h-4 mr-2" /> Delete
-                        </Button>
-                      </div>
-                    )}
-                  </>
+                  <PostCard
+                    post={viewPost}
+                    title={viewPost.title}
+                    content={viewPost.content}
+                    salesBlock={
+                      viewPost.type === 'sales'
+                        ? {
+                            payingPostId: null,
+                            currentUserRole,
+                            currentUserId,
+                            onCollectClick: (p) => router.push(`/checkout/${p.id}`),
+                            onOpenCollectorModal: () => setCollectorModalOpen(true),
+                          }
+                        : null
+                    }
+                    actions={
+                      isOwn ? (
+                        <div className="flex gap-2 mt-2">
+                          <Button variant="outline" className="flex-1" onClick={startEditing}>
+                            <Pencil className="w-4 h-4 mr-2" /> Edit
+                          </Button>
+                          <Button variant="outline" className="flex-1 text-red-500 hover:bg-red-50" onClick={() => handleDelete(viewPost.id)}>
+                            <Trash2 className="w-4 h-4 mr-2" /> Delete
+                          </Button>
+                        </div>
+                      ) : undefined
+                    }
+                    variant="modal"
+                  />
                 )}
               </div>
               {!isEditing && (
@@ -626,6 +716,12 @@ export default function PostsSection({
           </div>
         )}
       </Dialog>
+
+      <CollectorApplyModal
+        open={collectorModalOpen}
+        onClose={() => setCollectorModalOpen(false)}
+        onSuccess={() => router.refresh()}
+      />
     </>
   )
 }

@@ -55,7 +55,11 @@ export default function NearbyPageClient({ currentUserId }: NearbyPageClientProp
           <LocationPlacesAutocomplete
             key={addressSearchKey}
             value=""
-            onChange={(result) => setSearchOrigin({ lat: result.lat, lng: result.lng })}
+            onChange={(result) => {
+              if (result.lat != null && result.lng != null) {
+                setSearchOrigin({ lat: result.lat, lng: result.lng })
+              }
+            }}
             placeholder={textData.searchPlaceholder}
             language={mapLanguage}
             className="w-full"

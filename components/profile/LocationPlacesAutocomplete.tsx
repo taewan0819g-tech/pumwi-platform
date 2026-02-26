@@ -1,13 +1,15 @@
 'use client'
 
 import { useRef, useEffect, useCallback, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useJsApiLoader } from '@react-google-maps/api'
 
 export interface LocationPlaceResult {
   city: string
   country: string
-  lat: number
-  lng: number
+  /** null when user chose "use typed address" (no Place selected) */
+  lat: number | null
+  lng: number | null
 }
 
 interface LocationPlacesAutocompleteProps {
@@ -45,6 +47,7 @@ export default function LocationPlacesAutocomplete({
   const [loading, setLoading] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
 
+  const t = useTranslations('profile.locationAutocomplete')
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? ''
   const { isLoaded, loadError: loaderError } = useJsApiLoader({
     googleMapsApiKey: apiKey,
@@ -89,14 +92,18 @@ export default function LocationPlacesAutocomplete({
       const request: google.maps.places.AutocompletionRequest = {
         input: input.trim(),
         language: language || 'en',
+        // No types restriction: allow all addresses and establishments. For Korea-only: use componentRestrictions.
+        ...(process.env.NEXT_PUBLIC_PLACES_COUNTRY_RESTRICT === 'kr'
+          ? { componentRestrictions: { country: 'kr' } }
+          : {}),
       }
       autocompleteServiceRef.current.getPlacePredictions(request, (results, status) => {
         setLoading(false)
-        if (status !== window.google.maps.places.PlacesServiceStatus.OK || !results) {
+        if (status === window.google.maps.places.PlacesServiceStatus.OK && results?.length) {
+          setPredictions(results)
+        } else {
           setPredictions([])
-          return
         }
-        setPredictions(results)
         setDropdownOpen(true)
       })
     },
@@ -127,6 +134,14 @@ export default function LocationPlacesAutocomplete({
     },
     [debouncedFetch]
   )
+
+  const handleUseTypedAddress = useCallback(() => {
+    const trimmed = inputValue.trim()
+    if (!trimmed) return
+    setDropdownOpen(false)
+    setPredictions([])
+    onChange({ city: trimmed, country: '', lat: null, lng: null })
+  }, [inputValue, onChange])
 
   const handleSelectPrediction = useCallback(
     (prediction: google.maps.places.AutocompletePrediction) => {
@@ -173,7 +188,7 @@ export default function LocationPlacesAutocomplete({
           const localityStr = locality?.long_name || locality?.short_name
           const admin1Str = admin1?.long_name || admin1?.short_name
           if (localityStr) city = [localityStr, admin1Str].filter(Boolean).join(', ')
-          onChange({ city: city.trim(), country, lat, lng })
+          onChange({ city: city.trim(), country, lat, lng: lng })
         }
       )
     },
@@ -228,7 +243,7 @@ export default function LocationPlacesAutocomplete({
           value={inputValue}
           placeholder={placeholder}
           disabled
-          className={`w-full px-3 py-2 border border-gray-300 rounded-lg text-slate-900 text-sm placeholder:text-gray-400 bg-gray-100 ${inputClassName}`}
+          className={`w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-400 ${inputClassName}`}
         />
         <p className="mt-1 text-xs text-gray-500">Loading maps...</p>
       </div>
@@ -254,7 +269,7 @@ export default function LocationPlacesAutocomplete({
         onFocus={() => predictions.length > 0 && setDropdownOpen(true)}
         placeholder={placeholder}
         autoComplete="off"
-        className={inputClassName}
+        className={`w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-gray-900 placeholder:text-gray-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none ${inputClassName}`}
         aria-autocomplete="list"
         aria-expanded={dropdownOpen}
         aria-haspopup="listbox"
@@ -263,25 +278,43 @@ export default function LocationPlacesAutocomplete({
       {loading && !dropdownOpen && (
         <p className="mt-1 text-xs text-gray-500">Searching...</p>
       )}
-      {dropdownOpen && predictions.length > 0 && (
+      {dropdownOpen && (predictions.length > 0 || inputValue.trim()) && (
         <ul
-          className="absolute left-0 right-0 top-full mt-0 z-[100] max-h-60 overflow-auto rounded-b-xl border border-t-0 border-gray-300 bg-white shadow-lg list-none p-0 m-0"
+          className="absolute left-0 right-0 top-full mt-0 z-[9999] max-h-60 overflow-auto rounded-b-xl border border-t-0 border-gray-300 bg-white shadow-lg list-none p-0 m-0"
           role="listbox"
-          style={{ minWidth: '100%' }}
+          style={{ minWidth: '100%', isolation: 'isolate' }}
         >
-          {predictions.map((p) => (
-            <li
-              key={p.place_id}
-              role="option"
-              className="px-4 py-3 text-sm text-slate-900 cursor-pointer hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
-              onMouseDown={(e) => {
-                e.preventDefault()
-                handleSelectPrediction(p)
-              }}
-            >
-              {p.description}
-            </li>
-          ))}
+          {predictions.length > 0 ? (
+            predictions.map((p) => (
+              <li
+                key={p.place_id}
+                role="option"
+                className="px-4 py-3 text-sm text-slate-900 cursor-pointer hover:bg-gray-100 border-b border-gray-100 last:border-b-0"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  handleSelectPrediction(p)
+                }}
+              >
+                {p.description}
+              </li>
+            ))
+          ) : (
+            <>
+              <li className="px-4 py-3 text-sm text-gray-500 border-b border-gray-100">
+                {t('noResults')}
+              </li>
+              <li
+                role="option"
+                className="px-4 py-3 text-sm text-[#2F5D50] font-medium cursor-pointer hover:bg-[#2F5D50]/5 border-b border-gray-100"
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  handleUseTypedAddress()
+                }}
+              >
+                👉 {t('useTypedAddress', { address: inputValue.trim() })}
+              </li>
+            </>
+          )}
         </ul>
       )}
     </div>

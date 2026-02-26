@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { useLocale } from 'next-intl'
 import { Link, useRouter, usePathname } from '@/i18n/navigation'
+import { routing } from '@/i18n/routing'
 import {
   Search,
   Home,
@@ -215,13 +216,13 @@ export default function Navbar({ user }: NavbarProps) {
                 isLoginPage ? 'bg-[#0A0A0B] border border-white/10' : 'bg-white border border-gray-200'
               }`}>
                 <div className={`px-3 py-1.5 text-xs border-b ${isLoginPage ? 'text-white/40 border-white/10' : 'text-slate-400 border-gray-100'}`}>
-                  {locale === 'ko' ? '한국어' : locale === 'ja' ? '日本語' : 'English'}
+                  {locale === 'ko' ? '한국어' : locale === 'ja' ? '日本語' : locale === 'zh' ? '中文' : 'English'}
                 </div>
-                {(['ko', 'en', 'ja'] as const).map((loc) => (
+                {(routing.locales as readonly string[]).map((loc) => (
                   <Link
                     key={loc}
                     href={pathname}
-                    locale={loc}
+                    locale={loc as 'en' | 'ko' | 'ja' | 'zh'}
                     onClick={() => setLangDropdownOpen(false)}
                     className={`flex items-center justify-between gap-2 px-3 py-2 text-sm transition-colors ${
                       locale === loc
@@ -229,7 +230,7 @@ export default function Navbar({ user }: NavbarProps) {
                         : isLoginPage ? 'text-[#F3F4F6]/80 hover:bg-white/5' : 'text-gray-700 hover:bg-slate-50'
                     }`}
                   >
-                    {loc.toUpperCase()}
+                    {loc === 'zh' ? '中文' : loc.toUpperCase()}
                     {locale === loc && <Check className="h-4 w-4 shrink-0" />}
                   </Link>
                 ))}

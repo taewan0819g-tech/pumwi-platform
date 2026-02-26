@@ -7,14 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { Dialog } from "@/components/ui/Dialog";
+import { PayoutPreview, ServiceTierSelect, getCommissionRateForTier, type ServiceTierValue } from "./PayoutPreview";
 
-// Define Types locally to avoid import issues
 type ProductRow = {
   id: string;
   product_name: string;
   unique_id: string | null;
   stock_count: number | null;
   sold_count?: number | null;
+  service_tier?: string | null;
+  commission_rate?: number | null;
+  price?: number | null;
 };
 
 type OrderRow = {
@@ -50,13 +54,44 @@ export function OrdersManagement({
   const [productModal, setProductModal] = React.useState<"add" | { type: "edit"; product: ProductRow } | null>(null);
   const [orderModalOpen, setOrderModalOpen] = React.useState(false);
   const [editingId, setEditingId] = React.useState<string | null>(null);
-  const [editForm, setEditForm] = React.useState<{ product_name: string; unique_id: string; stock_count: number; sold_count: number }>({
+  const [editForm, setEditForm] = React.useState<{
+    product_name: string;
+    unique_id: string;
+    stock_count: number;
+    sold_count: number;
+    service_tier: ServiceTierValue;
+    commission_rate: number;
+    previewPrice: number;
+    price: number | null;
+  }>({
     product_name: "",
     unique_id: "",
     stock_count: 0,
     sold_count: 0,
+    service_tier: "standard",
+    commission_rate: 0.4,
+    previewPrice: 100000,
+    price: null,
+  });
+  const [addForm, setAddForm] = React.useState<{
+    product_name: string;
+    unique_id: string;
+    stock_count: number;
+    service_tier: ServiceTierValue;
+    commission_rate: number;
+    previewPrice: number;
+    price: number | null;
+  }>({
+    product_name: "",
+    unique_id: "",
+    stock_count: 0,
+    service_tier: "standard",
+    commission_rate: 0.4,
+    previewPrice: 100000,
+    price: null,
   });
   const [savingId, setSavingId] = React.useState<string | null>(null);
+  const [adding, setAdding] = React.useState(false);
 
   React.useEffect(() => {
     setProductsState(products);
@@ -64,11 +99,16 @@ export function OrdersManagement({
 
   const startEdit = (p: ProductRow) => {
     setEditingId(p.id);
+    const tier = (p.service_tier === "care" || p.service_tier === "global" ? p.service_tier : "standard") as ServiceTierValue;
     setEditForm({
       product_name: p.product_name,
       unique_id: p.unique_id ?? "",
       stock_count: p.stock_count ?? 0,
       sold_count: p.sold_count ?? 0,
+      service_tier: tier,
+      commission_rate: typeof p.commission_rate === "number" ? p.commission_rate : getCommissionRateForTier(tier),
+      previewPrice: p.price && p.price > 0 ? p.price : 100000,
+      price: p.price ?? null,
     });
   };
 
@@ -85,6 +125,9 @@ export function OrdersManagement({
       formData.set("unique_id", editForm.unique_id);
       formData.set("stock_count", String(editForm.stock_count));
       formData.set("sold_count", String(editForm.sold_count));
+      formData.set("service_tier", editForm.service_tier);
+      formData.set("commission_rate", String(editForm.commission_rate));
+      if (editForm.price != null && editForm.price !== '') formData.set("price", String(editForm.price));
       await updateProduct(editingId, formData);
       setProductsState((prev) =>
         prev.map((p) =>
@@ -95,6 +138,9 @@ export function OrdersManagement({
                 unique_id: editForm.unique_id || null,
                 stock_count: editForm.stock_count,
                 sold_count: editForm.sold_count,
+                service_tier: editForm.service_tier,
+                commission_rate: editForm.commission_rate,
+                price: editForm.price,
               }
             : p
         )
@@ -105,6 +151,31 @@ export function OrdersManagement({
       alert(err instanceof Error ? err.message : "Failed to update product");
     } finally {
       setSavingId(null);
+    }
+  };
+
+  const handleAddProduct = async () => {
+    if (!addForm.product_name.trim()) {
+      alert("Product name is required");
+      return;
+    }
+    setAdding(true);
+    try {
+      const formData = new FormData();
+      formData.set("product_name", addForm.product_name.trim());
+      formData.set("unique_id", addForm.unique_id.trim());
+      formData.set("stock_count", String(addForm.stock_count));
+      formData.set("service_tier", addForm.service_tier);
+      formData.set("commission_rate", String(addForm.commission_rate));
+      if (addForm.price != null && addForm.price !== '') formData.set("price", String(addForm.price));
+      await createProduct(formData);
+      setProductModal(null);
+      setAddForm({ product_name: "", unique_id: "", stock_count: 0, service_tier: "standard", commission_rate: 0.4, previewPrice: 100000, price: null });
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to add product");
+    } finally {
+      setAdding(false);
     }
   };
 
@@ -189,6 +260,44 @@ export function OrdersManagement({
                       className="text-sm w-20"
                     />
                   </div>
+                  <div>
+                    <Label className="text-xs text-gray-600 block mb-1">Price (KRW)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={editForm.price ?? ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, price: e.target.value === "" ? null : Number(e.target.value) || 0 }))}
+                      placeholder="e.g. 100000"
+                      className="text-sm"
+                    />
+                  </div>
+                  <ServiceTierSelect
+                    value={editForm.service_tier}
+                    onChange={(tier) =>
+                      setEditForm((f) => ({
+                        ...f,
+                        service_tier: tier,
+                        commission_rate: getCommissionRateForTier(tier),
+                      }))
+                    }
+                    labels={{ service_tier: "Service tier", tier_standard: "Standard", tier_care: "Care", tier_global: "Global" }}
+                  />
+                  <div>
+                    <Label className="text-xs text-gray-600 block mb-1">Sale price for payout preview (KRW)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={editForm.previewPrice || ""}
+                      onChange={(e) => setEditForm((f) => ({ ...f, previewPrice: Number(e.target.value) || 0 }))}
+                      placeholder="100000"
+                      className="text-sm"
+                    />
+                  </div>
+                  <PayoutPreview
+                    salePrice={editForm.previewPrice}
+                    commissionRate={editForm.commission_rate}
+                    labels={{ title: "Expected payout (at sale price)", payout: "Your payout" }}
+                  />
                   <div className="flex justify-end gap-1 pt-1">
                     <button
                       onClick={cancelEdit}
@@ -213,6 +322,11 @@ export function OrdersManagement({
                     <div className="min-w-0 flex-1">
                       <p className="font-medium text-gray-900 truncate">{p.product_name}</p>
                       {p.unique_id && <p className="text-xs text-gray-400 mt-1">ID: {p.unique_id}</p>}
+                      {(p.service_tier === "care" || p.service_tier === "global") && (
+                        <span className="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded bg-[#2F5D50]/10 text-[#2F5D50]">
+                          {p.service_tier === "global" ? "Global" : "Care"}
+                        </span>
+                      )}
                       <div className="mt-3 flex items-center gap-2 flex-wrap">
                         <span className={cn("text-2xl font-bold", (p.stock_count || 0) < 10 ? "text-amber-600" : "text-[#2F5D50]")}>
                           {p.stock_count ?? 0}
@@ -234,6 +348,95 @@ export function OrdersManagement({
           )}
         </div>
       </section>
+
+      {/* Add Product Modal */}
+      <Dialog
+        open={productModal === "add"}
+        onClose={() => setProductModal(null)}
+        title="Add Product"
+      >
+        <div className="p-4 space-y-3">
+          <div>
+            <Label className="text-xs text-gray-600 block mb-1">Product name</Label>
+            <Input
+              value={addForm.product_name}
+              onChange={(e) => setAddForm((f) => ({ ...f, product_name: e.target.value }))}
+              placeholder="Product name"
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-gray-600 block mb-1">ID / SKU (optional)</Label>
+            <Input
+              value={addForm.unique_id}
+              onChange={(e) => setAddForm((f) => ({ ...f, unique_id: e.target.value }))}
+              placeholder="Optional"
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-gray-600 block mb-1">Stock</Label>
+            <Input
+              type="number"
+              min={0}
+              value={addForm.stock_count}
+              onChange={(e) => setAddForm((f) => ({ ...f, stock_count: Number(e.target.value) || 0 }))}
+              className="w-full"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-gray-600 block mb-1">Price (KRW)</Label>
+            <Input
+              type="number"
+              min={0}
+              value={addForm.price ?? ""}
+              onChange={(e) => setAddForm((f) => ({ ...f, price: e.target.value === "" ? null : Number(e.target.value) || 0 }))}
+              placeholder="e.g. 100000"
+              className="w-full"
+            />
+          </div>
+          <ServiceTierSelect
+            value={addForm.service_tier}
+            onChange={(tier) =>
+              setAddForm((f) => ({
+                ...f,
+                service_tier: tier,
+                commission_rate: getCommissionRateForTier(tier),
+              }))
+            }
+            labels={{ service_tier: "Service tier", tier_standard: "Standard", tier_care: "Care", tier_global: "Global" }}
+          />
+          <div>
+            <Label className="text-xs text-gray-600 block mb-1">Sale price for payout preview (KRW)</Label>
+            <Input
+              type="number"
+              min={0}
+              value={addForm.previewPrice || ""}
+              onChange={(e) => setAddForm((f) => ({ ...f, previewPrice: Number(e.target.value) || 0 }))}
+              placeholder="100000"
+              className="w-full"
+            />
+          </div>
+          <PayoutPreview
+            salePrice={addForm.previewPrice}
+            commissionRate={addForm.commission_rate}
+            labels={{ title: "Expected payout (at sale price)", payout: "Your payout" }}
+          />
+          <div className="flex gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={() => setProductModal(null)} className="flex-1">
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleAddProduct}
+              disabled={adding}
+              className="flex-1 bg-[#2F5D50] text-white hover:bg-[#2F5D50]/90"
+            >
+              {adding ? "Adding..." : "Add Product"}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
 
       {/* Order History Section */}
       <section className="space-y-4">
