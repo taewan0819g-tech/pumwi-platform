@@ -38,8 +38,6 @@ export async function GET(request: Request) {
     } else {
       result = await getDHLRate(country, weight, supabase, itemPrice, addressTo, originAddress ?? undefined)
     }
-    // Shippo 호출 결과 로깅 (getDHLRate 내부에서 raw Shippo 응답도 로그됨)
-    console.log('=== DEBUG: Quote result ===', JSON.stringify({ country, addressTo, originAddress: originAddress ? 'present' : null, result }, null, 2))
     const charged = calculateChargedShippingPrice(result.realCostKrw)
     return NextResponse.json({
       charged_shipping_price_krw: result.shipable ? charged : 0,
