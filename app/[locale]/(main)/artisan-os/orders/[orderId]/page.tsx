@@ -112,7 +112,7 @@ export default async function ArtistOrderDetailPage({ params }: PageProps) {
   const o = order as { seller_id?: string }
   if (o.seller_id !== user.id) notFound()
 
-  const orderRow = mapOrderToRow(order as Record<string, unknown>)
+  const orderRow = mapOrderToRow(order as unknown as Record<string, unknown>)
 
   return (
     <div className="min-h-screen bg-[#F9F9F8]">
