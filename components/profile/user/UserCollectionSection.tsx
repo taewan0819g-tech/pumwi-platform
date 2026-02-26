@@ -71,29 +71,32 @@ export default function UserCollectionSection({
       setLoading(false)
       return
     }
+    let cancelled = false
     const supabase = createClient()
-    supabase
-      .from('orders')
-      .select(`
-        id,
-        order_id,
-        amount,
-        created_at,
-        post_id,
-        delivery_status,
-        posts (
-          id,
-          title,
-          image_url,
-          image_urls,
-          price,
-          user_id
-        )
-      `)
-      .eq('buyer_id', currentUserId)
-      .eq('status', 'paid')
-      .order('created_at', { ascending: false })
-      .then(async ({ data, error }) => {
+    const fetchOrders = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select(`
+            id,
+            order_id,
+            amount,
+            created_at,
+            post_id,
+            delivery_status,
+            posts (
+              id,
+              title,
+              image_url,
+              image_urls,
+              price,
+              user_id
+            )
+          `)
+          .eq('buyer_id', currentUserId)
+          .eq('status', 'paid')
+          .order('created_at', { ascending: false })
+        if (cancelled) return
         if (error) {
           console.error('[UserCollectionSection] Supabase fetch error (RLS 또는 쿼리 오류 가능):', {
             message: error.message,
@@ -112,6 +115,7 @@ export default function UserCollectionSection({
             .from('posts')
             .select('id, title, image_url, image_urls, price, user_id')
             .in('id', Array.from(new Set(missingPostIds)))
+          if (cancelled) return
           const postsList = postsData ?? []
           const postsMap = new Map<string, unknown>(
             postsList.filter(isRecord).map((p) => [str(p, 'id'), p])
@@ -124,9 +128,13 @@ export default function UserCollectionSection({
         if (rows.length === 0) {
           console.log('[UserCollectionSection] 주문 데이터 없음 (status=paid, buyer_id 일치). RLS 정책 또는 데이터 부재 확인 필요.')
         }
-        setOrders(rows)
-      })
-      .finally(() => setLoading(false))
+        if (!cancelled) setOrders(rows)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    fetchOrders()
+    return () => { cancelled = true }
   }, [currentUserId, isOwn])
 
   if (!isOwn) {
