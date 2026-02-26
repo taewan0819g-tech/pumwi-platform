@@ -117,6 +117,17 @@ export async function getDHLRate(
       })
 
       const data = (await res.json().catch(() => ({}))) as ShippoShipmentResponse
+      // Shippo 응답 상세 로깅 (rates 비어있을 때 원인 확인용)
+      console.log('=== DEBUG: Shippo Response ===', JSON.stringify(data, null, 2))
+      if (data.messages != null) {
+        console.log('[shippoClient] Shippo messages:', JSON.stringify(data.messages, null, 2))
+      }
+      if (data.validation_results != null) {
+        console.log('[shippoClient] Shippo validation_results:', JSON.stringify(data.validation_results, null, 2))
+      }
+      if (Array.isArray(data.rates) && data.rates.length === 0) {
+        console.log('[shippoClient] rates 배열이 비어있음. messages/validation_results 위 로그 확인.')
+      }
       if (res.ok && Array.isArray(data.rates)) {
         const dhl = data.rates.find(
           (r) =>
