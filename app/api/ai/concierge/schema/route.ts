@@ -24,8 +24,8 @@ export async function GET() {
     }
 
     const rows = data ?? []
-    const category_l = [...new Set(rows.map((r) => r.category_l).filter(Boolean))] as string[]
-    const category_m = [...new Set(rows.map((r) => r.category_m).filter(Boolean))] as string[]
+    const category_l = Array.from(new Set(rows.map((r) => r.category_l).filter(Boolean))) as string[]
+    const category_m = Array.from(new Set(rows.map((r) => r.category_m).filter(Boolean))) as string[]
 
     return NextResponse.json({ category_l, category_m })
   } catch (err) {
