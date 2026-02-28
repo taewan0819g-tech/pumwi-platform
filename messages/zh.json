@@ -46,7 +46,7 @@
     "admin": "管理后台",
     "newsManagement": "新闻管理",
     "signInToViewProfile": "登录后查看个人主页",
-    "apply_button": "申请成为艺术家",
+    "apply_button": "作家申请",
     "apply_collector_button": "申请藏家资格"
   },
   "feed": {
@@ -208,7 +208,8 @@
     "resend_error": "Failed to resend. Please try again later."
   },
   "apply": {
-    "title": "Apply as Artist",
+    "title": "作家申请",
+    "page_description": "您可以申请成为PUMWI艺术家。也可在个人资料中申请。",
     "style_label": "What is your main craft and artistic style?",
     "style_placeholder": "e.g., Hand-stitched leather goods with a vintage look",
     "process_label": "Describe your handmade process. Do you use any machinery?",
@@ -338,7 +339,7 @@
     "main_description": "A platform for artists who create with their best effort and consumers who understand that true value.",
     "hero_title": "Where Art Meets Value",
     "hero_subtitle": "A platform for artisans who create with soul and collectors who recognize true value.",
-    "process_title": "How to Apply as an Artist",
+    "process_title": "How to Apply as a Host",
     "step1_title": "Sign Up",
     "step1_desc": "Create an account to get started.",
     "step2_title": "Submit Artist Application",

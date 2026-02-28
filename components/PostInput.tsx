@@ -399,7 +399,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
               </div>
             </div>
           ) : (
-            <textarea
+          <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder={tCreate('input_placeholder')}
@@ -423,7 +423,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
                       <input
                         type="radio"
                         name="exhibition_status"
-                        value={value}
+            value={value}
                         checked={exhibitionStatus === value}
                         onChange={() => setExhibitionStatus(value)}
                         className="text-[#2F5D50] focus:ring-[#2F5D50]"
@@ -507,24 +507,24 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
           {postType === 'work' && (
             <>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600 shrink-0">Edition</span>
-                <input
-                  type="number"
-                  min={1}
-                  value={editionCurrent}
-                  onChange={(e) => setEditionCurrent(e.target.value)}
-                  placeholder="1"
-                  className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
-                <span className="text-gray-400">/</span>
-                <input
-                  type="number"
-                  min={1}
-                  value={editionTotal}
-                  onChange={(e) => setEditionTotal(e.target.value)}
-                  placeholder="5"
-                  className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                />
+            <span className="text-sm text-gray-600 shrink-0">Edition</span>
+            <input
+              type="number"
+              min={1}
+              value={editionCurrent}
+              onChange={(e) => setEditionCurrent(e.target.value)}
+              placeholder="1"
+              className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
+            <span className="text-gray-400">/</span>
+            <input
+              type="number"
+              min={1}
+              value={editionTotal}
+              onChange={(e) => setEditionTotal(e.target.value)}
+              placeholder="5"
+              className="w-16 px-2 py-2 border border-gray-200 rounded-lg text-sm text-slate-900 text-center focus:ring-2 focus:ring-[#8E86F5] focus:border-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
                 <span className="text-xs text-gray-500">(Edition Total &gt; 0)</span>
               </div>
               <div>
@@ -583,7 +583,7 @@ export default function PostInput({ userId, profile, isExhibitionAdmin = false, 
                       최종 정산 예정액 (Estimated Payout):{' '}
                       <span className="font-semibold text-[#2F5D50]">{payoutKrwt.toLocaleString()}원</span>
                     </p>
-                  </div>
+          </div>
                 ) : null
               })()}
             </>

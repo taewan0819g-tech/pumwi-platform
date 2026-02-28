@@ -1,0 +1,27 @@
+---
+description: PUMWI database and experience_spots schema rules — table name, columns, naming
+globs: "**/api/**/*.ts,**/concierge/**/*.{ts,tsx},**/lib/**/*.ts"
+alwaysApply: true
+---
+
+# PUMWI Project Rules (Database & Schema)
+
+When writing or reviewing code that queries the PUMWI database (Supabase, SQL, or Prisma):
+
+## Table name
+- **Always** use the table name `experience_spots`. Never use a different table name for this data.
+
+## Description column
+- **Always** use the column `description_en` for spot/place descriptions.
+- **Never** use a column named `description` or `experience_content` as the main description source when reading from `experience_spots`. Map `description_en` to a response field named `description` in API responses if needed for the frontend.
+
+## Category columns
+- Use **`category_m`** for matching and filtering (e.g. `.eq('category_m', ...)` or `.in('category_m', [...])`).
+- Use **`category_l`** for broad filtering when needed.
+- Do not use a column named `categories`; it does not exist on `experience_spots`.
+
+## Location
+- Use the **`location`** column (geography type) for location-based queries when the schema provides it. Use `lat`/`lng` only when the schema exposes them and geography is not the source of truth.
+
+## Naming and schema
+- **Never hallucinate column names.** Before writing SQL, Supabase queries, or Prisma schemas, check the existing schema (e.g. Supabase table definition or Prisma schema) and use only the column names that exist.

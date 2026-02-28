@@ -1,0 +1,5 @@
+# PUMWI Project Rules
+- Database Truth: Use `types/supabase.ts`.
+- Table: `experience_spots`
+- Description: `description_en`
+- UI: Show distance in km/m. Highlight verified shops in Purple.

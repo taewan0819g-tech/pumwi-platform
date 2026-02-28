@@ -108,7 +108,7 @@ export default async function PumwiExhibitionDetailPage({
       <header className="border-b border-gray-100">
         <div className="p-4 flex items-center justify-between">
           <Link
-            href="/"
+            href="/gallery"
             className="text-sm text-[#2F5D50] hover:underline"
           >
             ← Back to Feed

@@ -30,12 +30,12 @@ create policy "Users can insert own profile"
   on public.profiles for insert
   with check (auth.uid() = id);
 
--- 선택: 가입 시 프로필 자동 생성
+-- 선택: 가입 시 프로필 자동 생성 (기본 권한: 일반 유저)
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.profiles (id, full_name)
-  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)));
+  insert into public.profiles (id, full_name, role)
+  values (new.id, coalesce(new.raw_user_meta_data->>'full_name', split_part(new.email, '@', 1)), 'user');
   return new;
 end;
 $$ language plpgsql security definer;

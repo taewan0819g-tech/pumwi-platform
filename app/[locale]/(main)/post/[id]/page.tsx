@@ -59,7 +59,7 @@ export default async function PostDetailPage({
   return (
     <article className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-        <Link href="/" className="text-sm text-[#2F5D50] hover:underline">← Back to Feed</Link>
+        <Link href="/gallery" className="text-sm text-[#2F5D50] hover:underline">← Back to Feed</Link>
       </div>
       {urls.length > 0 && (
         <div className="aspect-video max-h-[60vh] bg-gray-100">

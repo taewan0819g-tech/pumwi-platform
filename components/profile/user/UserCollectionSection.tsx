@@ -183,7 +183,7 @@ export default function UserCollectionSection({
             <p className="text-gray-700 font-medium">
               아직 소장하신 작품이 없습니다. PUMWI의 멋진 작품들을 만나보세요!
             </p>
-            <Link href="/">
+            <Link href="/gallery">
               <Button className="mt-4" style={{ backgroundColor: '#8E86F5' }}>
                 작품 탐색하기
               </Button>

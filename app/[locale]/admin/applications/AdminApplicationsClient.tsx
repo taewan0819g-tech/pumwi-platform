@@ -8,7 +8,11 @@ import { Dialog } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
 import { approveApplication, rejectApplication, approveCollector, rejectCollector } from './actions'
-import { APPLICATION_FIELD_CONFIG } from '@/components/profile/ArtistApplyModal'
+import {
+  APPLICATION_FIELD_CONFIG,
+  HOST_APPLICATION_FIELDS,
+  type HostApplicationType,
+} from '@/components/profile/ArtistApplyModal'
 
 interface ApplicationRow {
   id: string
@@ -302,31 +306,74 @@ export default function AdminApplicationsClient({
             )}
 
             <div className="space-y-6 max-h-96 overflow-y-auto">
-              {detail.answers?.content != null ? (
-                <div>
-                  <p className="text-sm font-medium text-slate-700 mb-1">Application</p>
-                  <p className="text-sm text-slate-600 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">
-                    {typeof detail.answers.content === 'string'
-                      ? detail.answers.content
-                      : JSON.stringify(detail.answers.content)}
-                  </p>
-                </div>
-              ) : (detail.application_details || detail.answers) ? (
-                APPLICATION_FIELD_CONFIG.map((field) => {
-                  const source = detail.application_details ?? detail.answers
-                  const value = source?.[field.key]
+              {(() => {
+                const appType = (detail.application_details?.application_type ?? detail.answers?.application_type ?? 'artist') as HostApplicationType
+                const formData = detail.application_details?.form as Record<string, string> | undefined
+                if (formData && HOST_APPLICATION_FIELDS[appType]) {
                   return (
-                    <div key={field.key}>
-                      <p className="text-sm font-medium text-slate-700 mb-1">{t(field.labelKey)}</p>
+                    <>
+                      <p className="text-sm font-medium text-slate-700">Type: Artist</p>
+                      {HOST_APPLICATION_FIELDS[appType].map((field) => (
+                        <div key={field.key}>
+                          <p className="text-sm font-medium text-slate-700 mb-1">{t(field.labelKey)}</p>
+                          <p className="text-sm text-slate-600 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">
+                            {typeof formData[field.key] === 'string' ? formData[field.key] : formData[field.key] != null ? String(formData[field.key]) : '—'}
+                          </p>
+                        </div>
+                      ))}
+                      {detail.application_details?.category_s != null && (
+                        <div>
+                          <p className="text-sm font-medium text-slate-700 mb-1">category_s (AI)</p>
+                          <p className="text-sm text-slate-600 bg-gray-50 rounded-lg p-3">{String(detail.application_details.category_s)}</p>
+                        </div>
+                      )}
+                      {detail.application_details?.philosophy != null && (
+                        <div>
+                          <p className="text-sm font-medium text-slate-700 mb-1">philosophy</p>
+                          <p className="text-sm text-slate-600 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">{String(detail.application_details.philosophy)}</p>
+                        </div>
+                      )}
+                      {detail.application_details?.mood_tags != null && Array.isArray(detail.application_details.mood_tags) && (
+                        <div>
+                          <p className="text-sm font-medium text-slate-700 mb-1">mood_tags</p>
+                          <p className="text-sm text-slate-600 bg-gray-50 rounded-lg p-3">{(detail.application_details.mood_tags as string[]).join(', ')}</p>
+                        </div>
+                      )}
+                      {detail.application_details?.anti_target != null && (
+                        <div>
+                          <p className="text-sm font-medium text-slate-700 mb-1">anti_target</p>
+                          <p className="text-sm text-slate-600 bg-gray-50 rounded-lg p-3">{String(detail.application_details.anti_target)}</p>
+                        </div>
+                      )}
+                    </>
+                  )
+                }
+                if (detail.answers?.content != null) {
+                  return (
+                    <div>
+                      <p className="text-sm font-medium text-slate-700 mb-1">Application</p>
                       <p className="text-sm text-slate-600 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">
-                        {typeof value === 'string' ? value : value != null ? String(value) : '—'}
+                        {typeof detail.answers.content === 'string' ? detail.answers.content : JSON.stringify(detail.answers.content)}
                       </p>
                     </div>
                   )
-                })
-              ) : (
-                <p className="text-sm text-gray-500 italic">No application details.</p>
-              )}
+                }
+                if (detail.application_details || detail.answers) {
+                  return APPLICATION_FIELD_CONFIG.map((field) => {
+                    const source = detail.application_details ?? detail.answers
+                    const value = source?.[field.key]
+                    return (
+                      <div key={field.key}>
+                        <p className="text-sm font-medium text-slate-700 mb-1">{t(field.labelKey)}</p>
+                        <p className="text-sm text-slate-600 whitespace-pre-wrap bg-gray-50 rounded-lg p-3">
+                          {typeof value === 'string' ? value : value != null ? String(value) : '—'}
+                        </p>
+                      </div>
+                    )
+                  })
+                }
+                return <p className="text-sm text-gray-500 italic">No application details.</p>
+              })()}
             </div>
             <div className="flex gap-2 pt-4 border-t border-gray-200">
               <Button

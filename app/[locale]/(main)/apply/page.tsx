@@ -1,11 +1,13 @@
 import Link from 'next/link'
+import { getTranslations } from 'next-intl/server'
 
-export default function ApplyPage() {
+export default async function ApplyPage() {
+  const t = await getTranslations('apply')
   return (
     <div className="max-w-lg mx-auto py-12 px-4 text-center">
-      <h1 className="text-xl font-semibold text-slate-900 mb-2">Apply as Artist</h1>
+      <h1 className="text-xl font-semibold text-slate-900 mb-2">{t('title')}</h1>
       <p className="text-sm text-gray-600 mb-6">
-        Apply to participate in PUMWI exhibitions. You can also apply from your profile.
+        {t('page_description')}
       </p>
       <Link
         href="/profile"

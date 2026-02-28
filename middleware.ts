@@ -58,7 +58,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const publicPaths = ['/login', '/signup', '/auth']
+  const publicPaths = ['/', '/login', '/signup', '/auth']
   const isPublicPath =
     publicPaths.some((p) => pathWithoutLocale === p) ||
     pathWithoutLocale.startsWith('/auth/')

@@ -22,15 +22,16 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined)
 interface AuthProviderProps {
   children: ReactNode
   initialSession?: Session | null
+  initialUser?: SupabaseUser | null
 }
 
-export function AuthProvider({ children, initialSession }: AuthProviderProps) {
+export function AuthProvider({ children, initialSession, initialUser }: AuthProviderProps) {
   const router = useRouter()
   const [user, setUser] = useState<SupabaseUser | null>(
-    initialSession?.user ?? null
+    initialUser ?? initialSession?.user ?? null
   )
   const [session, setSession] = useState<Session | null>(initialSession ?? null)
-  const [isLoading, setIsLoading] = useState(!initialSession)
+  const [isLoading, setIsLoading] = useState(!initialSession && !initialUser)
 
   const supabase = createClient()
 
@@ -51,11 +52,10 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
       }
     })
 
-    // 초기 세션이 없을 때 한 번 더 확인 (클라이언트 쿠키 기준)
-    if (!initialSession) {
-      supabase.auth.getSession().then(({ data: { session: s } }) => {
-        setSession(s)
-        setUser(s?.user ?? null)
+    // 초기 세션이 없을 때 한 번 더 확인 (클라이언트 쿠키 기준) — getUser() 사용 권장
+    if (!initialSession && !initialUser) {
+      supabase.auth.getUser().then(({ data: { user: u } }) => {
+        setUser(u ?? null)
         setIsLoading(false)
       })
     }

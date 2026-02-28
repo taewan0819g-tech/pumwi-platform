@@ -69,7 +69,7 @@ export default async function AdminApplicationsPage() {
     artistIds.length > 0
       ? await supabase
           .from('artist_applications')
-          .select('id, user_id, status, answers, portfolio_images, created_at, profiles(full_name, avatar_url)')
+          .select('id, user_id, status, answers, application_details, portfolio_images, created_at, profiles(full_name, avatar_url)')
           .in('user_id', artistIds)
           .eq('status', 'pending')
           .order('created_at', { ascending: false })

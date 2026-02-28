@@ -46,7 +46,7 @@
     "admin": "管理者",
     "newsManagement": "ニュース管理",
     "signInToViewProfile": "ログインしてプロフィールを確認してください",
-    "apply_button": "作家応募",
+    "apply_button": "作家申請",
     "apply_collector_button": "コレクター資格申請"
   },
   "feed": {
@@ -208,7 +208,8 @@
     "resend_error": "再送信に失敗しました。しばらくしてからお試しください。"
   },
   "apply": {
-    "title": "作家応募",
+    "title": "作家申請",
+    "page_description": "PUMWIの作家として申請できます。プロフィールからも申請可能です。",
     "style_label": "主な制作分野とスタイルを教えてください",
     "style_placeholder": "例：ヴィンテージ風の手縫いレザー作品",
     "process_label": "制作工程について教えてください。機械は使用しますか？",
@@ -338,7 +339,7 @@
     "main_description": "心を込めて創作するアーティストと、その本当の価値を理解する人をつなぐプラットフォーム。",
     "hero_title": "本当の価値と出会う場所",
     "hero_subtitle": "魂を込めて創作する職人と、その真の価値を認めるコレクターのためのプラットフォーム。",
-    "process_title": "アーティスト登録の流れ",
+    "process_title": "ホスト登録の流れ",
     "step1_title": "会員登録",
     "step1_desc": "まずはアカウントを作成して始めましょう。",
     "step2_title": "アーティスト申請",

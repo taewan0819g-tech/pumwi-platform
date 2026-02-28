@@ -10,6 +10,8 @@ export interface LocationPlaceResult {
   /** null when user chose "use typed address" (no Place selected) */
   lat: number | null
   lng: number | null
+  /** Full address from Places API when a place is selected; null when using typed address */
+  formatted_address?: string | null
 }
 
 interface LocationPlacesAutocompleteProps {
@@ -140,7 +142,7 @@ export default function LocationPlacesAutocomplete({
     if (!trimmed) return
     setDropdownOpen(false)
     setPredictions([])
-    onChange({ city: trimmed, country: '', lat: null, lng: null })
+    onChange({ city: trimmed, country: '', lat: null, lng: null, formatted_address: null })
   }, [inputValue, onChange])
 
   const handleSelectPrediction = useCallback(
@@ -188,7 +190,7 @@ export default function LocationPlacesAutocomplete({
           const localityStr = locality?.long_name || locality?.short_name
           const admin1Str = admin1?.long_name || admin1?.short_name
           if (localityStr) city = [localityStr, admin1Str].filter(Boolean).join(', ')
-          onChange({ city: city.trim(), country, lat, lng: lng })
+          onChange({ city: city.trim(), country, lat, lng: lng, formatted_address: place.formatted_address || prediction.description })
         }
       )
     },
