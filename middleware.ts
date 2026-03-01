@@ -61,6 +61,7 @@ export async function middleware(request: NextRequest) {
   const publicPaths = ['/', '/login', '/signup', '/auth']
   const isPublicPath =
     publicPaths.some((p) => pathWithoutLocale === p) ||
+    pathWithoutLocale === '' || // locale root e.g. /en → pathWithoutLocale ''
     pathWithoutLocale.startsWith('/auth/')
 
   if ((pathWithoutLocale === '/login' || pathWithoutLocale === '/signup') && user) {

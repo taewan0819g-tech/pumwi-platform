@@ -163,7 +163,7 @@
       "qrCodeLabel": "QR 코드",
       "qrCodeShort": "QR",
       "downloadImage": "이미지 저장",
-      "role_master": "장인",
+      "role_master": "공방 작가",
       "role_admin": "관리자",
       "role_user": "유저"
     },
@@ -176,7 +176,7 @@
     "loading": "불러오는 중...",
     "no_posts_yet": "아직 게시가 없어요.",
     "share_first_post": "첫 게시를 공유해 보세요.",
-    "role_master": "장인",
+    "role_master": "공방 작가",
     "role_admin": "관리자",
     "role_user": "유저",
     "toast_added_to_list": "마스터 리스트에 추가되었습니다.",
@@ -212,7 +212,7 @@
     "page_description": "PUMWI 작가로 지원하실 수 있습니다. 프로필에서도 신청할 수 있습니다.",
     "type_title": "유형 선택",
     "type_subtitle": "하나를 선택하면 해당 유형에 맞는 질문이 나타납니다.",
-    "type_artist": "Artist/Craftsman (작가/장인)",
+    "type_artist": "Artist/Craftsman (작가/공방 작가)",
     "type_artist_desc": "기술과 영혼의 결합",
     "type_space": "Space/Landmark (공간/명소)",
     "type_space_desc": "공간의 서사와 미학",
@@ -402,7 +402,7 @@
     "trust_title": "철저한 검증과 신뢰",
     "trust_desc": "엄격한 심사로 검증된 작가만 참여할 수 있으며, 허위·형식적인 활동은 허용되지 않습니다.",
     "location_title": "내 곁의 아티스트 (Location Service)",
-    "location_desc": "PUMWI만의 위치 기술로 소비자는 가까운 장인을 발견하고, 장인은 주변 동료와 연결되어 영감을 나눕니다.",
+    "location_desc": "PUMWI만의 위치 기술로 소비자는 가까운 공방 작가를 발견하고, 공방 작가는 주변 동료와 연결되어 영감을 나눕니다.",
     "voice_title": "작품 설명, 이제 말로 남기세요.",
     "voice_desc": "작품에 대한 설명을 편하게 말씀하세요. 지능형 시스템이 내용을 체계적으로 정제하여 작가님이 오직 작품의 본질에만 집중하도록 돕습니다.",
     "voice_section_title": "작품 설명, 이제 말로 남기세요.",
@@ -415,7 +415,7 @@
     "philosophy_title": "철학으로 연결되다",
     "philosophy_desc": "단순 스펙보다 작가의 철학을 소중히.",
     "sectionD_title": "Global Connection: 내 주변에서 시작하는 예술",
-    "sectionD_desc": "소비자는 가장 가까운 곳의 장인을 찾아 특별한 작품을 만나고, 장인은 국경을 넘어 동료들과 연결됩니다.",
+    "sectionD_desc": "소비자는 가장 가까운 곳의 공방 작가를 찾아 특별한 작품을 만나고, 공방 작가는 국경을 넘어 동료들과 연결됩니다.",
     "global_connection_title": "Global Connection: 내 주변에서 시작하는 예술",
     "global_connection_desc": "소비자는 가장 가까운 곳의 장인을 찾아 특별한 작품을 만나고, 장인은 국경을 넘어 동료들과 연결됩니다."
   },
@@ -447,6 +447,10 @@
   },
   "loginPage": {
     "checking": "확인 중...",
+    "hero_tagline": "당신의 일상을 채워줄 가장 가까운 공방 작가를 연결합니다.",
+    "quota_text": "엄격한 쿼터제. 한 지역에서 오직 소수만이\nPUMWI의 공방 작가가 됩니다.",
+    "founder_title": "발로 뛴 기록, 손으로 확인한 진심.\n설립자가 직접 영입한 공방 작가 리스트.",
+    "founder_desc": "PUMWI는 데이터나 알고리즘에 의존하지 않습니다. 설립자가 직접 현장을 방문하여 공방 작가의 철학과 작업 과정을 철저히 검증하고, 엄격한 기준을 통과한 지역의 진짜 거장들만을 선별하여 소개합니다.",
     "section1_title": "글로벌 아트 & 전시",
     "section1_desc": "오프라인 전시와 온라인 편의가 만납니다. 전 세계 검증된 작가를 만나보세요.",
     "section2_title": "철학으로 연결하다",
@@ -456,5 +460,17 @@
     "section3_strong": "가짜 작가는 즉시 퇴출됩니다.",
     "section4_title": "올인원 스튜디오 OS",
     "section4_desc": "재고, 시스템 마케팅, CS 마스터. 비즈니스는 저희가, 창작은 당신이."
+  },
+  "concierge": {
+    "view_artist_profile": "작가님 상세 정보",
+    "view_on_google_maps": "구글 지도로 보기",
+    "distance_away": "{dist} 거리",
+    "main_question": "어떤 공방 체험을 찾고 계신가요?",
+    "main_subtext": "(예: 도자기, 원데이클래스, 데이트하기 좋은 분위기)",
+    "location_permission": "📍 위치 권한을 허용해 주세요",
+    "search_placeholder": "지역 또는 공방 검색",
+    "example_placeholder": "예: 도자기 공방, 원데이 클래스",
+    "search_button": "공방 탐색하기",
+    "gallery_button": "PUMWI 갤러리 방문하기"
   }
 }

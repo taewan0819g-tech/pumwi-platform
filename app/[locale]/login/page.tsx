@@ -30,6 +30,7 @@ function GoogleIcon({ className }: { className?: string }) {
 export default function LoginPage() {
   const t = useTranslations('auth.form')
   const tAuth = useTranslations('auth')
+  const tLogin = useTranslations('loginPage')
   const locale = useLocale()
   const router = useRouter()
   const pathname = usePathname()
@@ -122,9 +123,7 @@ export default function LoginPage() {
             className="text-3xl md:text-5xl lg:text-6xl leading-[1.2] font-normal tracking-tighter text-white/90"
             style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
           >
-            이 나라이기에 가능한,
-            <br />
-            이 지역만이 가진 유일한 장인정신.
+            {tLogin('hero_tagline')}
           </motion.h1>
         </div>
 
@@ -194,11 +193,10 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: isQuotaInView ? 1 : 0, y: isQuotaInView ? 0 : 30 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-lg md:text-2xl text-white/70 font-light text-center max-w-2xl leading-relaxed"
+          className="text-lg md:text-2xl text-white/70 font-light text-center max-w-2xl leading-relaxed whitespace-pre-line"
           style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
         >
-          엄격한 쿼터제. 한 지역에서 오직 소수만이
-          <br /> PUMWI의 장인이 됩니다.
+          {tLogin('quota_text')}
         </motion.p>
       </section>
 
@@ -219,13 +217,11 @@ export default function LoginPage() {
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
           >
-            <h2 className="text-2xl md:text-4xl leading-tight mb-8 text-white/90 font-normal">
-              발로 뛴 기록, 손으로 확인한 진심.
-              <br />
-              설립자가 직접 영입한 장인 리스트.
+            <h2 className="text-2xl md:text-4xl leading-tight mb-8 text-white/90 font-normal whitespace-pre-line">
+              {tLogin('founder_title')}
             </h2>
             <p className="text-white/60 leading-relaxed text-sm md:text-base">
-              PUMWI는 데이터나 알고리즘에 의존하지 않습니다. 설립자가 직접 현장을 방문하여 장인의 철학과 작업 과정을 철저히 검증하고, 엄격한 기준을 통과한 지역의 진짜 거장들만을 선별하여 소개합니다.
+              {tLogin('founder_desc')}
             </p>
           </motion.div>
         </div>

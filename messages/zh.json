@@ -23,7 +23,7 @@
     "recommended": "推荐艺术家",
     "following": "我的收藏名单",
     "view_all": "查看全部",
-    "following_empty": "你的收藏名单中还没有匠人。",
+    "following_empty": "你的收藏名单中还没有作家。",
     "following_hint": "可在艺术家主页将其加入收藏名单。",
     "collection": "收藏"
   },
@@ -163,7 +163,7 @@
       "qrCodeLabel": "二维码",
       "qrCodeShort": "二维码",
       "downloadImage": "下载图片",
-      "role_master": "匠人",
+      "role_master": "手工坊作家",
       "role_admin": "管理员",
       "role_user": "用户"
     },
@@ -176,7 +176,7 @@
     "loading": "加载中...",
     "no_posts_yet": "还没有内容。",
     "share_first_post": "发布你的第一条内容。",
-    "role_master": "匠人",
+    "role_master": "手工坊作家",
     "role_admin": "管理员",
     "role_user": "用户",
     "toast_added_to_list": "已加入收藏名单。",
@@ -372,7 +372,7 @@
     "sectionD_title": "Global Connection: Art Begins Around You",
     "sectionD_desc": "",
     "global_connection_title": "Global Connection: Art Starting Near You",
-    "global_connection_desc": "Consumers find special pieces from the nearest artisans; artisans connect with peers across borders."
+    "global_connection_desc": "Consumers find special pieces from the nearest workshop artists; workshop artists connect with peers across borders."
   },
   "nearbyArtists": {
     "title": "Artists Near Me",
@@ -402,6 +402,10 @@
   },
   "loginPage": {
     "checking": "Checking...",
+    "hero_tagline": "遇见离您最近的手工坊作家，开启您的创意生活。",
+    "quota_text": "严格配额制。每个地区仅有极少数\n能成为PUMWI手工坊作家。",
+    "founder_title": "用脚步丈量，以双手验证。\n由创始人亲自邀请的手工坊作家名单。",
+    "founder_desc": "PUMWI不依赖数据或算法。创始人亲赴现场，严格验证每位手工坊作家的理念与创作过程，仅介绍通过严格标准的当地真正匠人。",
     "section1_title": "Global Art & Exhibitions",
     "section1_desc": "Offline exhibitions meet online convenience. Discover verified artists worldwide.",
     "section2_title": "Connect with Philosophy",
@@ -411,5 +415,17 @@
     "section3_strong": "Fake artists are removed immediately.",
     "section4_title": "All-in-One Studio OS",
     "section4_desc": "Inventory, system marketing, and CS Master. We handle the business so you can focus on creation."
+  },
+  "concierge": {
+    "view_artist_profile": "查看作家详情",
+    "view_on_google_maps": "在Google地图上查看",
+    "distance_away": "距离 {dist}",
+    "main_question": "您想体验哪种创意工坊？",
+    "main_subtext": "（例如：陶艺、一日体验课、适合约会的氛围）",
+    "location_permission": "📍 开启定位以查看附近的工坊",
+    "search_placeholder": "按地区或工坊名称搜索",
+    "example_placeholder": "例如：陶艺工坊、一日体验",
+    "search_button": "探索工坊体验",
+    "gallery_button": "查看 PUMWI 画廊"
   }
 }

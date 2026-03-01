@@ -163,7 +163,7 @@
       "qrCodeLabel": "QRコード",
       "qrCodeShort": "QR",
       "downloadImage": "画像をダウンロード",
-      "role_master": "匠",
+      "role_master": "アトリエ作家",
       "role_admin": "管理者",
       "role_user": "ユーザー"
     },
@@ -176,7 +176,7 @@
     "loading": "読み込み中...",
     "no_posts_yet": "まだ投稿がありません。",
     "share_first_post": "最初の投稿を共有しましょう。",
-    "role_master": "匠",
+    "role_master": "アトリエ作家",
     "role_admin": "管理者",
     "role_user": "ユーザー",
     "toast_added_to_list": "マスターリストに追加しました。",
@@ -402,6 +402,10 @@
   },
   "loginPage": {
     "checking": "確認中...",
+    "hero_tagline": "日常を彩る、一番身近なアトリエの作家に出会う。",
+    "quota_text": "厳格なクォータ制。一地域でごく少数だけが\nPUMWIのアトリエ作家になります。",
+    "founder_title": "足で稼いだ記録、手で確かめた真心。\n設立者が直接迎えたアトリエ作家リスト。",
+    "founder_desc": "PUMWIはデータやアルゴリズムに依存しません。設立者が現場を直接訪れ、アトリエ作家の哲学と制作過程を徹底的に検証し、厳格な基準を通過した地域の真の匠だけを選んで紹介しています。",
     "section1_title": "グローバルアート＆展示",
     "section1_desc": "オフラインの展示とオンラインの利便性が融合。世界中の検証された作家を発見できます。",
     "section2_title": "哲学でつながる",
@@ -411,5 +415,17 @@
     "section3_strong": "偽の作家は即座に退場となります。",
     "section4_title": "オールインワン スタジオOS",
     "section4_desc": "在庫、システムマーケティング、CSマスター。運営は私たちが、創作はあなたが。"
+  },
+  "concierge": {
+    "view_artist_profile": "作家の詳細を見る",
+    "view_on_google_maps": "Googleマップで表示",
+    "distance_away": "{dist} 先",
+    "main_question": "どんなワークショップをお探しですか？",
+    "main_subtext": "（例：陶芸、1日体験レッスン、デートにぴったりな雰囲気）",
+    "location_permission": "📍 近くの工房を表示するため、位置情報を許可してください",
+    "search_placeholder": "エリアや工房名で検索",
+    "example_placeholder": "例：陶芸工房、1日体験",
+    "search_button": "ワークショップを探す",
+    "gallery_button": "PUMWIギャラリーを見る"
   }
 }

@@ -383,7 +383,7 @@
   "landing": {
     "main_description": "A platform for artists who create with their best effort and consumers who understand that true value.",
     "hero_title": "Where Art Meets Value",
-    "hero_subtitle": "A platform for artisans who create with soul and collectors who recognize true value.",
+    "hero_subtitle": "A platform for workshop artists who create with soul and collectors who recognize true value.",
     "process_title": "How to Apply as a Host",
     "step1_title": "Sign Up",
     "step1_desc": "Create an account to get started.",
@@ -402,7 +402,7 @@
     "trust_title": "Rigorous Verification and Trust",
     "trust_desc": "Only artists who pass a rigorous review process are allowed to participate, and false or superficial activities are not permitted.",
     "location_title": "Artists Near You (Location Service)",
-    "location_desc": "With PUMWI's location technology, consumers discover nearby artisans and artisans connect with peers to share inspiration.",
+    "location_desc": "With PUMWI's location technology, consumers discover nearby workshop artists and workshop artists connect with peers to share inspiration.",
     "voice_title": "Capture Your Art with Your Voice.",
     "voice_desc": "Simply describe your work naturally. Our intelligent system refines and structures the details, so you can focus solely on the essence of your craft.",
     "voice_section_title": "Describe Your Work, Simply by Speaking",
@@ -417,7 +417,7 @@
     "sectionD_title": "Global Connection: Art Begins Around You",
     "sectionD_desc": "",
     "global_connection_title": "Global Connection: Art Starting Near You",
-    "global_connection_desc": "Consumers find special pieces from the nearest artisans; artisans connect with peers across borders."
+    "global_connection_desc": "Consumers find special pieces from the nearest workshop artists; workshop artists connect with peers across borders."
   },
   "nearbyArtists": {
     "title": "Artists Near Me",
@@ -447,6 +447,10 @@
   },
   "loginPage": {
     "checking": "Checking...",
+    "hero_tagline": "Discover and connect with local workshop artists right in your neighborhood.",
+    "quota_text": "Strict quota. Only a select few in each region\nbecome PUMWI workshop artists.",
+    "founder_title": "On-the-ground research, hand-picked quality.\nA list of workshop artists recruited by the founder.",
+    "founder_desc": "PUMWI does not rely on data or algorithms. The founder visits each venue in person to verify the philosophy and practice of each workshop artist, and only those who meet our strict standards are selected and introduced.",
     "section1_title": "Global Art & Exhibitions",
     "section1_desc": "Offline exhibitions meet online convenience. Discover verified artists worldwide.",
     "section2_title": "Connect with Philosophy",
@@ -456,5 +460,17 @@
     "section3_strong": "Fake artists are removed immediately.",
     "section4_title": "All-in-One Studio OS",
     "section4_desc": "Inventory, system marketing, and CS Master. We handle the business so you can focus on creation."
+  },
+  "concierge": {
+    "view_artist_profile": "View Artist Profile",
+    "view_on_google_maps": "View on Google Maps",
+    "distance_away": "{dist} away",
+    "main_question": "What kind of creative workshop are you looking for?",
+    "main_subtext": "(e.g., pottery, one-day classes, a romantic date atmosphere)",
+    "location_permission": "📍 Enable location access for nearby workshops",
+    "search_placeholder": "Search by area or workshop",
+    "example_placeholder": "e.g., pottery studio, one-day class",
+    "search_button": "Explore Workshops",
+    "gallery_button": "Visit PUMWI Gallery"
   }
 }

@@ -5,6 +5,9 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { Mic, MicOff, Loader2, Sparkles, ExternalLink, RefreshCw, MapPin, Search } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
+import { useAuth } from '@/components/providers/AuthProvider'
+import { Dialog } from '@/components/ui/Dialog'
+import { useTranslations } from 'next-intl'
 import { useJsApiLoader } from '@react-google-maps/api'
 import type { ExperiencePlace } from '@/app/api/ai/concierge/places/route'
 import type { Workshop } from '@/app/api/ai/concierge/workshops/route'
@@ -41,7 +44,6 @@ export interface ConciergeFilters {
   chatResponse?: string
 }
 
-const PROMPT = '어떤 공방 체험을 찾고 계신가요? (예: 도자기, 원데이클래스, 데이트하기 좋은 분위기)'
 const PURPLE = '#8E86F5'
 const PURPLE_GLOW = '0 0 32px rgba(142, 134, 245, 0.35)'
 const PURPLE_GLOW_STRONG = '0 0 48px rgba(142, 134, 245, 0.45)'
@@ -55,6 +57,8 @@ function formatDistance(distMeters: number | null | undefined): string {
 }
 
 export default function AIConciergeClient() {
+  const { user } = useAuth()
+  const tConcierge = useTranslations('concierge')
   const [input, setInput] = useState('')
   const [recording, setRecording] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -74,6 +78,7 @@ export default function AIConciergeClient() {
   const [placePredictions, setPlacePredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [placeDropdownOpen, setPlaceDropdownOpen] = useState(false)
   const [placeLoading, setPlaceLoading] = useState(false)
+  const [showLoginRequiredModal, setShowLoginRequiredModal] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null)
@@ -564,9 +569,12 @@ export default function AIConciergeClient() {
       </div>
 
       {/* 문구 — 가독성 높고 우아한 폰트 */}
-      <h1 className="text-xl sm:text-2xl font-serif text-center text-slate-700 mb-8 max-w-lg leading-relaxed tracking-tight">
-        {PROMPT}
+      <h1 className="text-xl sm:text-2xl font-serif text-center text-slate-700 mb-2 max-w-lg leading-relaxed tracking-tight">
+        {tConcierge('main_question')}
       </h1>
+      <p className="text-sm sm:text-base text-slate-500 text-center mb-8 max-w-lg">
+        {tConcierge('main_subtext')}
+      </p>
 
       {/* 위치 상태 인디케이터 + 새로고침 + 지역 선택 */}
       <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600 mb-2 min-h-[24px]">
@@ -593,7 +601,7 @@ export default function AIConciergeClient() {
         )}
         {!isRefreshingLocation && locationStatus === 'denied' && !isManualLocation && (
           <span className="flex items-center gap-1.5 text-slate-500">
-            📍 위치 권한을 허용해 주세요
+            {tConcierge('location_permission')}
           </span>
         )}
         <button
@@ -621,7 +629,7 @@ export default function AIConciergeClient() {
                   value={placeSearchValue}
                   onChange={handlePlaceInputChange}
                   onFocus={() => placePredictions.length > 0 && setPlaceDropdownOpen(true)}
-                  placeholder="지역 또는 공방 검색"
+                  placeholder={tConcierge('search_placeholder')}
                   autoComplete="off"
                   className="pl-8 pr-3 py-1.5 w-48 sm:w-56 rounded-lg text-sm font-medium text-slate-700 bg-white border border-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-[#8E86F5] focus:ring-1 focus:ring-[#8E86F5] transition-colors"
                   aria-autocomplete="list"
@@ -708,16 +716,16 @@ export default function AIConciergeClient() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="예: 도자기 공방, 원데이 클래스, 데이트하기 좋은 분위기"
+            placeholder={tConcierge('example_placeholder')}
             className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8E86F5]/40 focus:border-[#8E86F5] text-sm"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="px-5 py-2 rounded-xl font-medium text-white bg-[#8E86F5] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+            className="px-4 sm:px-5 py-2.5 sm:py-2 rounded-xl text-sm sm:text-base font-medium text-white bg-[#8E86F5] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity min-w-0 max-w-full"
           >
-            Search experiences
+            {tConcierge('search_button')}
           </button>
         </form>
       </div>
@@ -782,7 +790,7 @@ export default function AIConciergeClient() {
                       {/* DB-original name only; AI does not modify or translate */}
                       <h3 className="font-medium text-slate-900 truncate flex-1">{place.name}</h3>
                       <span className="flex-shrink-0 text-xs font-medium text-slate-600 bg-[#8E86F5]/10 text-[#8E86F5] px-2 py-0.5 rounded">
-                        {formatDistance(place.dist_meters)}
+                        {tConcierge('distance_away', { dist: formatDistance(place.dist_meters) })}
                       </span>
                     </div>
                     <p className="text-sm text-slate-600 line-clamp-2 mt-1">
@@ -796,14 +804,24 @@ export default function AIConciergeClient() {
                         className="flex-1 text-center py-2 text-sm font-medium rounded-lg border-2 border-[#8E86F5] text-[#8E86F5] hover:bg-[#8E86F5]/10 transition-colors inline-flex items-center justify-center gap-1.5"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
-                        View on Google Maps
+                        {tConcierge('view_on_google_maps')}
                       </a>
-                      <Link
-                        href="/login"
-                        className="flex-1 text-center py-2 text-sm font-medium rounded-lg text-white bg-[#8E86F5] hover:opacity-95 transition-opacity"
-                      >
-                        예약
-                      </Link>
+                      {user ? (
+                        <Link
+                          href="/login"
+                          className="flex-1 text-center py-2 text-sm font-medium rounded-lg text-white bg-[#8E86F5] hover:opacity-95 transition-opacity"
+                        >
+                          예약
+                        </Link>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setShowLoginRequiredModal(true)}
+                          className="flex-1 text-center py-2 text-sm font-medium rounded-lg text-white bg-[#8E86F5] hover:opacity-95 transition-opacity"
+                        >
+                          예약
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -827,7 +845,7 @@ export default function AIConciergeClient() {
                       {/* DB-original name only; AI does not modify or translate */}
                       <h3 className="font-medium text-slate-600 truncate text-sm flex-1">{place.name}</h3>
                       <span className="flex-shrink-0 text-[10px] font-medium text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded">
-                        {formatDistance(place.dist_meters)}
+                        {tConcierge('distance_away', { dist: formatDistance(place.dist_meters) })}
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
@@ -840,7 +858,7 @@ export default function AIConciergeClient() {
                       className="mt-2 flex items-center justify-center gap-1.5 w-full py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
-                      View on Google Maps
+                      {tConcierge('view_on_google_maps')}
                     </a>
                   </div>
                 </div>
@@ -853,9 +871,9 @@ export default function AIConciergeClient() {
       <div className="mt-auto pt-12">
         <Link
           href="/gallery"
-          className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-medium text-slate-700 bg-transparent border-2 border-slate-200 hover:border-[#8E86F5]/50 hover:text-[#8E86F5] transition-colors underline decoration-[#8E86F5] decoration-2 underline-offset-4"
+          className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-lg text-sm sm:text-base font-medium text-slate-700 bg-transparent border-2 border-slate-200 hover:border-[#8E86F5]/50 hover:text-[#8E86F5] transition-colors underline decoration-[#8E86F5] decoration-2 underline-offset-4 min-w-0 max-w-full text-center"
         >
-          Go to PUMWI Gallery
+          {tConcierge('gallery_button')}
         </Link>
       </div>
 
@@ -871,6 +889,33 @@ export default function AIConciergeClient() {
           }
         `,
       }} />
+      <Dialog
+        open={showLoginRequiredModal}
+        onClose={() => setShowLoginRequiredModal(false)}
+        title="로그인이 필요한 서비스입니다."
+      >
+        <div className="p-4 space-y-4">
+          <p className="text-sm text-slate-600">
+            작가 상세보기, 예약 등 추가 기능을 이용하시려면 로그인해 주세요.
+          </p>
+          <div className="flex gap-2 justify-end">
+            <button
+              type="button"
+              onClick={() => setShowLoginRequiredModal(false)}
+              className="px-4 py-2 text-sm font-medium text-slate-600 rounded-lg border border-slate-200 hover:bg-slate-50"
+            >
+              취소
+            </button>
+            <Link
+              href="/login"
+              onClick={() => setShowLoginRequiredModal(false)}
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-[#8E86F5] hover:opacity-95"
+            >
+              로그인 페이지로 이동하기
+            </Link>
+          </div>
+        </div>
+      </Dialog>
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
     </div>
   )
