@@ -3,10 +3,10 @@
 import { usePathname } from 'next/navigation'
 import Footer from './Footer'
 
-/** Renders Footer only when not on the luxury login/landing page (which has its own deep-black footer). */
+/** Renders Footer only when not on auth pages (login/signup have their own layout). */
 export default function FooterGate() {
   const pathname = usePathname()
-  const isLoginPage = pathname?.endsWith('/login') ?? false
-  if (isLoginPage) return null
+  const isAuthPage = pathname != null && (pathname.endsWith('/login') || pathname.endsWith('/signup'))
+  if (isAuthPage) return null
   return <Footer />
 }

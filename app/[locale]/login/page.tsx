@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useTranslations, useLocale } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
-import { motion, useInView } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { Playfair_Display, Noto_Serif_KR } from 'next/font/google'
 
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair', display: 'swap' })
@@ -39,11 +39,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [authChecked, setAuthChecked] = useState(false)
-
-  const quotaRef = useRef(null)
-  const founderRef = useRef(null)
-  const isQuotaInView = useInView(quotaRef, { once: true, margin: '-100px' })
-  const isFounderInView = useInView(founderRef, { once: true, margin: '-100px' })
 
   useEffect(() => {
     const supabase = createClient()
@@ -103,7 +98,7 @@ export default function LoginPage() {
         background: 'radial-gradient(circle at 50% 0%, #1a1a1d 0%, #0A0A0B 50%, #0A0A0B 100%)',
         position: 'relative',
       }}
-      className={`${playfair.variable} ${notoSerifKR.variable} min-h-screen antialiased font-serif overflow-x-hidden`}
+      className={`${playfair.variable} ${notoSerifKR.variable} h-screen min-h-screen antialiased font-serif overflow-x-hidden overflow-y-hidden flex flex-col`}
     >
       {/* Subtle noise overlay for texture */}
       <div
@@ -113,17 +108,22 @@ export default function LoginPage() {
         }}
         aria-hidden
       />
-      {/* 1. Hero & The Gate */}
-      <section className="relative z-10 min-h-screen flex flex-col lg:flex-row border-b border-white/5">
-        <div className="flex-[1.2] flex flex-col justify-center px-8 lg:px-24 py-20">
+      {/* Hero & Form — single screen, no scroll */}
+      <section className="relative z-10 flex-1 min-h-0 flex flex-col lg:flex-row">
+        <div className="flex-[1.2] flex flex-col justify-center px-8 lg:px-24 py-12 lg:py-20">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
-            className="text-3xl md:text-5xl lg:text-6xl leading-[1.2] font-normal tracking-tighter text-white/90"
+            className="text-3xl md:text-5xl lg:text-6xl leading-[1.25] font-normal tracking-tighter text-white/90 break-keep"
             style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
           >
-            {tLogin('hero_tagline')}
+            {tLogin('hero_tagline').split('\n').map((line, i, arr) => (
+              <span key={i}>
+                {line}
+                {i < arr.length - 1 ? <br /> : null}
+              </span>
+            ))}
           </motion.h1>
         </div>
 
@@ -186,65 +186,6 @@ export default function LoginPage() {
           </div>
         </div>
       </section>
-
-      {/* 2. Strict Quota */}
-      <section ref={quotaRef} className="relative z-10 min-h-[60vh] flex items-center justify-center px-8">
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: isQuotaInView ? 1 : 0, y: isQuotaInView ? 0 : 30 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="text-lg md:text-2xl text-white/70 font-light text-center max-w-2xl leading-relaxed whitespace-pre-line"
-          style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
-        >
-          {tLogin('quota_text')}
-        </motion.p>
-      </section>
-
-      {/* 3. Founder's Curation */}
-      <section ref={founderRef} className="relative z-10 py-32 lg:py-48 px-8 border-t border-white/5">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: isFounderInView ? 1 : 0, x: isFounderInView ? 0 : -30 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="aspect-[4/5] max-h-[560px] bg-white/5 border border-white/10 flex items-center justify-center grayscale hover:grayscale-0 transition-all duration-1000"
-          >
-            <span className="text-[10px] text-white/25 tracking-[0.25em] uppercase">Image</span>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: isFounderInView ? 1 : 0, x: isFounderInView ? 0 : 30 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
-            style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
-          >
-            <h2 className="text-2xl md:text-4xl leading-tight mb-8 text-white/90 font-normal whitespace-pre-line">
-              {tLogin('founder_title')}
-            </h2>
-            <p className="text-white/60 leading-relaxed text-sm md:text-base">
-              {tLogin('founder_desc')}
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* 4. Footer */}
-      <footer className="relative z-10 py-20 border-t border-white/5 text-center">
-        <h2 className="text-2xl tracking-[0.5em] font-light mb-6 text-[#8B5CF6]" style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}>
-          P U M W I
-        </h2>
-        <p
-          className="text-[10px] uppercase tracking-widest mb-10 text-green-700/80 animate-pulse"
-          style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
-        >
-          Currently discovering in Korea and Japan.
-        </p>
-        <div className="space-y-2 text-[11px] text-white/60" style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}>
-          <p>© 2026 PUMWI. All rights reserved.</p>
-          <a href="mailto:concierge@pumwi.com" className="block text-luxury-gold-muted hover:text-luxury-gold transition-all">
-            concierge@pumwi.com
-          </a>
-        </div>
-      </footer>
     </main>
   )
 }
