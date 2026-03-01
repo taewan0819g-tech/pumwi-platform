@@ -6,12 +6,12 @@ import { routing } from './i18n/routing'
 const intlMiddleware = createIntlMiddleware(routing)
 
 function getLocaleFromPathname(pathname: string): string {
-  const match = pathname.match(/^\/(en|ko|ja)(\/|$)/)
+  const match = pathname.match(/^\/(en|ko|ja|zh)(\/|$)/)
   return match ? match[1] : routing.defaultLocale
 }
 
 function pathnameWithoutLocale(pathname: string): string {
-  const without = pathname.replace(/^\/(en|ko|ja)/, '') || '/'
+  const without = pathname.replace(/^\/(en|ko|ja|zh)/, '') || '/'
   return without
 }
 
@@ -58,11 +58,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  const publicPaths = ['/', '/login', '/signup', '/auth']
+  const publicPaths = ['/', '/login', '/signup', '/auth', '/criteria', '/search']
   const isPublicPath =
     publicPaths.some((p) => pathWithoutLocale === p) ||
-    pathWithoutLocale === '' || // locale root e.g. /en → pathWithoutLocale ''
-    pathWithoutLocale.startsWith('/auth/')
+    pathWithoutLocale === '' ||
+    pathWithoutLocale.startsWith('/auth/') ||
+    pathWithoutLocale.startsWith('/artist/') ||
+    pathWithoutLocale === '/artist'
 
   if ((pathWithoutLocale === '/login' || pathWithoutLocale === '/signup') && user) {
     return NextResponse.redirect(new URL(`/${locale}`, request.url))

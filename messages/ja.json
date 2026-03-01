@@ -402,7 +402,7 @@
   },
   "loginPage": {
     "checking": "確認中...",
-    "hero_tagline": "日常を彩る、一番身近なアトリエの作家に出会う。",
+    "hero_tagline": "PUMWIが選定した、韓国を代表する\n作家たちと出会う。",
     "quota_text": "厳格なクォータ制。一地域でごく少数だけが\nPUMWIのアトリエ作家になります。",
     "founder_title": "足で稼いだ記録、手で確かめた真心。\n設立者が直接迎えたアトリエ作家リスト。",
     "founder_desc": "PUMWIはデータやアルゴリズムに依存しません。設立者が現場を直接訪れ、アトリエ作家の哲学と制作過程を徹底的に検証し、厳格な基準を通過した地域の真の匠だけを選んで紹介しています。",
@@ -417,15 +417,44 @@
     "section4_desc": "在庫、システムマーケティング、CSマスター。運営は私たちが、創作はあなたが。"
   },
   "concierge": {
+    "hero_headline": "PUMWIが認定した、韓国を代表する作家たちと出会う。",
+    "search_submit": "検索",
     "view_artist_profile": "作家の詳細を見る",
     "view_on_google_maps": "Googleマップで表示",
     "distance_away": "{dist} 先",
-    "main_question": "どんなワークショップをお探しですか？",
-    "main_subtext": "（例：陶芸、1日体験レッスン、デートにぴったりな雰囲気）",
-    "location_permission": "📍 近くの工房を表示するため、位置情報を許可してください",
+    "main_title": "{location}の作家に出会う",
+    "subtitle_selection": "PUMWI Selection 2026",
+    "subtitle_en": "Discover Artists Selected by PUMWI",
+    "section_selection_title": "PUMWI Selected Artist",
     "search_placeholder": "エリアや工房名で検索",
+    "search_placeholder_artists": "地域または作家で検索",
     "example_placeholder": "例：陶芸工房、1日体験",
     "search_button": "ワークショップを探す",
-    "gallery_button": "PUMWIギャラリーを見る"
+    "view_selection_btn": "PUMWI Selectionを見る",
+    "gallery_button": "PUMWIギャラリーを見る",
+    "view_criteria_link": "選定基準を見る",
+    "apply_artist_link": "作家として応募する",
+    "location_default": "お近く",
+    "main_question": "どんなワークショップをお探しですか？",
+    "main_subtext": "（例：陶芸、1日体験レッスン、デートにぴったりな雰囲気）",
+    "location_permission": "近くの工房を表示するため、位置情報を許可してください",
+    "nearby_artists_btn": "近くの作家",
+    "nearby_drawer_title": "あなたの近くの作家",
+    "nearby_refresh_btn": "位置情報を再取得",
+    "nearby_getting_location": "位置情報を取得中…",
+    "nearby_denied": "位置情報が許可されていません。ブラウザの設定で位置情報を有効にしてください。",
+    "nearby_no_artists": "近くに登録された作家はいません。"
+  },
+  "search": {
+    "placeholder": "地域または作家で検索",
+    "submit": "検索",
+    "filter_all": "すべて",
+    "filter_artists": "作家",
+    "enter_term": "検索語を入力してください。",
+    "no_results": "検索結果がありません。",
+    "badge_artist": "作家"
+  },
+  "artist": {
+    "curation_note_title": "PUMWI キュレーションノート"
   }
 }

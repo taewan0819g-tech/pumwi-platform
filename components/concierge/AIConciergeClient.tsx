@@ -2,15 +2,14 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react'
 import Image from 'next/image'
-import { Link } from '@/i18n/navigation'
+import { Link, useRouter } from '@/i18n/navigation'
 import { Mic, MicOff, Loader2, Sparkles, ExternalLink, RefreshCw, MapPin, Search } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
-import { useAuth } from '@/components/providers/AuthProvider'
-import { Dialog } from '@/components/ui/Dialog'
 import { useTranslations } from 'next-intl'
 import { useJsApiLoader } from '@react-google-maps/api'
 import type { ExperiencePlace } from '@/app/api/ai/concierge/places/route'
 import type { Workshop } from '@/app/api/ai/concierge/workshops/route'
+import { NearbyArtistsDrawer } from './NearbyArtistsDrawer'
 
 type PlaceCard = (ExperiencePlace | Workshop) & {
   description?: string | null
@@ -45,10 +44,15 @@ export interface ConciergeFilters {
 }
 
 const PURPLE = '#8E86F5'
-const PURPLE_GLOW = '0 0 32px rgba(142, 134, 245, 0.35)'
-const PURPLE_GLOW_STRONG = '0 0 48px rgba(142, 134, 245, 0.45)'
-
 const PLACE_DEBOUNCE_MS = 300
+
+/** Mock PUMWI Selected Artist cards — 카드 클릭 시 /artist/[id] 이동 (로그인 불필요) */
+const MOCK_SELECTION = [
+  { id: '1', name: '도예가 김OO', role: 'Ceramic Artist', studio: 'Chuncheon Studio' },
+  { id: '2', name: '유리공예 이XX', role: 'Glass Artist', studio: 'Gangneung Atelier' },
+  { id: '3', name: '목공예 박OO', role: 'Woodcraft Artist', studio: 'Wonju Workshop' },
+  { id: '4', name: '조향사 최OO', role: 'Perfumer', studio: 'Seoul Studio' },
+]
 
 function formatDistance(distMeters: number | null | undefined): string {
   if (distMeters == null || !Number.isFinite(distMeters)) return '—'
@@ -57,7 +61,7 @@ function formatDistance(distMeters: number | null | undefined): string {
 }
 
 export default function AIConciergeClient() {
-  const { user } = useAuth()
+  const router = useRouter()
   const tConcierge = useTranslations('concierge')
   const [input, setInput] = useState('')
   const [recording, setRecording] = useState(false)
@@ -78,7 +82,7 @@ export default function AIConciergeClient() {
   const [placePredictions, setPlacePredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
   const [placeDropdownOpen, setPlaceDropdownOpen] = useState(false)
   const [placeLoading, setPlaceLoading] = useState(false)
-  const [showLoginRequiredModal, setShowLoginRequiredModal] = useState(false)
+  const [showNearbyDrawer, setShowNearbyDrawer] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null)
@@ -360,9 +364,9 @@ export default function AIConciergeClient() {
           }
           const data = await res.json()
           const text = [data.title, data.content].filter(Boolean).join(' ') || data.content
-          if (text) {
+          if (text?.trim()) {
             setInput(text)
-            await runSearch(text)
+            router.push(`/search?q=${encodeURIComponent(text.trim())}`)
           }
         } catch (e) {
           setError(e instanceof Error ? e.message : 'Voice failed')
@@ -376,7 +380,7 @@ export default function AIConciergeClient() {
     } catch {
       setError('Microphone access denied')
     }
-  }, [runSearch])
+  }, [router])
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
@@ -388,7 +392,8 @@ export default function AIConciergeClient() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    runSearch(input)
+    const q = input.trim()
+    if (q) router.push(`/search?q=${encodeURIComponent(q)}`)
   }
 
   const handleRefreshLocation = useCallback(() => {
@@ -551,372 +556,112 @@ export default function AIConciergeClient() {
   }, [])
 
   return (
-    <div
-      className="min-h-[70vh] flex flex-col items-center py-10 px-4"
-      style={{ background: '#FAFAFA' }}
-    >
-      {/* Logo — 최상단 중앙 */}
-      <div className="flex justify-center mb-6">
-        <Image
-          src="/logo2.png"
-          alt="PUMWI"
-          width={220}
-          height={74}
-          className="h-auto w-[200px] sm:w-[230px] object-contain"
-          priority
-          sizes="(max-width: 640px) 200px, 230px"
-        />
-      </div>
-
-      {/* 문구 — 가독성 높고 우아한 폰트 */}
-      <h1 className="text-xl sm:text-2xl font-serif text-center text-slate-700 mb-2 max-w-lg leading-relaxed tracking-tight">
-        {tConcierge('main_question')}
-      </h1>
-      <p className="text-sm sm:text-base text-slate-500 text-center mb-8 max-w-lg">
-        {tConcierge('main_subtext')}
-      </p>
-
-      {/* 위치 상태 인디케이터 + 새로고침 + 지역 선택 */}
-      <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-slate-600 mb-2 min-h-[24px]">
-        {(locationStatus === 'getting' || isRefreshingLocation) && (
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 rounded-full border-2 border-slate-400 border-t-transparent animate-spin" />
-            Finding location...
-          </span>
-        )}
-        {!isRefreshingLocation && locationStatus === 'ok' && currentAddress && (
-          <span className="flex items-center gap-1.5 text-[#8E86F5] font-medium max-w-[min(100%,24rem)] truncate" title={currentAddress}>
-            📍 현재 위치: {currentAddress}
-          </span>
-        )}
-        {!isRefreshingLocation && locationStatus === 'ok' && !currentAddress && isManualLocation && selectedRegionName && (
-          <span className="flex items-center gap-1.5 text-[#8E86F5] font-medium">
-            📍 Searching: {selectedRegionName}
-          </span>
-        )}
-        {!isRefreshingLocation && locationStatus === 'ok' && !currentAddress && !isManualLocation && (
-          <span className="flex items-center gap-1.5 text-[#8E86F5] font-medium">
-            📍 Current Location Active
-          </span>
-        )}
-        {!isRefreshingLocation && locationStatus === 'denied' && !isManualLocation && (
-          <span className="flex items-center gap-1.5 text-slate-500">
-            {tConcierge('location_permission')}
-          </span>
-        )}
-        <button
-          type="button"
-          onClick={handleRefreshLocation}
-          disabled={isRefreshingLocation}
-          className="inline-flex items-center justify-center w-8 h-8 rounded-full text-[#8E86F5] hover:bg-[#8E86F5]/15 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label="위치 새로고침"
-          title="위치 새로고침"
-        >
-          <RefreshCw
-            className={`w-4 h-4 ${isRefreshingLocation ? 'animate-spin' : ''}`}
-            style={isRefreshingLocation ? { color: 'var(--tw-color-purple, #8E86F5)' } : undefined}
+    <div className="min-h-screen w-full flex flex-col items-center py-10 sm:py-14 px-4 sm:px-6 font-serif antialiased bg-gray-50">
+      <div className="relative z-10 w-full max-w-screen-xl flex flex-col items-center">
+        {/* Logo — 헤더와 동일한 보라색 PUMWI 로고 */}
+        <div className="flex justify-center mb-8">
+          <Image
+            src="/logo2.png"
+            alt="PUMWI"
+            width={220}
+            height={74}
+            className="h-auto w-[200px] sm:w-[230px] object-contain"
+            priority
+            sizes="(max-width: 640px) 200px, 230px"
           />
-        </button>
-        <div ref={placeContainerRef} className="relative">
-          {/* Hidden div required by Google PlacesService */}
-          <div ref={setMapDivRef} style={{ position: 'absolute', left: -9999, width: 1, height: 1 }} aria-hidden="true" />
-          {apiKey && isMapsLoaded && !mapsLoadError ? (
-            <>
-              <div className="relative inline-block">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                <input
-                  type="text"
-                  value={placeSearchValue}
-                  onChange={handlePlaceInputChange}
-                  onFocus={() => placePredictions.length > 0 && setPlaceDropdownOpen(true)}
-                  placeholder={tConcierge('search_placeholder')}
-                  autoComplete="off"
-                  className="pl-8 pr-3 py-1.5 w-48 sm:w-56 rounded-lg text-sm font-medium text-slate-700 bg-white border border-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-[#8E86F5] focus:ring-1 focus:ring-[#8E86F5] transition-colors"
-                  aria-autocomplete="list"
-                  aria-expanded={placeDropdownOpen}
-                  aria-haspopup="listbox"
-                  role="combobox"
-                />
-              </div>
-              {placeDropdownOpen && (placePredictions.length > 0 || placeSearchValue.trim()) && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    aria-hidden
-                    onClick={() => setPlaceDropdownOpen(false)}
-                  />
-                  <ul
-                    className="absolute left-0 top-full mt-1 py-1 w-64 rounded-lg bg-white border border-slate-200 shadow-lg z-20 max-h-60 overflow-auto"
-                    role="listbox"
-                  >
-                    {placeLoading ? (
-                      <li className="px-3 py-2 text-sm text-slate-500">검색 중...</li>
-                    ) : placePredictions.length > 0 ? (
-                      placePredictions.map((p) => (
-                        <li key={p.place_id}>
-                          <button
-                            type="button"
-                            role="option"
-                            onMouseDown={(e) => {
-                              e.preventDefault()
-                              handlePlaceSelect(p)
-                            }}
-                            className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-[#8E86F5]/10 hover:text-[#8E86F5]"
-                          >
-                            {p.description}
-                          </button>
-                        </li>
-                      ))
-                    ) : placeSearchValue.trim() ? (
-                      <li className="px-3 py-2 text-sm text-slate-500">검색 결과가 없습니다.</li>
-                    ) : null}
-                  </ul>
-                </>
-              )}
-            </>
-          ) : (
-            <span className="text-xs text-slate-500">지역 검색을 사용하려면 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY를 설정하세요.</span>
-          )}
-        </div>
-      </div>
-
-      {/* 마이크 버튼 — 대기 시 Glow, 녹음 시 Ripple */}
-      <div className="relative flex flex-col items-center gap-6">
-        <div className="relative flex items-center justify-center">
-          {/* Ripple rings (녹음 중일 때만) */}
-          {recording && (
-            <>
-              <span className="absolute rounded-full border-2 border-[#8E86F5]/50 animate-concierge-ripple" style={{ width: 88, height: 88, animationDelay: '0s' }} />
-              <span className="absolute rounded-full border-2 border-[#8E86F5]/40 animate-concierge-ripple" style={{ width: 88, height: 88, animationDelay: '0.4s' }} />
-              <span className="absolute rounded-full border-2 border-[#8E86F5]/30 animate-concierge-ripple" style={{ width: 88, height: 88, animationDelay: '0.8s' }} />
-            </>
-          )}
-          <button
-            type="button"
-            onClick={recording ? stopRecording : startRecording}
-            disabled={loading}
-            className="relative z-10 flex-shrink-0 w-20 h-20 rounded-full flex items-center justify-center text-white transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
-            style={{
-              backgroundColor: recording ? '#b91c1c' : PURPLE,
-              boxShadow: loading ? 'none' : recording ? PURPLE_GLOW_STRONG : PURPLE_GLOW,
-            }}
-            aria-label={recording ? 'Stop recording' : 'Start voice input'}
-          >
-            {recording ? <MicOff className="w-9 h-9" /> : <Mic className="w-9 h-9" />}
-          </button>
         </div>
 
-        {loading && (
-          <Loader2 className="w-8 h-8 text-[#8E86F5] animate-spin" />
-        )}
+        {/* Headline */}
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl text-center font-normal text-gray-900 mb-10 max-w-3xl leading-tight tracking-tight break-keep">
+          {tConcierge('hero_headline')}
+        </h1>
 
-        {/* 텍스트 입력 (보조) */}
-        <form onSubmit={handleSubmit} className="w-full max-w-md flex flex-col items-center gap-3">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={tConcierge('example_placeholder')}
-            className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#8E86F5]/40 focus:border-[#8E86F5] text-sm"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={loading || !input.trim()}
-            className="px-4 sm:px-5 py-2.5 sm:py-2 rounded-xl text-sm sm:text-base font-medium text-white bg-[#8E86F5] hover:opacity-95 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity min-w-0 max-w-full"
-          >
-            {tConcierge('search_button')}
-          </button>
-        </form>
-      </div>
-
-      {error && (
-        <p className="mt-3 text-sm text-red-600 max-w-md text-center">{error}</p>
-      )}
-
-      {conciergeMessage && (
-        <div className="w-full max-w-2xl mt-10 px-4 py-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
-          <p className="text-slate-700 leading-relaxed font-serif text-center">
-            {conciergeMessage}
-          </p>
-        </div>
-      )}
-
-      {/* When we have places, always show Top 5 section (even if AI message is question-like) */}
-      {places.length > 0 && (
-        <div className="w-full max-w-4xl mt-8">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-800 mb-4">
-            <Sparkles className="w-5 h-5 text-[#8E86F5]" aria-hidden />
-            추천 공방 Top 5
+        {/* PUMWI Selection — 밝은 배경용 카드 */}
+        <section className="w-full mb-10" aria-labelledby="selection-heading">
+          <h2 id="selection-heading" className="flex items-center gap-2 text-sm font-medium text-gray-600 mb-4 px-1">
+            <span aria-hidden>🏅</span>
+            {tConcierge('section_selection_title')}
           </h2>
-          {workshopOnlyMessage && (
-            <p className="text-sm text-slate-600 mb-4 font-serif rounded-lg bg-[#8E86F5]/5 border border-[#8E86F5]/20 px-4 py-2">
-              저희는 공방 전문 서비스예요. 대신 이런 예술적인 분위기의 공방은 어떠신가요?
-            </p>
-          )}
-          {noExactMatch && !workshopOnlyMessage && (
-            <p className="text-sm text-slate-600 mb-4 font-serif">
-              근처에는 없지만, 대표님의 취향에 딱 맞는 대한민국 최고의 공방들을 전국에서 엄선해 왔어요!
-            </p>
-          )}
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
-            {places.map((place) => {
-              const mapsQuery = [place.name, (place as PlaceCard).address_en].filter(Boolean).join(' ').trim() || place.name
-              const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`
-              const verified = place.is_pumwi_verified === true
-
-              return verified ? (
-                <div
-                  key={place.id}
-                  className="flex-shrink-0 w-72 snap-start rounded-xl bg-white overflow-hidden border-2 transition-colors hover:shadow-lg"
-                  style={{ borderColor: PURPLE, boxShadow: '0 0 0 1px rgba(142, 134, 245, 0.2)' }}
-                >
-                  <div className="relative h-36 bg-slate-100 flex items-center justify-center overflow-hidden">
-                    {place.image_url ? (
-                      <img src={place.image_url} alt="" className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center gap-2 text-slate-400">
-                        <Sparkles className="w-10 h-10 text-[#8E86F5]/50" aria-hidden />
-                        <span className="text-xs font-medium">PUMWI 공방</span>
-                      </div>
-                    )}
-                    {/* Pumwi Verified 뱃지 제거 */}
-                    {/* <span className="absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-semibold text-white bg-[#8E86F5] shadow-md flex items-center gap-1 animate-pulse">
-                      PUMWI Verified ✦
-                    </span> */}
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      {/* DB-original name only; AI does not modify or translate */}
-                      <h3 className="font-medium text-slate-900 truncate flex-1">{place.name}</h3>
-                      <span className="flex-shrink-0 text-xs font-medium text-slate-600 bg-[#8E86F5]/10 text-[#8E86F5] px-2 py-0.5 rounded">
-                        {tConcierge('distance_away', { dist: formatDistance(place.dist_meters) })}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-600 line-clamp-2 mt-1">
-                      {place.description ?? '—'}
-                    </p>
-                    <div className="flex gap-2 mt-3">
-                      <a
-                        href={mapsUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 text-center py-2 text-sm font-medium rounded-lg border-2 border-[#8E86F5] text-[#8E86F5] hover:bg-[#8E86F5]/10 transition-colors inline-flex items-center justify-center gap-1.5"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        {tConcierge('view_on_google_maps')}
-                      </a>
-                      {user ? (
-                        <Link
-                          href="/login"
-                          className="flex-1 text-center py-2 text-sm font-medium rounded-lg text-white bg-[#8E86F5] hover:opacity-95 transition-opacity"
-                        >
-                          예약
-                        </Link>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setShowLoginRequiredModal(true)}
-                          className="flex-1 text-center py-2 text-sm font-medium rounded-lg text-white bg-[#8E86F5] hover:opacity-95 transition-opacity"
-                        >
-                          예약
-                        </button>
-                      )}
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {MOCK_SELECTION.map((artist) => (
+              <Link
+                key={artist.id}
+                href={`/artist/${artist.id}`}
+                className="rounded-xl overflow-hidden bg-white border border-gray-100 shadow-md hover:shadow-lg transition-shadow block"
+              >
+                <div className="h-32 bg-gray-50 flex items-center justify-center">
+                  <Sparkles className="w-10 h-10 text-[#8E86F5]/50" aria-hidden />
                 </div>
-              ) : (
-                <div
-                  key={place.id}
-                  className="flex-shrink-0 w-72 snap-start rounded-xl overflow-hidden border border-slate-200 bg-slate-50 grayscale hover:grayscale-[0.7] transition-all"
-                >
-                  <div className="h-28 bg-slate-200 flex items-center justify-center overflow-hidden">
-                    {place.image_url ? (
-                      <img src={place.image_url} alt="" className="w-full h-full object-cover opacity-80" />
-                    ) : (
-                      <div className="flex flex-col items-center justify-center gap-1 text-slate-500">
-                        <MapPin className="w-8 h-8 text-slate-400" aria-hidden />
-                        <span className="text-[10px] font-medium">Nearby workshop</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      {/* DB-original name only; AI does not modify or translate */}
-                      <h3 className="font-medium text-slate-600 truncate text-sm flex-1">{place.name}</h3>
-                      <span className="flex-shrink-0 text-[10px] font-medium text-slate-500 bg-slate-200/80 px-1.5 py-0.5 rounded">
-                        {tConcierge('distance_away', { dist: formatDistance(place.dist_meters) })}
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
-                      {place.description ?? 'Nearby workshop'}
-                    </p>
-                    <a
-                      href={mapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-2 flex items-center justify-center gap-1.5 w-full py-2 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      {tConcierge('view_on_google_maps')}
-                    </a>
-                  </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-900 tracking-tight">{artist.name}</h3>
+                  <p className="text-sm text-gray-600 mt-0.5">{artist.role}</p>
+                  <p className="text-xs text-gray-500 mt-1 font-medium">{artist.studio}</p>
                 </div>
-              )
-            })}
+              </Link>
+            ))}
           </div>
-        </div>
-      )}
+        </section>
 
-      <div className="mt-auto pt-12">
-        <Link
-          href="/gallery"
-          className="inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-lg text-sm sm:text-base font-medium text-slate-700 bg-transparent border-2 border-slate-200 hover:border-[#8E86F5]/50 hover:text-[#8E86F5] transition-colors underline decoration-[#8E86F5] decoration-2 underline-offset-4 min-w-0 max-w-full text-center"
-        >
-          {tConcierge('gallery_button')}
-        </Link>
-      </div>
-
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          @keyframes conciergeRipple {
-            0% { transform: scale(0.6); opacity: 0.6; }
-            100% { transform: scale(1.8); opacity: 0; }
-          }
-          .animate-concierge-ripple {
-            animation: conciergeRipple 1.6s ease-out infinite;
-            pointer-events: none;
-          }
-        `,
-      }} />
-      <Dialog
-        open={showLoginRequiredModal}
-        onClose={() => setShowLoginRequiredModal(false)}
-        title="로그인이 필요한 서비스입니다."
-      >
-        <div className="p-4 space-y-4">
-          <p className="text-sm text-slate-600">
-            작가 상세보기, 예약 등 추가 기능을 이용하시려면 로그인해 주세요.
-          </p>
-          <div className="flex gap-2 justify-end">
+        {/* Search bar — 흰 배경, 그림자, 보라 버튼 */}
+        <form onSubmit={handleSubmit} className="w-full max-w-xl flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+          <div className="relative flex-1 flex items-center bg-white rounded-lg shadow-md border border-gray-100">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={tConcierge('search_placeholder_artists')}
+              className="w-full pl-4 pr-12 py-3 rounded-lg bg-transparent border-0 text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-0 text-sm"
+              disabled={loading}
+            />
             <button
               type="button"
-              onClick={() => setShowLoginRequiredModal(false)}
-              className="px-4 py-2 text-sm font-medium text-slate-600 rounded-lg border border-slate-200 hover:bg-slate-50"
+              onClick={recording ? stopRecording : startRecording}
+              disabled={loading}
+              className="absolute right-2 flex items-center justify-center w-9 h-9 rounded-lg text-gray-500 hover:text-[#8E86F5] hover:bg-gray-100 transition-colors disabled:opacity-50"
+              style={{ color: recording ? '#ef4444' : undefined }}
+              aria-label={recording ? 'Stop recording' : 'Voice search'}
             >
-              취소
+              {recording ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
-            <Link
-              href="/login"
-              onClick={() => setShowLoginRequiredModal(false)}
-              className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg text-white bg-[#8E86F5] hover:opacity-95"
-            >
-              로그인 페이지로 이동하기
-            </Link>
           </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setShowNearbyDrawer(true)}
+              className="px-4 py-3 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:border-[#8E86F5]/50 hover:text-[#8E86F5] transition-colors shadow-sm flex items-center gap-1.5 group"
+            >
+              <MapPin className="w-4 h-4 flex-shrink-0 text-gray-500 group-hover:text-[#8E86F5]" aria-hidden />
+              {tConcierge('nearby_artists_btn')}
+            </button>
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              className="px-5 py-3 rounded-lg text-sm font-medium text-white bg-[#8E86F5] hover:opacity-95 transition-opacity min-w-[120px] disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+            >
+              {tConcierge('search_submit')}
+            </button>
+          </div>
+        </form>
+
+        {loading && (
+          <div className="flex justify-center py-2">
+            <Loader2 className="w-6 h-6 text-[#8E86F5] animate-spin" />
+          </div>
+        )}
+
+        {/* 하단 — 선정 기준 보기만 (아티스트 신청 버튼 영구 제거) */}
+        <div className="mt-auto pt-14 pb-2 flex justify-center">
+          <Link
+            href="/criteria"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:border-[#8E86F5]/50 hover:text-[#8E86F5] transition-colors shadow-sm"
+          >
+            {tConcierge('view_criteria_link')}
+          </Link>
         </div>
-      </Dialog>
+      </div>
+
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+      <NearbyArtistsDrawer open={showNearbyDrawer} onClose={() => setShowNearbyDrawer(false)} />
     </div>
   )
 }

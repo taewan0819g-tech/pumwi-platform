@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Playfair_Display, Noto_Serif_KR } from 'next/font/google'
 import './globals.css'
 import { createClient } from '@/lib/supabase/server'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 
 const inter = Inter({ subsets: ['latin'] })
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-playfair', display: 'swap' })
+const notoSerifKR = Noto_Serif_KR({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--font-noto-serif-kr', display: 'swap' })
 
 export const metadata: Metadata = {
   title: 'PUMWI — Where Art Meets Value',
@@ -26,7 +28,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-[#F3F2EF] text-slate-900 min-h-screen flex flex-col`}>
+      <body className={`${inter.className} ${playfair.variable} ${notoSerifKR.variable} bg-[#F3F2EF] text-slate-900 min-h-screen flex flex-col`}>
         <AuthProvider initialUser={user}>
           {children}
         </AuthProvider>

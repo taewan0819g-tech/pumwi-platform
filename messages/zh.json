@@ -402,7 +402,7 @@
   },
   "loginPage": {
     "checking": "Checking...",
-    "hero_tagline": "遇见离您最近的手工坊作家，开启您的创意生活。",
+    "hero_tagline": "遇见经 PUMWI 严选的韩国顶尖工坊作家。",
     "quota_text": "严格配额制。每个地区仅有极少数\n能成为PUMWI手工坊作家。",
     "founder_title": "用脚步丈量，以双手验证。\n由创始人亲自邀请的手工坊作家名单。",
     "founder_desc": "PUMWI不依赖数据或算法。创始人亲赴现场，严格验证每位手工坊作家的理念与创作过程，仅介绍通过严格标准的当地真正匠人。",
@@ -417,15 +417,44 @@
     "section4_desc": "Inventory, system marketing, and CS Master. We handle the business so you can focus on creation."
   },
   "concierge": {
+    "hero_headline": "遇见经 PUMWI 严选的韩国顶尖工坊作家。",
+    "search_submit": "搜索",
     "view_artist_profile": "查看作家详情",
     "view_on_google_maps": "在Google地图上查看",
     "distance_away": "距离 {dist}",
-    "main_question": "您想体验哪种创意工坊？",
-    "main_subtext": "（例如：陶艺、一日体验课、适合约会的氛围）",
-    "location_permission": "📍 开启定位以查看附近的工坊",
+    "main_title": "遇见{location}的作家",
+    "subtitle_selection": "PUMWI Selection 2026",
+    "subtitle_en": "Discover Artists Selected by PUMWI",
+    "section_selection_title": "PUMWI Selected Artist",
     "search_placeholder": "按地区或工坊名称搜索",
+    "search_placeholder_artists": "按地区或作家搜索",
     "example_placeholder": "例如：陶艺工坊、一日体验",
     "search_button": "探索工坊体验",
-    "gallery_button": "查看 PUMWI 画廊"
+    "view_selection_btn": "查看 PUMWI Selection",
+    "gallery_button": "查看 PUMWI 画廊",
+    "view_criteria_link": "查看选定标准",
+    "apply_artist_link": "申请成为作家",
+    "location_default": "您身边",
+    "main_question": "您想体验哪种创意工坊？",
+    "main_subtext": "（例如：陶艺、一日体验课、适合约会的氛围）",
+    "location_permission": "开启定位以查看附近的工坊",
+    "nearby_artists_btn": "附近作家",
+    "nearby_drawer_title": "离您最近的作家",
+    "nearby_refresh_btn": "重新获取位置",
+    "nearby_getting_location": "正在获取您的位置…",
+    "nearby_denied": "无法获取位置。请在浏览器中允许位置访问。",
+    "nearby_no_artists": "附近暂无注册作家。"
+  },
+  "search": {
+    "placeholder": "按地区或作家搜索",
+    "submit": "搜索",
+    "filter_all": "全部",
+    "filter_artists": "作家",
+    "enter_term": "请输入搜索词。",
+    "no_results": "未找到结果。",
+    "badge_artist": "作家"
+  },
+  "artist": {
+    "curation_note_title": "PUMWI 策展笔记"
   }
 }

@@ -148,21 +148,18 @@ export default function SignupPage() {
         aria-hidden
       />
       <section className="relative z-10 flex-1 min-h-0 flex flex-col lg:flex-row">
-        <div className="flex-[1.2] flex flex-col justify-center px-8 lg:px-24 py-12 lg:py-20">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="text-3xl md:text-5xl lg:text-6xl leading-[1.25] font-normal tracking-tighter text-white/90 break-keep"
-            style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
-          >
-            {tLogin('hero_tagline').split('\n').map((line, i, arr) => (
-              <span key={i}>
-                {line}
-                {i < arr.length - 1 ? <br /> : null}
-              </span>
-            ))}
-          </motion.h1>
+        <div className="flex-[1.2] flex flex-col justify-center px-8 lg:px-24 py-12 lg:py-20 pr-8">
+          <div className="max-w-md w-full">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1 }}
+              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl leading-[1.35] font-normal tracking-tight text-white/90 whitespace-pre-line break-keep"
+              style={{ fontFamily: 'var(--font-noto-serif-kr), var(--font-playfair), Georgia, serif' }}
+            >
+              {tLogin('hero_tagline')}
+            </motion.h1>
+          </div>
         </div>
 
         <div className="flex-1 flex flex-col justify-center px-8 lg:px-20 py-12 lg:py-20 bg-white/[0.02] backdrop-blur-sm">

@@ -447,7 +447,7 @@
   },
   "loginPage": {
     "checking": "확인 중...",
-    "hero_tagline": "당신의 일상을 채워줄\n가장 가까운 공방 작가를\n연결합니다.",
+    "hero_tagline": "PUMWI가 선정한\n대한민국의\n작가와\n함께하세요.",
     "quota_text": "엄격한 쿼터제. 한 지역에서 오직 소수만이\nPUMWI의 공방 작가가 됩니다.",
     "founder_title": "발로 뛴 기록, 손으로 확인한 진심.\n설립자가 직접 영입한 공방 작가 리스트.",
     "founder_desc": "PUMWI는 데이터나 알고리즘에 의존하지 않습니다. 설립자가 직접 현장을 방문하여 공방 작가의 철학과 작업 과정을 철저히 검증하고, 엄격한 기준을 통과한 지역의 진짜 거장들만을 선별하여 소개합니다.",
@@ -462,15 +462,44 @@
     "section4_desc": "재고, 시스템 마케팅, CS 마스터. 비즈니스는 저희가, 창작은 당신이."
   },
   "concierge": {
+    "hero_headline": "PUMWI가 선정한 대한민국의 작가와 함께하세요.",
+    "search_submit": "검색",
     "view_artist_profile": "작가님 상세 정보",
     "view_on_google_maps": "구글 지도로 보기",
     "distance_away": "{dist} 거리",
-    "main_question": "어떤 공방 체험을 찾고 계신가요?",
-    "main_subtext": "(예: 도자기, 원데이클래스, 데이트하기 좋은 분위기)",
-    "location_permission": "📍 위치 권한을 허용해 주세요",
+    "main_title": "{location}의 아티스트를 만나다",
+    "subtitle_selection": "PUMWI Selection 2026",
+    "subtitle_en": "Discover Artists Selected by PUMWI",
+    "section_selection_title": "PUMWI Selected Artist",
     "search_placeholder": "지역 또는 공방 검색",
+    "search_placeholder_artists": "지역 또는 아티스트 검색",
     "example_placeholder": "예: 도자기 공방, 원데이 클래스",
     "search_button": "공방 탐색하기",
-    "gallery_button": "PUMWI 갤러리 방문하기"
+    "view_selection_btn": "PUMWI Selection 보기",
+    "gallery_button": "PUMWI 갤러리 방문하기",
+    "view_criteria_link": "PUMWI 선정 기준 보기",
+    "apply_artist_link": "아티스트 신청하기",
+    "location_default": "주변",
+    "main_question": "어떤 공방 체험을 찾고 계신가요?",
+    "main_subtext": "(예: 도자기, 원데이클래스, 데이트하기 좋은 분위기)",
+    "location_permission": "위치 권한을 허용해 주세요",
+    "nearby_artists_btn": "내 주변 작가",
+    "nearby_drawer_title": "당신과 가장 가까운 장인",
+    "nearby_refresh_btn": "내 위치 다시 찾기",
+    "nearby_getting_location": "위치를 가져오는 중…",
+    "nearby_denied": "위치 권한이 없습니다. 브라우저 설정에서 위치 접근을 허용해 주세요.",
+    "nearby_no_artists": "주변에 등록된 작가가 없습니다."
+  },
+  "search": {
+    "placeholder": "지역 또는 아티스트 검색",
+    "submit": "검색",
+    "filter_all": "전체",
+    "filter_artists": "작가",
+    "enter_term": "검색어를 입력하세요.",
+    "no_results": "검색 결과가 없습니다.",
+    "badge_artist": "작가"
+  },
+  "artist": {
+    "curation_note_title": "PUMWI 큐레이션 노트"
   }
 }

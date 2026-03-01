@@ -447,7 +447,7 @@
   },
   "loginPage": {
     "checking": "Checking...",
-    "hero_tagline": "Discover and connect with local workshop artists right in your neighborhood.",
+    "hero_tagline": "Discover Korea's finest artisans, officially selected by PUMWI.",
     "quota_text": "Strict quota. Only a select few in each region\nbecome PUMWI workshop artists.",
     "founder_title": "On-the-ground research, hand-picked quality.\nA list of workshop artists recruited by the founder.",
     "founder_desc": "PUMWI does not rely on data or algorithms. The founder visits each venue in person to verify the philosophy and practice of each workshop artist, and only those who meet our strict standards are selected and introduced.",
@@ -462,15 +462,44 @@
     "section4_desc": "Inventory, system marketing, and CS Master. We handle the business so you can focus on creation."
   },
   "concierge": {
+    "hero_headline": "Discover Korea's finest artisans, officially selected by PUMWI.",
+    "search_submit": "Search",
     "view_artist_profile": "View Artist Profile",
     "view_on_google_maps": "View on Google Maps",
     "distance_away": "{dist} away",
-    "main_question": "What kind of creative workshop are you looking for?",
-    "main_subtext": "(e.g., pottery, one-day classes, a romantic date atmosphere)",
-    "location_permission": "📍 Enable location access for nearby workshops",
+    "main_title": "Meet the Artists of {location}",
+    "subtitle_selection": "PUMWI Selection 2026",
+    "subtitle_en": "Discover Artists Selected by PUMWI",
+    "section_selection_title": "PUMWI Selected Artist",
     "search_placeholder": "Search by area or workshop",
+    "search_placeholder_artists": "Search Artists or Locations",
     "example_placeholder": "e.g., pottery studio, one-day class",
     "search_button": "Explore Workshops",
-    "gallery_button": "Visit PUMWI Gallery"
+    "view_selection_btn": "View PUMWI Selection",
+    "gallery_button": "Visit PUMWI Gallery",
+    "view_criteria_link": "View Selection Criteria",
+    "apply_artist_link": "Apply as an Artist",
+    "location_default": "Near You",
+    "main_question": "What kind of creative workshop are you looking for?",
+    "main_subtext": "(e.g., pottery, one-day classes, a romantic date atmosphere)",
+    "location_permission": "Enable location access for nearby workshops",
+    "nearby_artists_btn": "Nearby Artists",
+    "nearby_drawer_title": "Artists Near You",
+    "nearby_refresh_btn": "Refresh my location",
+    "nearby_getting_location": "Getting your location…",
+    "nearby_denied": "Location access denied. Please enable location in your browser.",
+    "nearby_no_artists": "No artists found nearby."
+  },
+  "search": {
+    "placeholder": "Search Artists or Locations",
+    "submit": "Search",
+    "filter_all": "All",
+    "filter_artists": "Artists",
+    "enter_term": "Enter a search term.",
+    "no_results": "No results found.",
+    "badge_artist": "Artist"
+  },
+  "artist": {
+    "curation_note_title": "PUMWI Curatorial Note"
   }
 }
